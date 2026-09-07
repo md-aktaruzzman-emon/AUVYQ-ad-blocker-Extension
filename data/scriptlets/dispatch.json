@@ -1,0 +1,17 @@
+{
+  "(generic)": [
+    {
+      "name": "set-constant",
+      "args": [
+        "gaOptout",
+        "true"
+      ]
+    },
+    {
+      "name": "noop-callback",
+      "args": [
+        "adsCallback"
+      ]
+    }
+  ]
+}

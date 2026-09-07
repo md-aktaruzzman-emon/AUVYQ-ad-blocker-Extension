@@ -1,0 +1,7 @@
+EasyList & EasyPrivacy
+Dual-licensed under GNU General Public License v3 (GPLv3) and
+Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0).
+Source: https://easylist.to / https://github.com/easylist/easylist
+Copyright (C) EasyList authors and contributors.
+
+Compiled for AUVYQ local Declarative Net Request static rulesets.

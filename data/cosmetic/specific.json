@@ -1,0 +1,14 @@
+{
+  "example.com": [
+    ".sponsor-card{display:none !important}"
+  ],
+  "cnn.com": [
+    ".ad-feedback{display:none !important}"
+  ],
+  "nytimes.com": [
+    ".ad-sponsor-container{display:none !important}"
+  ],
+  "forbes.com": [
+    ".top-ad-container{display:none !important}"
+  ]
+}

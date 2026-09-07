@@ -1,0 +1,95 @@
+! Title: AUVYQ Harmless Test Filter List
+! Description: Clean fixture data for unit tests and parser verification
+! Version: 1.0.0
+! Expires: 7 days
+
+! --- SECTION 1: Standard Network Block Rules ---
+||ad-server.example^
+||tracker-network.test^$third-party
+||analytics-beacon.example^$image
+||telemetry-collector.test^$xmlhttprequest
+||bad-script.example^$script
+||annoying-font.test^$font
+||promo-video.example^$media
+||banner-ad.test^$stylesheet
+||nested-frame.example^$subdocument
+||websocket-tracker.test^$websocket
+||ping-endpoint.example^$ping
+||other-asset.test^$other
+
+! --- SECTION 2: Domain-Scoped & Negated Domain Rules ---
+||ad-delivery.example^$domain=example.com|news-site.test
+||cdn-track.test^$domain=~trusted-shop.example|mysite.test
+||tracker.example^$domain=sub.domain.org|~allowed.domain.org
+||third-party-pixel.test^$third-party,domain=firstsite.example|secondsite.test
+||first-party-ad.test^$first-party,image
+
+! --- SECTION 3: Exceptions (Allow Rules) ---
+@@||trusted-ad.example^$image
+@@||auth-telemetry.example^$domain=auth.service.test
+@@||allowed-cdn.test^$script
+@@||partner-script.example^$domain=partner.example
+@@||safe-beacon.example^$xmlhttprequest,domain=mycorp.test
+
+! --- SECTION 4: URL and Regular Expression Rules ---
+/banner_ads_[0-9]+_300x250\.png/
+/track\.gif\?uid=[a-f0-9]{32}/$image
+|https://tracking.example.com/collect|
+|http://insecure-tracker.test/beacon^
+/api\/v1\/telemetry\/user_[0-9]+/
+
+! --- SECTION 5: Query Parameter Stripping ($removeparam) ---
+||tracking-campaign.test^$removeparam=utm_source
+||newsletter-track.example^$removeparam=mc_eid
+||affiliate-redirect.test^$removeparam=affid
+||social-share.example^$removeparam=fbclid
+||search-ads.test^$removeparam=gclid
+
+! --- SECTION 6: Redirection Rules ($redirect) ---
+||tracking-pixel-1x1.example/pixel.gif$redirect=1x1.gif
+||blocked-script-stub.test/beacon.js$redirect=noop.js
+||ad-image-mock.example^$redirect=1x1.gif,image
+||analytics-noop.test^$redirect=noop.js,script
+
+! --- SECTION 7: Generic & Domain-Specific Cosmetic Rules ---
+##.ad-banner-top
+##.sidebar-sponsored-widget
+###promo-popup-modal
+##[data-ad-slot]
+##.sponsored-post-card
+example.com##.article-ad-container
+news-portal.test##.floating-video-ad
+myshop.example##.newsletter-signup-overlay
+forum.test,blog.test##.cookie-consent-wall
+social.example##.sponsored-timeline-item
+~exceptionsite.test,allnews.test##.paywall-nag-banner
+
+! --- SECTION 8: Scriptlet Rules (##+js) ---
+example.com##+js(set-constant, gaOptout, true)
+tracker-site.test##+js(noop-callback, onAdLoaded)
+ad-portal.example##+js(json-prune-lite, adUnits)
+video-host.test##+js(prevent-addEventListener, visibilitychange)
+nag-page.example##+js(prevent-setTimeout, 5000)
+analytics.test##+js(noop-fetch, /collect)
+popup-spam.example##+js(close-window)
+dynamic-loader.test##+js(no-fetch-if, /ads\.json/)
+legacy-track.example##+js(no-xhr-if, /track/)
+property-spy.test##+js(abort-on-property-read, navigator.sendBeacon)
+banner-nag.example##+js(hide-in-shadow, .nag-container)
+annoying-class.test##+js(remove-class, ad-active, body)
+attribute-spy.test##+js(remove-attr, data-tracking-id)
+eval-abuser.example##+js(prevent-eval-if, malicious)
+noisy-console.test##+js(trusted-suppress-console, log,warn)
+
+! --- SECTION 9: Duplicate and Whitespace Handling ---
+||duplicate-entry.test^
+||duplicate-entry.test^
+  ||whitespace-padded.test^  
+||another-duplicate.example^$image
+||another-duplicate.example^$image
+
+! --- SECTION 10: Comments and Special Delimiters ---
+! Just a comment
+# Another comment style
+[Adblock Plus 2.0]
+! Final line of harmless test rules

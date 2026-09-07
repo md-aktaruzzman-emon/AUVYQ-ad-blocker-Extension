@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AUVYQ Ad Coverage Test — 132 Elements</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; padding: 20px; background: #f5f5f5; }
+    h1 { margin-bottom: 4px; }
+    #results { background: #1e293b; color: #f1f5f9; padding: 20px; border-radius: 8px; margin: 16px 0; font-family: monospace; white-space: pre; }
+    #run-btn { background: #3b82f6; color: #fff; border: none; padding: 10px 24px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    #run-btn:hover { background: #2563eb; }
+    .section { margin: 12px 0; padding: 12px; background: #fff; border-radius: 6px; border: 1px solid #e2e8f0; }
+    .section h2 { font-size: 14px; margin: 0 0 8px; color: #475569; }
+    /* Legitimate content must stay visible */
+    .legitimate-content { border: 2px solid #16a34a; }
+  </style>
+</head>
+<body>
+<h1>AUVYQ Ad Coverage Test</h1>
+<p>Click "Run Test" to count how many ad elements are hidden by AUVYQ's blocking engine.</p>
+<button id="run-btn" onclick="runTest()">Run Test</button>
+<div id="results">Click "Run Test" to start...</div>
+
+<!--
+  ============================================================
+  GROUP A (40 elements): Built-in selector targets
+  These SHOULD be hidden by the 58 BUILTIN_SELECTORS
+  ============================================================
+-->
+<div class="section">
+  <h2>Group A — Built-in selector targets (should be blocked)</h2>
+
+  <!-- Google AdSense / GPT exact selectors -->
+  <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-test" data-ad-slot="1234567890"></ins>
+  <div class="adsbygoogle" id="ga-01"></div>
+  <div id="div-gpt-ad-1234567890-0"></div>
+  <div id="div-gpt-ad-test-leader-01"></div>
+  <div id="google_ads_iframe_0"></div>
+  <div id="aswift_1"></div>
+  <iframe id="google_ads_frame1" src="about:blank"></iframe>
+
+  <!-- Exact ad container classes -->
+  <div class="ad-banner"></div>
+  <div class="ad-banner-container"></div>
+  <div class="ad-box"></div>
+  <div class="ad-container"></div>
+  <div class="ad-label"></div>
+  <div class="ad-leaderboard"></div>
+  <div class="ad-placeholder"></div>
+  <div class="ad-sidebar"></div>
+  <div class="ad-slot"></div>
+  <div class="ad-slot-container"></div>
+  <div class="ad-space"></div>
+  <div class="ad-unit"></div>
+  <div class="ad-wrap"></div>
+  <div class="ad-wrapper"></div>
+  <div class="ad-zone"></div>
+  <div class="ads-container"></div>
+  <div class="adsbox"></div>
+  <div class="advertisement"></div>
+  <div class="advert"></div>
+  <div class="adverts"></div>
+  <div class="adslot"></div>
+  <div class="dfp-ad"></div>
+  <div class="dfp-slot"></div>
+  <div class="sponsored-ad"></div>
+  <div class="ezoic-ad"></div>
+  <div class="OUTBRAIN"></div>
+
+  <!-- ID-based targets -->
+  <div id="adBanner"></div>
+  <div id="adBox"></div>
+  <div id="adContainer"></div>
+  <div id="adSlot"></div>
+  <div id="adUnit"></div>
+
+  <!-- Overlay/popup -->
+  <div class="ad-overlay"></div>
+  <div class="ad-popup"></div>
+  <div class="ad-modal"></div>
+</div>
+
+<!--
+  ============================================================
+  GROUP B (30 elements): Known ad-domain iframes
+  These SHOULD be hidden by iframe[src*="..."] selectors
+  ============================================================
+-->
+<div class="section">
+  <h2>Group B — Ad domain iframes (should be blocked)</h2>
+  <iframe src="https://googlesyndication.com/safeframe/test" id="gsy-01"></iframe>
+  <iframe src="https://doubleclick.net/adi/test" id="dc-01"></iframe>
+  <iframe src="https://googleadservices.com/pagead/ads" id="gas-01"></iframe>
+  <iframe src="https://adservice.google.com/adsid/test" id="adsg-01"></iframe>
+  <iframe src="https://2mdn.net/ad/test" id="mdn-01"></iframe>
+  <iframe src="https://amazon-adsystem.com/aax2/test" id="amz-01"></iframe>
+  <iframe src="https://adnxs.com/tt" id="anx-01"></iframe>
+  <iframe src="https://adsafeprotected.com/test" id="asp-01"></iframe>
+  <iframe src="https://moatads.com/test" id="moa-01"></iframe>
+  <iframe src="https://doubleverify.com/test" id="dv-01"></iframe>
+  <iframe src="https://pubmatic.com/AdServer/test" id="pm-01"></iframe>
+  <iframe src="https://rubiconproject.com/ad/test" id="rp-01"></iframe>
+  <iframe src="https://criteo.com/delivery/test" id="crt-01"></iframe>
+  <iframe src="https://criteo.net/delivery/test" id="crtn-01"></iframe>
+  <iframe src="https://smartadserver.com/ac" id="sas-01"></iframe>
+  <iframe src="https://openx.net/w/1.0/ajs" id="ox-01"></iframe>
+  <iframe src="https://casalemedia.com/test" id="cm-01"></iframe>
+  <iframe src="https://taboola.com/trc/test" id="tbl-01"></iframe>
+  <iframe src="https://outbrain.com/paid/obWidget.html" id="ob-01"></iframe>
+  <iframe src="https://revcontent.com/test" id="rc-01"></iframe>
+  <iframe src="https://mgid.com/test" id="mg-01"></iframe>
+  <iframe src="https://teads.tv/inread/test" id="tds-01"></iframe>
+  <iframe src="https://zedo.com/ads/test" id="zd-01"></iframe>
+  <iframe src="https://popads.net/test" id="pa-01"></iframe>
+  <iframe src="https://adcash.com/script/test" id="ac-01"></iframe>
+  <iframe src="https://exoclick.com/ac_ajs.php" id="ec-01"></iframe>
+  <iframe src="https://scorecardresearch.com/test" id="scr-01"></iframe>
+  <iframe src="https://sharethrough.com/test" id="st-01"></iframe>
+  <iframe src="https://triplelift.com/test" id="tl-01"></iframe>
+  <iframe src="https://media.net/test" id="mn-01"></iframe>
+</div>
+
+<!--
+  ============================================================
+  GROUP C (22 elements): Data-attribute / structural ad patterns
+  Previously MISSED — now added to expanded selectors
+  ============================================================
+-->
+<div class="section">
+  <h2>Group C — Data-attribute ad patterns (should be blocked after improvement)</h2>
+  <div data-ad="true" id="da-01"></div>
+  <div data-ad-unit="banner" id="da-02"></div>
+  <div data-ad-slot="top-leaderboard" id="da-03"></div>
+  <div data-google-query-id="Cjtest" id="da-04"></div>
+  <div data-dfp-ad="true" id="da-05"></div>
+  <div data-prebid="ad-slot" id="da-06"></div>
+  <div data-ez-name="test_slot" id="da-07"></div>
+  <div data-ezoic-id="101" id="da-08"></div>
+  <div class="promoted-content" id="da-09"></div>
+  <div class="native-ad" id="da-10"></div>
+  <div class="ad-widget" id="da-11"></div>
+  <div class="adContainer" id="da-12"></div>
+  <div class="ad_container" id="da-13"></div>
+  <div id="google_ads_div" style=""></div>
+  <div id="AdDiv" style=""></div>
+  <div class="advertisement-banner" id="da-16"></div>
+  <div id="taboola-below-article-thumbnails"></div>
+  <div id="taboola-right-rail-thumbnails"></div>
+  <div id="outbrain-widget-0"></div>
+  <iframe data-load-complete="true" data-google-container-id="a1b2c3" id="goog-iframe-01" src="about:blank"></iframe>
+  <div class="mgid-widget" id="mgid-widget-01"></div>
+  <div class="taboola-article-page-thumbnails" id="tbla-01"></div>
+</div>
+
+<!--
+  ============================================================
+  GROUP D (10 elements): Overlay/interstitial ad patterns
+  Mix of built-in and new selectors
+  ============================================================
+-->
+<div class="section">
+  <h2>Group D — Overlay / interstitial ads (should be blocked)</h2>
+  <div class="ads-overlay" id="ov-01"></div>
+  <div id="ad-overlay" style=""></div>
+  <div id="ad-popup" style=""></div>
+  <div id="ad-modal" style=""></div>
+  <div class="ad-interstitial" id="ov-05"></div>
+  <div class="interstitial-ad" id="ov-06"></div>
+  <div class="ad-fullscreen" id="ov-07"></div>
+  <div class="ad-takeover" id="ov-08"></div>
+  <div id="interstitial-container" class="adsbygoogle"></div>
+  <div class="dfp-ad-interstitial" id="ov-10"></div>
+</div>
+
+<!--
+  ============================================================
+  GROUP E (30 elements): Sponsored / native ad structures
+  Require structural + attribute heuristics
+  ============================================================
+-->
+<div class="section">
+  <h2>Group E — Sponsored / native content (should be blocked after improvement)</h2>
+  <div class="sponsored-content" id="sp-01"></div>
+  <div class="sponsored-post" id="sp-02"></div>
+  <div class="sponsored-block" id="sp-03"></div>
+  <div class="sponsor-block" id="sp-04"></div>
+  <div class="ad-native" id="sp-05"></div>
+  <div class="native-ad-container" id="sp-06"></div>
+  <div class="in-feed-ad" id="sp-07"></div>
+  <div class="in-article-ad" id="sp-08"></div>
+  <div data-sponsored="true" id="sp-09"></div>
+  <div data-native-ad="true" id="sp-10"></div>
+  <div aria-label="Advertisement" id="sp-11"></div>
+  <div aria-label="Sponsored" id="sp-12"></div>
+  <div class="ad-flex" id="sp-13"></div>
+  <div id="right-rail-ad-wrapper" style=""></div>
+  <div id="sticky-ad-container" style=""></div>
+  <div class="ad-leaderboard-wrapper" id="sp-16"></div>
+  <div class="ad-halfpage" id="sp-17"></div>
+  <div class="ad-billboard" id="sp-18"></div>
+  <div class="ad-mrec" id="sp-19"></div>
+  <div class="ad-skyscraper" id="sp-20"></div>
+  <div class="adtech" id="sp-21"></div>
+  <div class="ad-tag" id="sp-22"></div>
+  <div class="ad-block" id="sp-23"></div>
+  <div class="ad-region" id="sp-24"></div>
+  <div class="ad-section" id="sp-25"></div>
+  <div class="adunit" id="sp-26"></div>
+  <div class="ad-holder" id="sp-27"></div>
+  <div class="ad-frame" id="sp-28"></div>
+  <div class="ad-cell" id="sp-29"></div>
+  <div class="ad-area" id="sp-30"></div>
+</div>
+
+<!--
+  ============================================================
+  GROUP F (22 elements): Legitimate content — MUST NOT be blocked
+  False positive check items
+  ============================================================
+-->
+<div class="section legitimate-content">
+  <h2>Group F — Legitimate content (MUST NOT be blocked)</h2>
+  <article id="lc-01"><h3>Main article content</h3><p>This is normal article text that should never be hidden.</p></article>
+  <nav id="lc-02"><a href="#">Home</a> <a href="#">About</a> <a href="#">Contact</a></nav>
+  <section id="lc-03" class="comments"><h3>User Comments</h3><p>Normal user comment section.</p></section>
+  <img id="lc-04" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="Normal article image">
+  <video id="lc-05" width="320" height="240"><source src="" type="video/mp4"></video>
+  <div id="lc-06" class="search-results"><p>Search result 1</p><p>Search result 2</p></div>
+  <div id="lc-07" class="sponsored-by-label"><small>Sponsored by Partner Inc</small></div>
+  <div id="lc-08" class="media-embed"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video"></iframe></div>
+  <dialog id="lc-09"><p>Cookie consent dialog</p><button>Accept</button></dialog>
+  <div id="lc-10" class="newsletter-signup"><form><input type="email" placeholder="Your email"><button>Subscribe</button></form></div>
+  <div id="lc-11" class="related-articles"><h3>Related Articles</h3><ul><li><a href="#">Article 1</a></li></ul></div>
+  <div id="lc-12" class="product-listing"><h3>Product Name</h3><p>$49.99</p></div>
+  <aside id="lc-13" class="author-bio"><p>About the Author: Jane Doe</p></aside>
+  <div id="lc-14" class="social-share"><button>Share on Twitter</button></div>
+  <header id="lc-15"><h1>Website Name</h1></header>
+  <footer id="lc-16"><p>© 2026 Example Company</p></footer>
+  <div id="lc-17" class="breadcrumb"><a href="/">Home</a> / <a href="/news">News</a></div>
+  <div id="lc-18" class="tag-list"><span class="tag">Technology</span> <span class="tag">AI</span></div>
+  <div id="lc-19" class="pagination"><a href="?page=1">1</a> <a href="?page=2">2</a></div>
+  <div id="lc-20" class="promo-banner" aria-label="Special offer on subscription"><!-- Legitimate promo, not an ad --></div>
+  <div id="lc-21" class="app-download"><a href="#">Download our app</a></div>
+  <div id="lc-22" class="notification-bar">Site uses cookies. <a href="/privacy">Learn more</a></div>
+</div>
+
+<script>
+/*
+ * AUVYQ Ad Coverage Test Runner
+ * Counts hidden vs visible elements in each group.
+ * "Blocked" = element is hidden (display:none or visibility:hidden or height/width 0)
+ */
+(function runTest() {
+  const AD_GROUPS = {
+    'A: Built-in selectors':    { prefix: '', ids: [], selector: '#ga-01,ins.adsbygoogle,.ad-banner,.ad-box,.ad-container,.ad-label,.ad-leaderboard,.ad-placeholder,.ad-sidebar,.ad-slot,.ad-slot-container,.ad-space,.ad-unit,.ad-wrap,.ad-wrapper,.ad-zone,.ads-container,.adsbox,.advertisement,.advert,.adverts,.adslot,.dfp-ad,.dfp-slot,.sponsored-ad,.ezoic-ad,.OUTBRAIN,#adBanner,#adBox,#adContainer,#adSlot,#adUnit,.ad-overlay,.ad-popup,.ad-modal,#div-gpt-ad-1234567890-0,#div-gpt-ad-test-leader-01,#google_ads_iframe_0,#aswift_1,#google_ads_frame1,#ga-01' },
+    'B: Ad domain iframes':     { selector: '#gsy-01,#dc-01,#gas-01,#adsg-01,#mdn-01,#amz-01,#anx-01,#asp-01,#moa-01,#dv-01,#pm-01,#rp-01,#crt-01,#crtn-01,#sas-01,#ox-01,#cm-01,#tbl-01,#ob-01,#rc-01,#mg-01,#tds-01,#zd-01,#pa-01,#ac-01,#ec-01,#scr-01,#st-01,#tl-01,#mn-01' },
+    'C: Data-attribute patterns':{ selector: '#da-01,#da-02,#da-03,#da-04,#da-05,#da-06,#da-07,#da-08,#da-09,#da-10,#da-11,#da-12,#da-13,#google_ads_div,#AdDiv,#da-16,#taboola-below-article-thumbnails,#taboola-right-rail-thumbnails,#outbrain-widget-0,#goog-iframe-01,#mgid-widget-01,#tbla-01' },
+    'D: Overlays':               { selector: '#ov-01,#ad-overlay,#ad-popup,#ad-modal,#ov-05,#ov-06,#ov-07,#ov-08,#interstitial-container,#ov-10' },
+    'E: Sponsored/native':       { selector: '#sp-01,#sp-02,#sp-03,#sp-04,#sp-05,#sp-06,#sp-07,#sp-08,#sp-09,#sp-10,#sp-11,#sp-12,#sp-13,#right-rail-ad-wrapper,#sticky-ad-container,#sp-16,#sp-17,#sp-18,#sp-19,#sp-20,#sp-21,#sp-22,#sp-23,#sp-24,#sp-25,#sp-26,#sp-27,#sp-28,#sp-29,#sp-30' },
+  };
+  const LEGIT_IDS = ['lc-01','lc-02','lc-03','lc-04','lc-05','lc-06','lc-07','lc-08','lc-09','lc-10','lc-11','lc-12','lc-13','lc-14','lc-15','lc-16','lc-17','lc-18','lc-19','lc-20','lc-21','lc-22'];
+
+  function isHidden(el) {
+    if (!el) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === 'none') return true;
+    if (style.visibility === 'hidden') return true;
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) {
+      // Check if the element itself has display:none (not zero-size naturally)
+      if (el.offsetParent === null && style.position !== 'fixed') return true;
+    }
+    return false;
+  }
+
+  const out = document.getElementById('results');
+  const lines = ['AUVYQ AD COVERAGE TEST RESULTS', '='.repeat(50), ''];
+
+  let totalAd = 0, totalBlocked = 0, totalFalsePositives = 0;
+  const breakdown = {};
+
+  for (const [groupName, config] of Object.entries(AD_GROUPS)) {
+    const elements = document.querySelectorAll(config.selector);
+    let blocked = 0;
+    elements.forEach(el => { if (isHidden(el)) blocked++; });
+    const total = elements.length;
+    const pct = total > 0 ? Math.round(blocked / total * 100) : 0;
+    lines.push(`${groupName}`);
+    lines.push(`  Detected: ${total} | Blocked: ${blocked} | Missed: ${total - blocked} | Rate: ${pct}%`);
+    lines.push('');
+    totalAd += total;
+    totalBlocked += blocked;
+    breakdown[groupName] = { total, blocked, missed: total - blocked };
+  }
+
+  // False positive check
+  let falsePositives = 0;
+  LEGIT_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && isHidden(el)) falsePositives++;
+  });
+  totalFalsePositives = falsePositives;
+
+  lines.push('='.repeat(50));
+  lines.push('SUMMARY');
+  lines.push('='.repeat(50));
+  lines.push(`Total ad elements tested: ${totalAd}`);
+  lines.push(`Blocked (hidden):         ${totalBlocked}`);
+  lines.push(`Missed (still visible):   ${totalAd - totalBlocked}`);
+  lines.push(`Block rate:               ${Math.round(totalBlocked / totalAd * 100)}%`);
+  lines.push('');
+  lines.push(`Legitimate items tested:  ${LEGIT_IDS.length}`);
+  lines.push(`False positives:          ${totalFalsePositives}`);
+  lines.push('');
+
+  if (totalFalsePositives > 0) {
+    lines.push('⚠️  FALSE POSITIVES DETECTED — check which legitimate items are hidden!');
+    LEGIT_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && isHidden(el)) lines.push(`  - #${id} is incorrectly hidden`);
+    });
+  } else {
+    lines.push('✅ No false positives detected.');
+  }
+
+  out.textContent = lines.join('\n');
+
+  // Also log to console for automated testing
+  console.log('AUVYQ_COVERAGE_RESULT', JSON.stringify({
+    total: totalAd, blocked: totalBlocked, missed: totalAd - totalBlocked,
+    rate: Math.round(totalBlocked / totalAd * 100),
+    falsePositives: totalFalsePositives,
+    breakdown
+  }));
+});
+
+// Auto-run on load
+document.addEventListener('DOMContentLoaded', runTest);
+</script>
+</body>
+</html>
