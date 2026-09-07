@@ -1,0 +1,26 @@
+{
+  "name": "auvyq-extension",
+  "description": "AUVYQ — local-first privacy, ad, tracker and threat protection for Chrome.",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "dev": "node esbuild.mjs --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "validate": "node tools/validate-manifest.mjs && node tools/validate-resources.mjs",
+    "check": "npm run typecheck && npm run lint && npm test && npm run build && npm run validate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "@types/node": "^26.4.1",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.14.0",
+    "globals": "^15.12.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
