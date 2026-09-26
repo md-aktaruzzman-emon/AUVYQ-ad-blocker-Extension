@@ -1,0 +1,4 @@
+uBlock Origin Assets
+Licensed under GNU General Public License v3 (GPLv3).
+Source: https://github.com/gorhill/uBlock
+Copyright (C) Raymond Hill and contributors.

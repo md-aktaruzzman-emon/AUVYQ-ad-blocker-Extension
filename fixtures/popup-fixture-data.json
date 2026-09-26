@@ -1,0 +1,45 @@
+{
+  "snapshot": {
+    "day": "2026-09-05",
+    "adsBlocked": 142,
+    "trackersBlocked": 89,
+    "paramsStripped": 37,
+    "cosmeticHidden": 56,
+    "threats": 0,
+    "cookiesCleaned": 14,
+    "updatedAt": 1788588000000
+  },
+  "settings": {
+    "schemaVersion": 1,
+    "preset": "balanced",
+    "masterEnabled": true,
+    "modules": {
+      "ads": true,
+      "trackers": true,
+      "cookies": true,
+      "heuristics": true,
+      "fingerprintShields": false
+    },
+    "perSite": {
+      "trusted-partner.example": {
+        "paused": true,
+        "allowlist": []
+      }
+    },
+    "telemetryOptIn": false,
+    "fpShields": {
+      "canvas": false,
+      "webgl": false,
+      "navigator": false,
+      "screen": false,
+      "timing": false
+    },
+    "logRetentionDays": 7,
+    "developerMode": false
+  },
+  "currentSite": {
+    "hostname": "news.example.com",
+    "paused": false,
+    "threat": null
+  }
+}

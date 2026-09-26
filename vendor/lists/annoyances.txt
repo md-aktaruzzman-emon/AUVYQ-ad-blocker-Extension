@@ -1,0 +1,37 @@
+! Title: Annoyances Core Pinned Snapshot
+! Description: Cookie popups, intrusive banners and floating widgets
+##.cookie-banner
+##.cookie-notice
+##.cookie-consent
+##.cookie-popup
+##.cookie-modal
+##.cookie-law-info-bar
+##.cookie-bar
+###cookie-banner
+###cookie-notice
+###cookie-consent
+###cookie-popup
+###cookie-modal
+###cookie-law-info-bar
+###cookie-bar
+##[id*="cookie-consent"]
+##[id*="cookie-banner"]
+##[class*="cookie-consent"]
+##[class*="cookie-banner"]
+##.newsletter-popup
+##.newsletter-modal
+##.newsletter-overlay
+###newsletter-popup
+###newsletter-modal
+###newsletter-overlay
+##.subscribe-popup
+##.subscribe-modal
+##.push-notification-banner
+##.web-push-prompt
+##.one-signal-prompt
+###onesignal-slidedown-dialog
+##.app-download-banner
+##.smart-banner
+##.floating-social-share
+##.social-share-floating
+##.sticky-social-bar

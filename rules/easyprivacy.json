@@ -1,0 +1,973 @@
+[
+  {
+    "id": 10000,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "scorecardresearch.com"
+      ]
+    }
+  },
+  {
+    "id": 10001,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "quantserve.com"
+      ]
+    }
+  },
+  {
+    "id": 10002,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "quantcount.com"
+      ]
+    }
+  },
+  {
+    "id": 10003,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "moatads.com"
+      ]
+    }
+  },
+  {
+    "id": 10004,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "doubleverify.com"
+      ]
+    }
+  },
+  {
+    "id": 10005,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "adsafeprotected.com"
+      ]
+    }
+  },
+  {
+    "id": 10006,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "bluekai.com"
+      ]
+    }
+  },
+  {
+    "id": 10007,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "crwdcntrl.net"
+      ]
+    }
+  },
+  {
+    "id": 10008,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "demdex.net"
+      ]
+    }
+  },
+  {
+    "id": 10009,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "everesttech.net"
+      ]
+    }
+  },
+  {
+    "id": 10010,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "exelator.com"
+      ]
+    }
+  },
+  {
+    "id": 10011,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "id5-sync.com"
+      ]
+    }
+  },
+  {
+    "id": 10012,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "krxd.net"
+      ]
+    }
+  },
+  {
+    "id": 10013,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "liadm.com"
+      ]
+    }
+  },
+  {
+    "id": 10014,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "omtrdc.net"
+      ]
+    }
+  },
+  {
+    "id": 10015,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "rlcdn.com"
+      ]
+    }
+  },
+  {
+    "id": 10016,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "tapad.com"
+      ]
+    }
+  },
+  {
+    "id": 10017,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "w55c.net"
+      ]
+    }
+  },
+  {
+    "id": 10018,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "adform.net"
+      ]
+    }
+  },
+  {
+    "id": 10019,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "bidswitch.net"
+      ]
+    }
+  },
+  {
+    "id": 10020,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "zemanta.com"
+      ]
+    }
+  },
+  {
+    "id": 10021,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "mxptint.net"
+      ]
+    }
+  },
+  {
+    "id": 10022,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "mathtag.com"
+      ]
+    }
+  },
+  {
+    "id": 10023,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "agkn.com"
+      ]
+    }
+  },
+  {
+    "id": 10024,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "bounceexchange.com"
+      ]
+    }
+  },
+  {
+    "id": 10025,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "hotjar.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10026,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "mouseflow.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10027,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "crazyegg.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10028,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "fullstory.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10029,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "clarity.ms"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10030,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "inspectlet.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10031,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "luckyorange.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10032,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "clicktale.net"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10033,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "optimizely.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10034,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "segment.io"
+      ],
+      "resourceTypes": [
+        "script",
+        "xmlhttprequest"
+      ]
+    }
+  },
+  {
+    "id": 10035,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "segment.com"
+      ],
+      "resourceTypes": [
+        "script",
+        "xmlhttprequest"
+      ]
+    }
+  },
+  {
+    "id": 10036,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "mixpanel.com"
+      ],
+      "resourceTypes": [
+        "script",
+        "xmlhttprequest"
+      ]
+    }
+  },
+  {
+    "id": 10037,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "amplitude.com"
+      ],
+      "resourceTypes": [
+        "script",
+        "xmlhttprequest"
+      ]
+    }
+  },
+  {
+    "id": 10038,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "heapanalytics.com"
+      ],
+      "resourceTypes": [
+        "script",
+        "xmlhttprequest"
+      ]
+    }
+  },
+  {
+    "id": 10039,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "kissmetrics.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10040,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "statcounter.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10041,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "yandex.ru"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10042,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "mc.yandex.ru"
+      ],
+      "resourceTypes": [
+        "script",
+        "xmlhttprequest"
+      ]
+    }
+  },
+  {
+    "id": 10043,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "smartlook.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10044,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "chartbeat.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10045,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "chartbeat.net"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10046,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "parsely.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10047,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "googletagmanager.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10048,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "googletagmanager.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10049,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "google-analytics.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10050,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "google-analytics.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10051,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "google-analytics.com"
+      ],
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10052,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "google-analytics.com"
+      ],
+      "resourceTypes": [
+        "ping",
+        "xmlhttprequest"
+      ]
+    }
+  },
+  {
+    "id": 10053,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "google-analytics.com"
+      ],
+      "resourceTypes": [
+        "ping",
+        "xmlhttprequest"
+      ]
+    }
+  },
+  {
+    "id": 10054,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/collect?",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "xmlhttprequest",
+        "ping"
+      ]
+    }
+  },
+  {
+    "id": 10055,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/beacon?",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "xmlhttprequest",
+        "ping"
+      ]
+    }
+  },
+  {
+    "id": 10056,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/analytics.js",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10057,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/tracking.js",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10058,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/pixel.gif",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "image"
+      ]
+    }
+  },
+  {
+    "id": 10059,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/fingerprint",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script",
+        "xmlhttprequest"
+      ]
+    }
+  },
+  {
+    "id": 10060,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/clicktrack",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script",
+        "image",
+        "xmlhttprequest",
+        "ping"
+      ]
+    }
+  },
+  {
+    "id": 10061,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/impression?",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "image",
+        "xmlhttprequest",
+        "ping"
+      ]
+    }
+  },
+  {
+    "id": 10062,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/track?",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "image",
+        "xmlhttprequest",
+        "ping"
+      ]
+    }
+  },
+  {
+    "id": 10063,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/event/track",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "xmlhttprequest",
+        "ping"
+      ]
+    }
+  },
+  {
+    "id": 10064,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/log/event",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "xmlhttprequest",
+        "ping"
+      ]
+    }
+  },
+  {
+    "id": 10065,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/piwik.js",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10066,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "/matomo.js",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 10067,
+    "priority": 2,
+    "action": {
+      "type": "allow"
+    },
+    "condition": {
+      "requestDomains": [
+        "accounts.google.com"
+      ],
+      "resourceTypes": [
+        "image",
+        "script",
+        "sub_frame"
+      ]
+    }
+  },
+  {
+    "id": 10068,
+    "priority": 2,
+    "action": {
+      "type": "allow"
+    },
+    "condition": {
+      "requestDomains": [
+        "login.live.com"
+      ],
+      "resourceTypes": [
+        "image",
+        "script",
+        "sub_frame"
+      ]
+    }
+  }
+]

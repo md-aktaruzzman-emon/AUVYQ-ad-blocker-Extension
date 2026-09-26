@@ -1,0 +1,14 @@
+{
+  "ad-tracker-example.test": [
+    { "name": "set-constant", "args": ["gaOptout", "true"] },
+    { "name": "noop-callback", "args": ["adsCallback"] }
+  ],
+  "telemetry-example.test": [
+    { "name": "noop-fetch", "args": ["https://telemetry-example.test/collect"] },
+    { "name": "prevent-addEventListener", "args": ["visibilitychange"] }
+  ],
+  "annoying-banner-example.test": [
+    { "name": "hide-in-shadow", "args": [".promo-overlay"] },
+    { "name": "remove-class", "args": ["modal-open", "body"] }
+  ]
+}

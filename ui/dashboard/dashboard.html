@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <title>AUVYQ — Privacy & Web Protection</title>
+  <link rel="stylesheet" href="../motion.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body class="auvyq-app">
+  <div class="dashboard">
+    <aside class="sidebar" aria-label="Dashboard navigation">
+      <div class="sidebar-brand">
+        <svg width="26" height="26" viewBox="0 0 512 512" aria-hidden="true">
+        <defs>
+          <linearGradient id="db-hdr-gl" gradientUnits="userSpaceOnUse" x1="88.9" y1="375.4" x2="346.4" y2="91.4">
+            <stop offset="0%" stop-color="#2A17F7"/>
+            <stop offset="100%" stop-color="#545BF5"/>
+          </linearGradient>
+          <linearGradient id="db-hdr-gp" gradientUnits="userSpaceOnUse" x1="347" y1="308.7" x2="275.3" y2="461.1">
+            <stop offset="0%" stop-color="#2D1CF1"/>
+            <stop offset="100%" stop-color="#4749F5"/>
+          </linearGradient>
+          <linearGradient id="db-hdr-gr" gradientUnits="userSpaceOnUse" x1="409.8" y1="158.8" x2="310.8" y2="276.5">
+            <stop offset="0%" stop-color="#3124B3"/>
+            <stop offset="100%" stop-color="#443FFF"/>
+          </linearGradient>
+        </defs>
+        <g class="auvyq-mark ">
+          <path class="mark mark-left" d="M 231.87 455.02 C 220.06 453.13, 207.25 451.11, 195.75 447.73 C 143.87 432.21, 100.35 396.6, 74.88 348.82 C 51.31 305.37, 46 249.33, 60.15 202.06 C 75.78 149.84, 113.58 105.69, 161.39 80.03 C 209.95 53.87, 266.93 48.13, 319.73 64.1 C 326.58 66.03, 330.39 66.47, 320.38 67.93 C 274.32 76.23, 263.69 96.41, 241.57 133.2 L 209.3 187.49 L 176.24 242.77 C 166.28 259.47, 156.58 273.87, 150.28 292.4 C 125.24 366.14, 165.35 421.5, 234.27 444.39 L 231.87 455.02 Z" fill="url(#db-hdr-gl)"/>
+          <path class="mark mark-tip" d="M 319.73 64.1 C 326.58 66.03, 330.39 66.47, 320.38 67.93 C 318.17 66.93, 317.93 65.77, 319.73 64.1 Z" fill="#5656D8"/>
+          <path class="mark mark-loop" d="M 262.96 285.28 C 276.71 284.95, 290.44 286.49, 303.78 289.87 C 339.49 298.89, 371.11 319.72, 393.48 348.97 C 403.78 362.48, 413.5 379.35, 422.47 393.94 C 434.85 414.06, 447.5 434, 459.6 454.27 L 298.96 454.35 C 300.79 451.56, 302.47 448.41, 304.12 445.49 C 309.47 434.08, 310.36 423.87, 306.2 411.79 C 302.31 400.61, 294.12 391.45, 283.44 386.34 C 249.51 369.93, 204.82 398.36, 219.27 436.72 C 207.99 431.2, 197.5 424.19, 188.07 415.9 C 170.52 400.33, 157.22 381.32, 156.19 357.29 C 155.81 348.63, 156.56 332.69, 162.88 326.06 C 166.4 322.37, 171.52 318.38, 175.56 315.18 C 200.91 295.09, 231.05 286.38, 262.96 285.28 Z" fill="url(#db-hdr-gp)"/>
+          <path class="mark mark-right" d="M 357.03 80.37 C 358.08 79.25, 358.79 78.65, 359.95 77.65 C 362.88 77.55, 362.75 78.07, 365.54 79.7 C 411.87 108.29, 444.9 154.16, 457.34 207.17 C 460.56 221.27, 466 266.07, 460.57 278.25 C 458.02 278.61, 458.03 278.1, 455.23 277 C 451.81 310.84, 436.32 341.65, 417.08 369 C 403.14 347.68, 389.73 323.31, 376.18 301.55 C 338.32 240.79, 301.79 178.62, 263.8 118 C 271.63 103.56, 283.75 93.54, 298.55 86.71 C 310.01 79.16, 344.24 75.4, 357.03 80.37 Z" fill="url(#db-hdr-gr)"/>
+          <path class="mark-shadow" d="M 357.03 80.37 C 358.08 79.25, 358.79 78.65, 359.95 77.65 C 362.88 77.55, 362.75 78.07, 365.54 79.7 C 411.87 108.29, 444.9 154.16, 457.34 207.17 C 460.56 221.27, 466 266.07, 460.57 278.25 C 458.02 278.61, 458.03 278.1, 455.23 277 C 457.93 247.44, 455.39 206.16, 441.69 179.48 C 440.83 181.89, 441.67 183.5, 442.35 186.13 L 441.81 186.34 C 439.12 182.8, 430.85 178.19, 426.93 174.81 C 421.36 170.03, 415.08 165.62, 409.62 160.55 C 407.95 159, 403.55 157.54, 401.49 155.82 L 370.38 129.75 C 365.53 125.69, 366.47 125.13, 361.74 125.55 C 358.36 122.84, 361.5 122.55, 358.69 119.65 L 356.64 121.38 C 353.63 120.27, 351.57 114.92, 347.99 113.23 L 345.56 114.28 C 341.89 111.24, 338.2 108.87, 334.35 106.07 C 332.23 104.53, 329.68 99.21, 326.57 97.6 C 320.68 94.55, 312.09 92.27, 306.63 88.88 C 304.2 87.37, 306.42 85.62, 306.52 84.86 C 303.42 85.86, 301.69 86.16, 298.55 86.71 C 310.01 79.16, 344.24 75.4, 357.03 80.37 Z" fill="#2A1C94"/>
+          <path class="mark-accent" d="M 357.03 80.37 C 358.08 79.25, 358.79 78.65, 359.95 77.65 C 362.88 77.55, 362.75 78.07, 365.54 79.7 C 411.87 108.29, 444.9 154.16, 457.34 207.17 C 460.56 221.27, 466 266.07, 460.57 278.25 C 458.02 278.61, 458.03 278.1, 455.23 277 C 457.93 247.44, 455.39 206.16, 441.69 179.48 C 441.52 176.22, 435.68 164.95, 433.86 161.41 C 417.05 128.7, 392.93 104.41, 362.46 84.36 C 360 82.9, 359.24 82.24, 357.03 80.37 Z" fill="#1DF8FD"/>
+          <path class="mark-bead-base" d="M 255.58 462.95 C 251.14 461.25, 248.38 456.8, 248.83 452.07 C 249.29 447.34, 252.83 443.49, 257.51 442.66 C 262.19 441.83, 266.85 444.22, 268.9 448.5 C 270.96 452.79, 269.9 457.91, 266.33 461.04 C 265.66 461.62, 264.91 462.12, 264.12 462.52 C 263.45 462.86, 262.73 463.13, 261.99 463.32 C 259.87 463.87, 257.63 463.74, 255.58 462.95 Z" fill="#AF8B54"/>
+          <path class="mark-bead-highlight" d="M 255.58 462.95 C 254.89 460.45, 252.32 449.98, 253.59 449.32 C 264.2 443.75, 265.92 458.31, 266.33 461.04 C 265.66 461.62, 264.91 462.12, 264.12 462.52 C 263.45 462.86, 262.73 463.13, 261.99 463.32 C 259.87 463.87, 257.63 463.74, 255.58 462.95 Z" fill="#F4D8A6"/>
+        </g>
+      </svg>
+        <span class="brand-name">AUVYQ</span>
+        <span class="brand-badge">v0.2.0</span>
+      </div>
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <button class="auvyq-nav-item active" data-section="overview">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span class="nav-text">Overview</span>
+        </button>
+
+        <div class="nav-group-label">Protection</div>
+        <button class="auvyq-nav-item" data-section="protection">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+          <span class="nav-text">Protection</span>
+        </button>
+        <button class="auvyq-nav-item" data-section="cookies">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 10 10 0 1 0-10-10c0 .34.02.67.05 1"></path><circle cx="8.5" cy="8.5" r="1" fill="currentColor"></circle><circle cx="16" cy="15.5" r="1" fill="currentColor"></circle><circle cx="12" cy="12" r="1" fill="currentColor"></circle><circle cx="11" cy="17" r="1" fill="currentColor"></circle><circle cx="7" cy="13" r="1" fill="currentColor"></circle></svg>
+          <span class="nav-text">Cookies</span>
+        </button>
+
+        <div class="nav-group-label">Security</div>
+        <button class="auvyq-nav-item" data-section="threats">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <span class="nav-text">Threats</span>
+        </button>
+        <button class="auvyq-nav-item" data-section="reports">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span class="nav-text">Reports</span>
+        </button>
+
+        <div class="nav-group-label">System</div>
+        <button class="auvyq-nav-item" data-section="settings">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="nav-text">Settings</span>
+        </button>
+        <button class="auvyq-nav-item" data-section="about">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span class="nav-text">About</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="engine-status-pill">
+          <span class="engine-pulse-dot"></span>
+          <div class="engine-status-text">
+            <span class="engine-label">Local Engine</span>
+            <span class="engine-state">Active & Protected</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content" id="content">
+      <!-- Overview -->
+      <section class="panel active" id="panel-overview" aria-label="Overview">
+        <h1 class="panel-title">Overview</h1>
+        <div class="hero-card auvyq-card auvyq-sweep-host" id="overview-hero">
+          <div id="shield-stage" class="auvyq-shield-stage">
+            <span class="auvyq-ring" aria-hidden="true"></span>
+            <span class="auvyq-ring" aria-hidden="true"></span>
+            <svg class="auvyq-shield" width="64" height="64" viewBox="0 0 512 512" aria-hidden="true">
+        <defs>
+          <linearGradient id="db-sh-gl" gradientUnits="userSpaceOnUse" x1="88.9" y1="375.4" x2="346.4" y2="91.4">
+            <stop offset="0%" stop-color="#2A17F7"/>
+            <stop offset="100%" stop-color="#545BF5"/>
+          </linearGradient>
+          <linearGradient id="db-sh-gp" gradientUnits="userSpaceOnUse" x1="347" y1="308.7" x2="275.3" y2="461.1">
+            <stop offset="0%" stop-color="#2D1CF1"/>
+            <stop offset="100%" stop-color="#4749F5"/>
+          </linearGradient>
+          <linearGradient id="db-sh-gr" gradientUnits="userSpaceOnUse" x1="409.8" y1="158.8" x2="310.8" y2="276.5">
+            <stop offset="0%" stop-color="#3124B3"/>
+            <stop offset="100%" stop-color="#443FFF"/>
+          </linearGradient>
+        </defs>
+        <g class="auvyq-mark ">
+          <path class="mark mark-left" d="M 231.87 455.02 C 220.06 453.13, 207.25 451.11, 195.75 447.73 C 143.87 432.21, 100.35 396.6, 74.88 348.82 C 51.31 305.37, 46 249.33, 60.15 202.06 C 75.78 149.84, 113.58 105.69, 161.39 80.03 C 209.95 53.87, 266.93 48.13, 319.73 64.1 C 326.58 66.03, 330.39 66.47, 320.38 67.93 C 274.32 76.23, 263.69 96.41, 241.57 133.2 L 209.3 187.49 L 176.24 242.77 C 166.28 259.47, 156.58 273.87, 150.28 292.4 C 125.24 366.14, 165.35 421.5, 234.27 444.39 L 231.87 455.02 Z" fill="url(#db-sh-gl)"/>
+          <path class="mark mark-tip" d="M 319.73 64.1 C 326.58 66.03, 330.39 66.47, 320.38 67.93 C 318.17 66.93, 317.93 65.77, 319.73 64.1 Z" fill="#5656D8"/>
+          <path class="mark mark-loop" d="M 262.96 285.28 C 276.71 284.95, 290.44 286.49, 303.78 289.87 C 339.49 298.89, 371.11 319.72, 393.48 348.97 C 403.78 362.48, 413.5 379.35, 422.47 393.94 C 434.85 414.06, 447.5 434, 459.6 454.27 L 298.96 454.35 C 300.79 451.56, 302.47 448.41, 304.12 445.49 C 309.47 434.08, 310.36 423.87, 306.2 411.79 C 302.31 400.61, 294.12 391.45, 283.44 386.34 C 249.51 369.93, 204.82 398.36, 219.27 436.72 C 207.99 431.2, 197.5 424.19, 188.07 415.9 C 170.52 400.33, 157.22 381.32, 156.19 357.29 C 155.81 348.63, 156.56 332.69, 162.88 326.06 C 166.4 322.37, 171.52 318.38, 175.56 315.18 C 200.91 295.09, 231.05 286.38, 262.96 285.28 Z" fill="url(#db-sh-gp)"/>
+          <path class="mark mark-right" d="M 357.03 80.37 C 358.08 79.25, 358.79 78.65, 359.95 77.65 C 362.88 77.55, 362.75 78.07, 365.54 79.7 C 411.87 108.29, 444.9 154.16, 457.34 207.17 C 460.56 221.27, 466 266.07, 460.57 278.25 C 458.02 278.61, 458.03 278.1, 455.23 277 C 451.81 310.84, 436.32 341.65, 417.08 369 C 403.14 347.68, 389.73 323.31, 376.18 301.55 C 338.32 240.79, 301.79 178.62, 263.8 118 C 271.63 103.56, 283.75 93.54, 298.55 86.71 C 310.01 79.16, 344.24 75.4, 357.03 80.37 Z" fill="url(#db-sh-gr)"/>
+          <path class="mark-shadow" d="M 357.03 80.37 C 358.08 79.25, 358.79 78.65, 359.95 77.65 C 362.88 77.55, 362.75 78.07, 365.54 79.7 C 411.87 108.29, 444.9 154.16, 457.34 207.17 C 460.56 221.27, 466 266.07, 460.57 278.25 C 458.02 278.61, 458.03 278.1, 455.23 277 C 457.93 247.44, 455.39 206.16, 441.69 179.48 C 440.83 181.89, 441.67 183.5, 442.35 186.13 L 441.81 186.34 C 439.12 182.8, 430.85 178.19, 426.93 174.81 C 421.36 170.03, 415.08 165.62, 409.62 160.55 C 407.95 159, 403.55 157.54, 401.49 155.82 L 370.38 129.75 C 365.53 125.69, 366.47 125.13, 361.74 125.55 C 358.36 122.84, 361.5 122.55, 358.69 119.65 L 356.64 121.38 C 353.63 120.27, 351.57 114.92, 347.99 113.23 L 345.56 114.28 C 341.89 111.24, 338.2 108.87, 334.35 106.07 C 332.23 104.53, 329.68 99.21, 326.57 97.6 C 320.68 94.55, 312.09 92.27, 306.63 88.88 C 304.2 87.37, 306.42 85.62, 306.52 84.86 C 303.42 85.86, 301.69 86.16, 298.55 86.71 C 310.01 79.16, 344.24 75.4, 357.03 80.37 Z" fill="#2A1C94"/>
+          <path class="mark-accent" d="M 357.03 80.37 C 358.08 79.25, 358.79 78.65, 359.95 77.65 C 362.88 77.55, 362.75 78.07, 365.54 79.7 C 411.87 108.29, 444.9 154.16, 457.34 207.17 C 460.56 221.27, 466 266.07, 460.57 278.25 C 458.02 278.61, 458.03 278.1, 455.23 277 C 457.93 247.44, 455.39 206.16, 441.69 179.48 C 441.52 176.22, 435.68 164.95, 433.86 161.41 C 417.05 128.7, 392.93 104.41, 362.46 84.36 C 360 82.9, 359.24 82.24, 357.03 80.37 Z" fill="#1DF8FD"/>
+          <path class="mark-bead-base" d="M 255.58 462.95 C 251.14 461.25, 248.38 456.8, 248.83 452.07 C 249.29 447.34, 252.83 443.49, 257.51 442.66 C 262.19 441.83, 266.85 444.22, 268.9 448.5 C 270.96 452.79, 269.9 457.91, 266.33 461.04 C 265.66 461.62, 264.91 462.12, 264.12 462.52 C 263.45 462.86, 262.73 463.13, 261.99 463.32 C 259.87 463.87, 257.63 463.74, 255.58 462.95 Z" fill="#AF8B54"/>
+          <path class="mark-bead-highlight" d="M 255.58 462.95 C 254.89 460.45, 252.32 449.98, 253.59 449.32 C 264.2 443.75, 265.92 458.31, 266.33 461.04 C 265.66 461.62, 264.91 462.12, 264.12 462.52 C 263.45 462.86, 262.73 463.13, 261.99 463.32 C 259.87 463.87, 257.63 463.74, 255.58 462.95 Z" fill="#F4D8A6"/>
+        </g>
+      </svg>
+          </div>
+          <div class="hero-meta">
+            <span id="overview-state" class="auvyq-pill auvyq-pill-protected"><span class="auvyq-dot"></span>Protected</span>
+            <span class="hero-total"><span id="total-blocked">0</span> blocked</span>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat auvyq-card"><span class="stat-number" id="d-ads">0</span><span class="stat-label">Ads blocked</span></div>
+          <div class="stat auvyq-card"><span class="stat-number" id="d-trackers">0</span><span class="stat-label">Trackers blocked</span></div>
+          <div class="stat auvyq-card"><span class="stat-number" id="d-params">0</span><span class="stat-label">Params removed</span></div>
+          <div class="stat auvyq-card"><span class="stat-number" id="d-cosmetic">0</span><span class="stat-label">Elements hidden</span></div>
+          <div class="stat auvyq-card"><span class="stat-number" id="d-threats">0</span><span class="stat-label">Threats</span></div>
+          <div class="stat auvyq-card"><span class="stat-number" id="d-cookies">0</span><span class="stat-label">Cookies cleaned</span></div>
+        </div>
+
+        <div class="auvyq-card chart-card">
+          <h2 class="section-title">Daily blocked</h2>
+          <div class="chart" id="chart" role="img" aria-label="Daily blocked counts for the retention window"></div>
+        </div>
+      </section>
+
+      <!-- Protection -->
+      <section class="panel" id="panel-protection" aria-label="Protection">
+        <h1 class="panel-title">Protection</h1>
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">Presets</h2>
+          <div class="preset-grid" id="preset-grid" role="radiogroup" aria-label="Protection preset"></div>
+        </div>
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">Modules</h2>
+          <div id="module-list" class="module-list"></div>
+        </div>
+      </section>
+
+      <!-- Cookies -->
+      <section class="panel" id="panel-cookies" aria-label="Cookies">
+        <div class="panel-header-block">
+          <h1 class="panel-title">Cookies</h1>
+          <p class="panel-subtitle">Manage tracking and analytics cookies in real-time. Authentication and session cookies are safeguarded.</p>
+        </div>
+        <div class="auvyq-card section-card">
+          <div class="cookie-header-row">
+            <div>
+              <h2 class="section-title">Cookie Review & Cleanup</h2>
+              <p class="section-note">Only classified tracker and analytics cookies can be removed here. Session and essential cookies are never touched.</p>
+            </div>
+            <button class="auvyq-button auvyq-button-primary sweep-trackers-btn" id="sweep-all-cookies">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>Clean All Trackers</span>
+            </button>
+          </div>
+          <div class="table-head">
+            <span class="th-name">Cookie</span>
+            <span class="th-domain">Domain</span>
+            <span class="th-cat">Category</span>
+            <span class="th-action">Action</span>
+          </div>
+          <ul class="cookie-list" id="cookie-list" aria-live="polite"></ul>
+          <div class="pager">
+            <button class="auvyq-button auvyq-button-secondary" id="cookie-prev">Previous</button>
+            <span class="pager-text">Page <strong id="cookie-page">1</strong></span>
+            <button class="auvyq-button auvyq-button-secondary" id="cookie-next">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Threats -->
+      <section class="panel" id="panel-threats" aria-label="Threats">
+        <h1 class="panel-title">Threats</h1>
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">Threat log</h2>
+          <ul class="threat-list" id="threat-list" aria-live="polite"></ul>
+          <div class="pager">
+            <button class="auvyq-button auvyq-button-secondary" id="threat-prev">Previous</button>
+            <span id="threat-page">1</span>
+            <button class="auvyq-button auvyq-button-secondary" id="threat-next">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Reports -->
+      <section class="panel" id="panel-reports" aria-label="Reports">
+        <div class="panel-header-block">
+          <h1 class="panel-title">Reports & Protection Engine</h1>
+          <p class="section-note">Live tab diagnostics, domain threat logs, and offline rule engine status.</p>
+        </div>
+
+        <div class="reports-grid">
+          <!-- Site Report Card -->
+          <div class="auvyq-card report-feature-card">
+            <div class="feature-card-header">
+              <div class="feature-icon-wrap primary">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <div class="feature-header-text">
+                <span class="feature-badge">Active Tab Diagnostics</span>
+                <h2 class="section-title">Site Security Report</h2>
+              </div>
+            </div>
+            <p class="section-note">Inspect every blocked tracking request, stripped query parameter, and safety heuristic applied to the website in your active tab.</p>
+            <div class="report-tag-list">
+              <span class="report-tag">Ads & Trackers</span>
+              <span class="report-tag">URL Parameters</span>
+              <span class="report-tag">Cosmetic Elements</span>
+              <span class="report-tag">Site Whitelist</span>
+            </div>
+            <div class="feature-card-action">
+              <button class="auvyq-button auvyq-button-primary" id="open-site-report">
+                <span>Open site report</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Update Status Card -->
+          <div class="auvyq-card report-feature-card">
+            <div class="feature-card-header">
+              <div class="feature-icon-wrap secondary">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                </svg>
+              </div>
+              <div class="feature-header-text">
+                <span class="feature-badge">Offline Local Engine</span>
+                <h2 class="section-title">Filter Rules Status</h2>
+              </div>
+            </div>
+            <p class="section-note">AUVYQ protects your browsing on-device using local rule definitions. Your active rule packs remain in effect even when offline.</p>
+            <div class="update-status-box" id="update-status-box">
+              <span class="status-indicator-dot"></span>
+              <span class="section-note" id="update-status">Not checked yet.</span>
+            </div>
+            <div class="feature-card-action">
+              <button class="auvyq-button auvyq-button-secondary" id="check-updates">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <polyline points="1 20 1 14 7 14"></polyline>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                <span>Check for updates</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrated Protection Coverage Matrix -->
+        <div class="auvyq-card section-card coverage-card">
+          <h2 class="section-title">Integrated Protection Coverage</h2>
+          <p class="section-note">Your extension automatically applies multi-layered filtering across all active network requests:</p>
+          <div class="coverage-grid">
+            <div class="coverage-item">
+              <div class="coverage-dot green"></div>
+              <div>
+                <strong>EasyList Ad Engine</strong>
+                <p>Blocks banners, rich media ads, pre-roll video ads, and sponsored overlays.</p>
+              </div>
+            </div>
+            <div class="coverage-item">
+              <div class="coverage-dot blue"></div>
+              <div>
+                <strong>EasyPrivacy Tracker Shield</strong>
+                <p>Stops tracking telemetry, analytics beacons, and user behavior fingerprinting.</p>
+              </div>
+            </div>
+            <div class="coverage-item">
+              <div class="coverage-dot amber"></div>
+              <div>
+                <strong>Heuristic Threat Analyzer</strong>
+                <p>Detects deceptive destination URLs, credential harvesting, and suspicious forms.</p>
+              </div>
+            </div>
+            <div class="coverage-item">
+              <div class="coverage-dot cyan"></div>
+              <div>
+                <strong>Local Cookie Guard</strong>
+                <p>Isolates third-party tracking identifiers without breaking your login sessions.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section class="panel" id="panel-settings" aria-label="Settings">
+        <h1 class="panel-title">Settings</h1>
+
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">Appearance</h2>
+          <div class="setting-row"><span>Theme</span>
+            <select id="theme-select" class="auvyq-input" aria-label="Theme">
+              <option value="system">System</option>
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">Privacy</h2>
+          <div class="setting-row"><span>Telemetry</span>
+            <button class="auvyq-switch" role="switch" aria-checked="false" id="telemetry-switch" aria-label="Telemetry opt-in"><span class="auvyq-knob"></span></button>
+          </div>
+          <p class="section-note">Off by default. Core protection works entirely locally without telemetry.</p>
+          <div class="setting-row"><span>Log retention</span>
+            <select id="retention-select" class="auvyq-input" aria-label="Log retention">
+              <option value="7">7 days</option>
+              <option value="30">30 days</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">Fingerprint shields</h2>
+          <p class="section-note">Optional, off by default. Can break fingerprinting-heavy websites.</p>
+          <div id="fp-list" class="module-list"></div>
+        </div>
+
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">Encrypted backup</h2>
+          <div class="backup-row">
+            <label class="backup-label" for="backup-password">Password (min 8 characters)</label>
+            <input id="backup-password" class="auvyq-input" type="password" autocomplete="new-password" />
+            <button class="auvyq-button auvyq-button-secondary" id="backup-export">Export</button>
+            <button class="auvyq-button auvyq-button-secondary" id="backup-import">Import</button>
+            <input id="backup-file" type="file" accept=".auvyq" hidden />
+          </div>
+          <p class="section-note" id="backup-status" aria-live="polite"></p>
+        </div>
+
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">Diagnostics</h2>
+          <pre id="diagnostics" class="diagnostics">Loading…</pre>
+        </div>
+
+        <div class="auvyq-card section-card danger-zone">
+          <h2 class="section-title">Clear AUVYQ data</h2>
+          <p class="section-note">Removes only AUVYQ-owned data (settings, statistics, logs, rules). Browser data is untouched.</p>
+          <button class="auvyq-button auvyq-button-danger" id="clear-data">Clear AUVYQ data</button>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section class="panel" id="panel-about" aria-label="About">
+        <h1 class="panel-title">About</h1>
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">AUVYQ</h2>
+          <p class="section-note">Local-first privacy, ad, tracker and threat protection. AUVYQ processes core protection data locally; telemetry is disabled by default.</p>
+          <p class="section-note" id="about-version"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>

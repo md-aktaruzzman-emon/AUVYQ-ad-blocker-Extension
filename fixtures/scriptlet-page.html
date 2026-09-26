@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AUVYQ Scriptlet Test Page</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .ad-slot { padding: 10px; background: #eee; margin: 10px 0; }
+    .modal-open { overflow: hidden; background: #ffe; }
+  </style>
+</head>
+<body class="modal-open">
+  <h1>AUVYQ Scriptlet Dispatch Test Page</h1>
+
+  <div id="test-target" class="ad-slot ad-active" data-tracking-id="track_12345">
+    Target element for scriptlet DOM mutations (remove-class, remove-attr, etc.)
+  </div>
+
+  <div class="promo-overlay" style="display: block; border: 1px solid red; padding: 10px;">
+    Target element for hide-in-shadow scriptlet.
+  </div>
+
+  <script>
+    // Global variable targets for set-constant and noop-callback testing
+    window.testAdConfig = { enabled: true };
+    window.adsCallback = function(data) {
+      console.log('Original adsCallback called with:', data);
+    };
+  </script>
+</body>
+</html>

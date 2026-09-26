@@ -1,0 +1,84 @@
+! Title: AUVYQ Default Filter Pack
+! Description: Bundled default filter list compiled into the dynamic DNR pack on first run.
+!              Static real-world ad/tracker domains live in rules/ads-trackers.json.
+! License: original hand-maintained rules written for AUVYQ.
+! Notes: generic cosmetic selectors (ad containers, ad iframes, overlays) are compiled
+!        into content/cosmetic-injector.js so they apply instantly at document_start
+!        without waiting for the RPC round trip. Site-specific `domain##selector`
+!        cosmetic rules and `##+js()` scriptlets can be added below; the existing
+!        parser/compiler pipeline handles them.
+
+! ---------------------------------------------------------------------------
+! SECTION 1: Generic ad-delivery path rules (resource-type restricted so a
+! matching path on a main_frame navigation is never blocked)
+! ---------------------------------------------------------------------------
+/ads.js$script
+/adserver/$script,image,subdocument,xmlhttprequest
+/adframe/$script,image,subdocument
+/banner-ad/$image,subdocument,script
+/adbanner/$image,script
+/prebid$script
+/popunder$script
+/pixel.gif$image
+
+! Third-party-only generic endpoints (a page's own self-hosted analytics on its
+! own domain is first-party and unaffected).
+/collect?$third-party,xmlhttprequest,ping
+/beacon?$third-party,xmlhttprequest,ping
+/analytics.js$third-party,script
+
+! ---------------------------------------------------------------------------
+! SECTION 2: Specific high-signal endpoints on shared (multi-purpose) domains.
+! Whole-domain blocking is intentionally avoided here because the same domains
+! also serve login/embeds that must keep working.
+! ---------------------------------------------------------------------------
+||connect.facebook.net^*/fbevents$script
+||facebook.com^*/tr?$image,script,xmlhttprequest
+
+! ---------------------------------------------------------------------------
+! SECTION 3: Campaign tracking parameter stripping (main_frame redirects).
+! Safe subset: parameters that are purely click-attribution and never needed
+! for the destination page to work.
+! ---------------------------------------------------------------------------
+||facebook.com^$removeparam=fbclid
+||instagram.com^$removeparam=fbclid
+||google.com^$removeparam=gclid
+||linkedin.com^$removeparam=trk
+||tiktok.com^$removeparam=ttclid
+
+! ---------------------------------------------------------------------------
+! SECTION 4: Cosmetic + scriptlet rules (site-specific additions go here).
+! ---------------------------------------------------------------------------
+
+! Generic cosmetic hiding rules (compiled into the dynamic pack CSS)
+##[data-ad-slot]
+##[data-google-query-id]
+##[data-ad]
+##[data-ad-unit]
+##[data-dfp-ad]
+##[data-prebid]
+##[data-ezoic-id]
+##[data-sponsored]
+##[data-native-ad]
+##.promoted-content
+##.native-ad
+##.sponsored-content
+##.sponsored-post
+##.in-feed-ad
+##.in-article-ad
+##div[id^="taboola-"]
+##div[id^="outbrain-widget"]
+##.mgid-widget
+##.taboola-article-page-thumbnails
+##[aria-label="Advertisement"]
+##[aria-label="Sponsored"]
+##.ad-fullscreen
+##.ad-takeover
+
+! Additional high-signal URL path rules
+/ad-manager/$script,subdocument
+/adsense/$script,subdocument
+/ad_unit/$script,image,subdocument
+/ad_slot/$script,image
+/native-ad/$script,subdocument
+/sponsored-content/$script,subdocument

@@ -1,0 +1,26 @@
+{
+  "extName": {
+    "message": "AUVYQ",
+    "description": "The extension name."
+  },
+  "extDescription": {
+    "message": "AUVYQ — local-first privacy, ad, tracker and threat protection for Chrome.",
+    "description": "The extension description."
+  },
+  "statusProtected": {
+    "message": "Protected",
+    "description": "Protection active status label."
+  },
+  "statusPaused": {
+    "message": "Protection paused",
+    "description": "Protection paused status label."
+  },
+  "statusThreat": {
+    "message": "Threat detected",
+    "description": "Threat detected status label."
+  },
+  "statusDisabled": {
+    "message": "Protection disabled",
+    "description": "Protection disabled status label."
+  }
+}
