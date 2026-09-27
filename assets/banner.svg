@@ -1,150 +1,322 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 580" width="100%" height="100%">
   <defs>
-    <!-- Background Gradients -->
-    <radialGradient id="bg-radial" cx="50%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#1E1B4B" stop-opacity="0.8"/>
-      <stop offset="45%" stop-color="#0B1120" stop-opacity="0.95"/>
-      <stop offset="100%" stop-color="#020617"/>
+    <!-- Background & Depth Gradients -->
+    <radialGradient id="bg-space" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#111827" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#0B1120" stop-opacity="0.98"/>
+      <stop offset="70%" stop-color="#030712"/>
+      <stop offset="100%" stop-color="#010409"/>
     </radialGradient>
-    <radialGradient id="glow-cyan" cx="50%" cy="40%" r="40%">
-      <stop offset="0%" stop-color="#0891B2" stop-opacity="0.35"/>
-      <stop offset="60%" stop-color="#2563EB" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#020617" stop-opacity="0"/>
+    <radialGradient id="shield-core-glow" cx="50%" cy="40%" r="45%">
+      <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.45"/>
+      <stop offset="40%" stop-color="#3B82F6" stop-opacity="0.2"/>
+      <stop offset="80%" stop-color="#6366F1" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#030712" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="shield-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.4"/>
-      <stop offset="50%" stop-color="#2563EB" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#1D1745" stop-opacity="0.05"/>
+
+    <!-- 3D Isometric Grid Pattern -->
+    <pattern id="iso-grid" width="60" height="34.64" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 60 17.32 L 30 34.64 L 0 17.32 Z" fill="none" stroke="#1E293B" stroke-width="0.8" stroke-opacity="0.45"/>
+      <circle cx="30" cy="17.32" r="1.2" fill="#38BDF8" fill-opacity="0.3"/>
+    </pattern>
+
+    <!-- Linear Metallic & Neon Gradients -->
+    <linearGradient id="laser-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#22D3EE" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#38BDF8" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/>
     </linearGradient>
-    <linearGradient id="shield-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9"/>
-      <stop offset="50%" stop-color="#3B82F6" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#1E1B4B" stop-opacity="0.3"/>
+
+    <linearGradient id="shield-3d-front" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.5"/>
+      <stop offset="30%" stop-color="#2563EB" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#1E1B4B" stop-opacity="0.1"/>
     </linearGradient>
-    <linearGradient id="text-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="shield-3d-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67E8F9" stop-opacity="1"/>
+      <stop offset="40%" stop-color="#38BDF8" stop-opacity="0.8"/>
+      <stop offset="80%" stop-color="#3B82F6" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#818CF8" stop-opacity="0.2"/>
+    </linearGradient>
+
+    <linearGradient id="text-metallic" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="50%" stop-color="#E2E8F0"/>
-      <stop offset="100%" stop-color="#93C5FD"/>
-    </linearGradient>
-    <linearGradient id="pill-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1E293B" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#0F172A" stop-opacity="0.9"/>
-    </linearGradient>
-    <linearGradient id="pill-stroke" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#6366F1" stop-opacity="0.2"/>
+      <stop offset="25%" stop-color="#F1F5F9"/>
+      <stop offset="50%" stop-color="#93C5FD"/>
+      <stop offset="75%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#67E8F9"/>
     </linearGradient>
 
-    <!-- Grid Pattern -->
-    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E293B" stroke-width="0.75" stroke-opacity="0.4"/>
-    </pattern>
-    <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
-      <circle cx="2" cy="2" r="1" fill="#334155" fill-opacity="0.3"/>
-    </pattern>
+    <!-- 3D Chip Gradients -->
+    <linearGradient id="chip-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0F172A" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="chip-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#6366F1" stop-opacity="0.3"/>
+    </linearGradient>
 
-    <!-- Logo Gradients -->
-    <linearGradient id="auvyq-g-left" gradientUnits="userSpaceOnUse" x1="88.87" y1="375.44" x2="346.44" y2="91.4">
+    <!-- Logo Brand Gradients -->
+    <linearGradient id="logo-g-left" gradientUnits="userSpaceOnUse" x1="88.87" y1="375.44" x2="346.44" y2="91.4">
       <stop offset="0%" stop-color="#2563EB"/>
       <stop offset="100%" stop-color="#38BDF8"/>
     </linearGradient>
-    <linearGradient id="auvyq-g-loop" gradientUnits="userSpaceOnUse" x1="346.99" y1="308.74" x2="275.32" y2="461.14">
+    <linearGradient id="logo-g-loop" gradientUnits="userSpaceOnUse" x1="346.99" y1="308.74" x2="275.32" y2="461.14">
       <stop offset="0%" stop-color="#1D4ED8"/>
       <stop offset="100%" stop-color="#60A5FA"/>
     </linearGradient>
-    <linearGradient id="auvyq-g-right" gradientUnits="userSpaceOnUse" x1="409.76" y1="158.83" x2="310.79" y2="276.5">
+    <linearGradient id="logo-g-right" gradientUnits="userSpaceOnUse" x1="409.76" y1="158.83" x2="310.79" y2="276.5">
       <stop offset="0%" stop-color="#1E1B4B"/>
       <stop offset="100%" stop-color="#3B82F6"/>
     </linearGradient>
+
+    <!-- Clip Path for Shield Scan -->
+    <clipPath id="shield-clip">
+      <path d="M 0 -130 L 125 -60 L 125 45 C 125 130 0 180 0 180 C 0 180 -125 130 -125 45 L -125 -60 Z"/>
+    </clipPath>
+
+    <!-- CSS Keyframe Animations -->
+    <style>
+      @keyframes floatShield {
+        0%, 100% { transform: translate(640px, 175px) translateY(0px) scale(1); }
+        50% { transform: translate(640px, 175px) translateY(-9px) scale(1.018); }
+      }
+      @keyframes scanBeam {
+        0% { transform: translateY(-160px); opacity: 0; }
+        15% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { transform: translateY(200px); opacity: 0; }
+      }
+      @keyframes pulseGlow {
+        0%, 100% { opacity: 0.35; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.12); }
+      }
+      @keyframes circuitStream1 {
+        0% { stroke-dashoffset: 200; opacity: 0.2; }
+        50% { opacity: 1; }
+        100% { stroke-dashoffset: 0; opacity: 0.2; }
+      }
+      @keyframes circuitStream2 {
+        0% { stroke-dashoffset: 0; opacity: 0.2; }
+        50% { opacity: 1; }
+        100% { stroke-dashoffset: 200; opacity: 0.2; }
+      }
+      @keyframes particleFloat1 {
+        0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+        20% { opacity: 0.8; }
+        80% { opacity: 0.8; }
+        100% { transform: translateY(-80px) translateX(15px); opacity: 0; }
+      }
+      @keyframes particleFloat2 {
+        0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+        20% { opacity: 0.9; }
+        80% { opacity: 0.9; }
+        100% { transform: translateY(-90px) translateX(-20px); opacity: 0; }
+      }
+      @keyframes chipHover {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-4px); }
+      }
+      @keyframes statusBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+      }
+      @keyframes gridPulse {
+        0%, 100% { opacity: 0.45; }
+        50% { opacity: 0.75; }
+      }
+
+      .anim-shield {
+        animation: floatShield 5s ease-in-out infinite;
+      }
+      .anim-scan {
+        animation: scanBeam 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+      .anim-glow {
+        animation: pulseGlow 4s ease-in-out infinite;
+      }
+      .anim-circuit1 {
+        stroke-dasharray: 20, 40;
+        animation: circuitStream1 3s linear infinite;
+      }
+      .anim-circuit2 {
+        stroke-dasharray: 20, 40;
+        animation: circuitStream2 3.5s linear infinite;
+      }
+      .anim-part1 { animation: particleFloat1 4.5s ease-in-out infinite; }
+      .anim-part2 { animation: particleFloat2 5.2s ease-in-out infinite 1s; }
+      .anim-part3 { animation: particleFloat1 4.8s ease-in-out infinite 2s; }
+      .anim-part4 { animation: particleFloat2 5.5s ease-in-out infinite 2.5s; }
+      .anim-chip-l1 { animation: chipHover 6s ease-in-out infinite; }
+      .anim-chip-l2 { animation: chipHover 6.5s ease-in-out infinite 1s; }
+      .anim-chip-r1 { animation: chipHover 6s ease-in-out infinite 0.5s; }
+      .anim-chip-r2 { animation: chipHover 6.5s ease-in-out infinite 1.5s; }
+      .anim-status-dot { animation: statusBlink 1.8s ease-in-out infinite; }
+      .anim-grid { animation: gridPulse 6s ease-in-out infinite; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .anim-shield, .anim-scan, .anim-glow, .anim-circuit1, .anim-circuit2,
+        .anim-part1, .anim-part2, .anim-part3, .anim-part4,
+        .anim-chip-l1, .anim-chip-l2, .anim-chip-r1, .anim-chip-r2,
+        .anim-status-dot, .anim-grid {
+          animation: none !important;
+        }
+      }
+    </style>
   </defs>
 
-  <!-- Background Base -->
-  <rect width="1200" height="480" fill="#020617"/>
-  <rect width="1200" height="480" fill="url(#bg-radial)"/>
-  <rect width="1200" height="480" fill="url(#grid)"/>
-  <rect width="1200" height="480" fill="url(#glow-cyan)"/>
+  <!-- Canvas Background -->
+  <rect width="1280" height="580" fill="#010409"/>
+  <rect width="1280" height="580" fill="url(#bg-space)"/>
 
-  <!-- Cyber Network Nodes Left & Right -->
-  <g opacity="0.35" stroke="#38BDF8" stroke-width="1">
-    <line x1="80" y1="120" x2="160" y2="180"/>
-    <line x1="160" y1="180" x2="120" y2="280"/>
-    <line x1="160" y1="180" x2="240" y2="160"/>
-    <line x1="240" y1="160" x2="280" y2="240"/>
-    <circle cx="80" cy="120" r="3" fill="#38BDF8"/>
-    <circle cx="160" cy="180" r="4" fill="#60A5FA"/>
-    <circle cx="120" cy="280" r="3" fill="#38BDF8"/>
-    <circle cx="240" cy="160" r="3" fill="#818CF8"/>
-    <circle cx="280" cy="240" r="4" fill="#38BDF8"/>
-
-    <line x1="1120" y1="120" x2="1040" y2="180"/>
-    <line x1="1040" y1="180" x2="1080" y2="280"/>
-    <line x1="1040" y1="180" x2="960" y2="160"/>
-    <line x1="960" y1="160" x2="920" y2="240"/>
-    <circle cx="1120" cy="120" r="3" fill="#38BDF8"/>
-    <circle cx="1040" cy="180" r="4" fill="#60A5FA"/>
-    <circle cx="1080" cy="280" r="3" fill="#38BDF8"/>
-    <circle cx="960" cy="160" r="3" fill="#818CF8"/>
-    <circle cx="920" cy="240" r="4" fill="#38BDF8"/>
+  <!-- 3D Perspective Isometric Grid Plane -->
+  <g class="anim-grid" transform="translate(0, 80) scale(1, 0.7)">
+    <rect width="1280" height="550" fill="url(#iso-grid)" opacity="0.6"/>
   </g>
 
-  <!-- Central Shield Hologram Geometry -->
-  <g transform="translate(600, 150) scale(0.65)" opacity="0.85">
-    <path d="M 0 -130 L 120 -60 L 120 40 C 120 120 0 170 0 170 C 0 170 -120 120 -120 40 L -120 -60 Z"
-          fill="url(#shield-grad)" stroke="url(#shield-stroke)" stroke-width="2.5"/>
-    <path d="M 0 -110 L 95 -50 L 95 30 C 95 95 0 140 0 140 C 0 140 -95 95 -95 30 L -95 -50 Z"
-          fill="none" stroke="#38BDF8" stroke-width="1.2" stroke-opacity="0.5" stroke-dasharray="6,4"/>
+  <!-- Ambient Hologram Glow Behind Shield -->
+  <circle cx="640" cy="180" r="280" fill="url(#shield-core-glow)" class="anim-glow"/>
+
+  <!-- Circuit Stream Pathways Left & Right -->
+  <g stroke="#38BDF8" stroke-width="1.6" fill="none" opacity="0.75">
+    <!-- Left Top Trace -->
+    <path d="M 230 110 L 380 110 L 460 160 L 510 160" stroke="#1E293B"/>
+    <path d="M 230 110 L 380 110 L 460 160 L 510 160" class="anim-circuit1" stroke="#22D3EE"/>
+
+    <!-- Left Bottom Trace -->
+    <path d="M 230 240 L 360 240 L 440 190 L 510 190" stroke="#1E293B"/>
+    <path d="M 230 240 L 360 240 L 440 190 L 510 190" class="anim-circuit2" stroke="#38BDF8"/>
+
+    <!-- Right Top Trace -->
+    <path d="M 1050 110 L 900 110 L 820 160 L 770 160" stroke="#1E293B"/>
+    <path d="M 1050 110 L 900 110 L 820 160 L 770 160" class="anim-circuit1" stroke="#67E8F9"/>
+
+    <!-- Right Bottom Trace -->
+    <path d="M 1050 240 L 920 240 L 840 190 L 770 190" stroke="#1E293B"/>
+    <path d="M 1050 240 L 920 240 L 840 190 L 770 190" class="anim-circuit2" stroke="#818CF8"/>
   </g>
 
-  <!-- Centered AUVYQ Brand Mark -->
-  <g transform="translate(600, 140) scale(0.24)">
-    <g transform="translate(-256, -256)">
-      <path d="M 231.87 455.02 C 220.06 453.13, 207.25 451.11, 195.75 447.73 C 143.87 432.21, 100.35 396.6, 74.88 348.82 C 51.31 305.37, 46 249.33, 60.15 202.06 C 75.78 149.84, 113.58 105.69, 161.39 80.03 C 209.95 53.87, 266.93 48.13, 319.73 64.1 C 326.58 66.03, 330.39 66.47, 320.38 67.93 C 274.32 76.23, 263.69 96.41, 241.57 133.2 L 209.3 187.49 L 176.24 242.77 C 166.28 259.47, 156.58 273.87, 150.28 292.4 C 125.24 366.14, 165.35 421.5, 234.27 444.39 L 231.87 455.02 Z" fill="url(#auvyq-g-left)"/>
+  <!-- 3D Floating Developer Tech Chips -->
+  <!-- Chip 1: Top Left - Manifest V3 -->
+  <g class="anim-chip-l1" transform="translate(130, 90)">
+    <!-- 3D Base Drop Shadow & Extrusion -->
+    <path d="M 0 10 L 190 10 L 190 48 L 0 48 Z" fill="#030712" opacity="0.8"/>
+    <path d="M 0 0 L 190 0 L 190 38 L 0 38 Z" fill="url(#chip-top)" stroke="url(#chip-stroke)" stroke-width="1.2" rx="8"/>
+    <!-- Terminal Chip Header -->
+    <circle cx="16" cy="19" r="3.5" fill="#38BDF8" class="anim-status-dot"/>
+    <text x="28" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="600" fill="#E2E8F0">// MANIFEST_V3</text>
+    <text x="140" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" fill="#64748B">[ESM]</text>
+  </g>
+
+  <!-- Chip 2: Bottom Left - Local-First -->
+  <g class="anim-chip-l2" transform="translate(130, 220)">
+    <path d="M 0 10 L 190 10 L 190 48 L 0 48 Z" fill="#030712" opacity="0.8"/>
+    <path d="M 0 0 L 190 0 L 190 38 L 0 38 Z" fill="url(#chip-top)" stroke="url(#chip-stroke)" stroke-width="1.2" rx="8"/>
+    <circle cx="16" cy="19" r="3.5" fill="#10B981" class="anim-status-dot"/>
+    <text x="28" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="600" fill="#E2E8F0">// LOCAL_FIRST</text>
+    <text x="135" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" fill="#64748B">[0-EVAL]</text>
+  </g>
+
+  <!-- Chip 3: Top Right - DNR Engine -->
+  <g class="anim-chip-r1" transform="translate(960, 90)">
+    <path d="M 0 10 L 190 10 L 190 48 L 0 48 Z" fill="#030712" opacity="0.8"/>
+    <path d="M 0 0 L 190 0 L 190 38 L 0 38 Z" fill="url(#chip-top)" stroke="url(#chip-stroke)" stroke-width="1.2" rx="8"/>
+    <circle cx="16" cy="19" r="3.5" fill="#60A5FA" class="anim-status-dot"/>
+    <text x="28" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="600" fill="#E2E8F0">// DNR_ENGINE</text>
+    <text x="136" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" fill="#64748B">[28k-CAP]</text>
+  </g>
+
+  <!-- Chip 4: Bottom Right - AES-GCM-256 -->
+  <g class="anim-chip-r2" transform="translate(960, 220)">
+    <path d="M 0 10 L 190 10 L 190 48 L 0 48 Z" fill="#030712" opacity="0.8"/>
+    <path d="M 0 0 L 190 0 L 190 38 L 0 38 Z" fill="url(#chip-top)" stroke="url(#chip-stroke)" stroke-width="1.2" rx="8"/>
+    <circle cx="16" cy="19" r="3.5" fill="#818CF8" class="anim-status-dot"/>
+    <text x="28" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="600" fill="#E2E8F0">// AES_GCM_256</text>
+    <text x="138" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" fill="#64748B">[600k]</text>
+  </g>
+
+  <!-- Floating Glowing Telemetry Particles -->
+  <g>
+    <circle cx="530" cy="140" r="2.5" fill="#67E8F9" class="anim-part1"/>
+    <circle cx="750" cy="120" r="3" fill="#38BDF8" class="anim-part2"/>
+    <circle cx="500" cy="220" r="2" fill="#818CF8" class="anim-part3"/>
+    <circle cx="780" cy="210" r="2.5" fill="#34D399" class="anim-part4"/>
+  </g>
+
+  <!-- Central 3D Animated Holographic Shield -->
+  <g class="anim-shield">
+    <!-- 3D Extruded Rear Depth Layer -->
+    <path d="M 0 -125 L 130 -52 L 130 52 C 130 140 0 190 0 190 C 0 190 -130 140 -130 52 L -130 -52 Z"
+          fill="#0B1120" stroke="#1E1B4B" stroke-width="3" opacity="0.9"/>
+
+    <!-- 3D Glassmorphic Front Face -->
+    <path d="M 0 -130 L 125 -60 L 125 45 C 125 130 0 180 0 180 C 0 180 -125 130 -125 45 L -125 -60 Z"
+          fill="url(#shield-3d-front)" stroke="url(#shield-3d-stroke)" stroke-width="2.5"/>
+
+    <!-- Inner Shield Depth Inset -->
+    <path d="M 0 -108 L 100 -50 L 100 35 C 100 102 0 145 0 145 C 0 145 -100 102 -100 35 L -100 -50 Z"
+          fill="none" stroke="#38BDF8" stroke-width="1.4" stroke-opacity="0.6" stroke-dasharray="8,5"/>
+
+    <!-- Animated Laser Scanning Beam -->
+    <g clip-path="url(#shield-clip)">
+      <rect x="-140" y="0" width="280" height="28" fill="url(#laser-grad)" class="anim-scan"/>
+    </g>
+
+    <!-- Embedded Vector Brand Mark -->
+    <g transform="scale(0.24) translate(-256, -256)">
+      <path d="M 231.87 455.02 C 220.06 453.13, 207.25 451.11, 195.75 447.73 C 143.87 432.21, 100.35 396.6, 74.88 348.82 C 51.31 305.37, 46 249.33, 60.15 202.06 C 75.78 149.84, 113.58 105.69, 161.39 80.03 C 209.95 53.87, 266.93 48.13, 319.73 64.1 C 326.58 66.03, 330.39 66.47, 320.38 67.93 C 274.32 76.23, 263.69 96.41, 241.57 133.2 L 209.3 187.49 L 176.24 242.77 C 166.28 259.47, 156.58 273.87, 150.28 292.4 C 125.24 366.14, 165.35 421.5, 234.27 444.39 L 231.87 455.02 Z" fill="url(#logo-g-left)"/>
       <path d="M 319.73 64.1 C 326.58 66.03, 330.39 66.47, 320.38 67.93 C 318.17 66.93, 317.93 65.77, 319.73 64.1 Z" fill="#5656D8"/>
-      <path d="M 262.96 285.28 C 276.71 284.95, 290.44 286.49, 303.78 289.87 C 339.49 298.89, 371.11 319.72, 393.48 348.97 C 403.78 362.48, 413.5 379.35, 422.47 393.94 C 434.85 414.06, 447.5 434, 459.6 454.27 L 298.96 454.35 C 300.79 451.56, 302.47 448.41, 304.12 445.49 C 309.47 434.08, 310.36 423.87, 306.2 411.79 C 302.31 400.61, 294.12 391.45, 283.44 386.34 C 249.51 369.93, 204.82 398.36, 219.27 436.72 C 207.99 431.2, 197.5 424.19, 188.07 415.9 C 170.52 400.33, 157.22 381.32, 156.19 357.29 C 155.81 348.63, 156.56 332.69, 162.88 326.06 C 166.4 322.37, 171.52 318.38, 175.56 315.18 C 200.91 295.09, 231.05 286.38, 262.96 285.28 Z" fill="url(#auvyq-g-loop)"/>
-      <path d="M 357.03 80.37 C 358.08 79.25, 358.79 78.65, 359.95 77.65 C 362.88 77.55, 362.75 78.07, 365.54 79.7 C 411.87 108.29, 444.9 154.16, 457.34 207.17 C 460.56 221.27, 466 266.07, 460.57 278.25 C 458.02 278.61, 458.03 278.1, 455.23 277 C 451.81 310.84, 436.32 341.65, 417.08 369 C 403.14 347.68, 389.73 323.31, 376.18 301.55 C 338.32 240.79, 301.79 178.62, 263.8 118 C 271.63 103.56, 283.75 93.54, 298.55 86.71 C 310.01 79.16, 344.24 75.4, 357.03 80.37 Z" fill="url(#auvyq-g-right)"/>
+      <path d="M 262.96 285.28 C 276.71 284.95, 290.44 286.49, 303.78 289.87 C 339.49 298.89, 371.11 319.72, 393.48 348.97 C 403.78 362.48, 413.5 379.35, 422.47 393.94 C 434.85 414.06, 447.5 434, 459.6 454.27 L 298.96 454.35 C 300.79 451.56, 302.47 448.41, 304.12 445.49 C 309.47 434.08, 310.36 423.87, 306.2 411.79 C 302.31 400.61, 294.12 391.45, 283.44 386.34 C 249.51 369.93, 204.82 398.36, 219.27 436.72 C 207.99 431.2, 197.5 424.19, 188.07 415.9 C 170.52 400.33, 157.22 381.32, 156.19 357.29 C 155.81 348.63, 156.56 332.69, 162.88 326.06 C 166.4 322.37, 171.52 318.38, 175.56 315.18 C 200.91 295.09, 231.05 286.38, 262.96 285.28 Z" fill="url(#logo-g-loop)"/>
+      <path d="M 357.03 80.37 C 358.08 79.25, 358.79 78.65, 359.95 77.65 C 362.88 77.55, 362.75 78.07, 365.54 79.7 C 411.87 108.29, 444.9 154.16, 457.34 207.17 C 460.56 221.27, 466 266.07, 460.57 278.25 C 458.02 278.61, 458.03 278.1, 455.23 277 C 451.81 310.84, 436.32 341.65, 417.08 369 C 403.14 347.68, 389.73 323.31, 376.18 301.55 C 338.32 240.79, 301.79 178.62, 263.8 118 C 271.63 103.56, 283.75 93.54, 298.55 86.71 C 310.01 79.16, 344.24 75.4, 357.03 80.37 Z" fill="url(#logo-g-right)"/>
       <path d="M 357.03 80.37 C 358.08 79.25, 358.79 78.65, 359.95 77.65 C 362.88 77.55, 362.75 78.07, 365.54 79.7 C 411.87 108.29, 444.9 154.16, 457.34 207.17 C 460.56 221.27, 466 266.07, 460.57 278.25 C 458.02 278.61, 458.03 278.1, 455.23 277 C 457.93 247.44, 455.39 206.16, 441.69 179.48 C 441.52 176.22, 435.68 164.95, 433.86 161.41 C 417.05 128.7, 392.93 104.41, 362.46 84.36 C 360 82.9, 359.24 82.24, 357.03 80.37 Z" fill="#1DF8FD"/>
       <circle cx="258" cy="453" r="10" fill="#38BDF8"/>
     </g>
   </g>
 
-  <!-- Typography -->
-  <!-- Main Title -->
-  <text x="600" y="260" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="46" letter-spacing="6" fill="url(#text-grad)">AUVYQ</text>
+  <!-- Center Typography & Brand Information -->
+  <!-- Top Terminal Status Bar -->
+  <g transform="translate(640, 360)" text-anchor="middle">
+    <rect x="-190" y="-14" width="380" height="26" rx="13" fill="#0B1120" stroke="#1E293B" stroke-width="1"/>
+    <circle cx="-168" cy="-1" r="3.5" fill="#10B981" class="anim-status-dot"/>
+    <text x="8" y="3" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="600" fill="#94A3B8" letter-spacing="1">
+      PROTOCOL: <tspan fill="#38BDF8">ACTIVE</tspan> | CORE: <tspan fill="#67E8F9">LOCAL-FIRST</tspan> | MV3: <tspan fill="#34D399">120+</tspan>
+    </text>
+  </g>
 
-  <!-- Brand Meaning / Subtitle -->
-  <text x="600" y="298" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="16" letter-spacing="2" fill="#38BDF8">ADVANCED USER VISIBILITY &amp; PRIVACY QUOTIENT</text>
+  <!-- Main 3D Wordmark -->
+  <text x="640" y="425" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif" font-weight="900" font-size="52" letter-spacing="8" fill="url(#text-metallic)">AUVYQ</text>
 
-  <!-- Tagline -->
-  <text x="600" y="340" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="400" font-size="18" fill="#94A3B8" letter-spacing="0.5">Intelligent Privacy &amp; Web Protection</text>
+  <!-- Subtitle -->
+  <text x="640" y="460" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif" font-weight="700" font-size="15" letter-spacing="3.5" fill="#38BDF8">ADVANCED USER VISIBILITY &amp; PRIVACY QUOTIENT</text>
 
-  <!-- Bottom Feature Badges / Highlights -->
-  <g transform="translate(600, 395)" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500">
-    <!-- Item 1 -->
-    <g transform="translate(-360, 0)">
-      <rect x="-95" y="-16" width="190" height="32" rx="16" fill="url(#pill-bg)" stroke="url(#pill-stroke)" stroke-width="1"/>
-      <circle cx="-75" cy="0" r="3.5" fill="#38BDF8"/>
-      <text x="-62" y="4" fill="#E2E8F0">Manifest V3 Local-First</text>
+  <!-- Description -->
+  <text x="640" y="490" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif" font-weight="400" font-size="16" fill="#94A3B8" letter-spacing="0.5">Intelligent Privacy &amp; Web Protection</text>
+
+  <!-- Bottom Developer Telemetry Indicators -->
+  <g transform="translate(640, 535)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500">
+    <!-- Stat 1 -->
+    <g transform="translate(-390, 0)">
+      <rect x="-70" y="-13" width="140" height="26" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="0" y="4" text-anchor="middle" fill="#CBD5E1">⚡ Latency: <tspan fill="#38BDF8" font-weight="700">0ms</tspan></text>
     </g>
-    <!-- Item 2 -->
-    <g transform="translate(-120, 0)">
-      <rect x="-90" y="-16" width="180" height="32" rx="16" fill="url(#pill-bg)" stroke="url(#pill-stroke)" stroke-width="1"/>
-      <circle cx="-70" cy="0" r="3.5" fill="#34D399"/>
-      <text x="-57" y="4" fill="#E2E8F0">Zero Telemetry Default</text>
+    <!-- Stat 2 -->
+    <g transform="translate(-130, 0)">
+      <rect x="-75" y="-13" width="150" height="26" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="0" y="4" text-anchor="middle" fill="#CBD5E1">🛡️ DNR: <tspan fill="#34D399" font-weight="700">28k Safe</tspan></text>
     </g>
-    <!-- Item 3 -->
-    <g transform="translate(120, 0)">
-      <rect x="-90" y="-16" width="180" height="32" rx="16" fill="url(#pill-bg)" stroke="url(#pill-stroke)" stroke-width="1"/>
-      <circle cx="-70" cy="0" r="3.5" fill="#60A5FA"/>
-      <text x="-57" y="4" fill="#E2E8F0">DNR Ad &amp; Tracker Guard</text>
+    <!-- Stat 3 -->
+    <g transform="translate(130, 0)">
+      <rect x="-75" y="-13" width="150" height="26" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="0" y="4" text-anchor="middle" fill="#CBD5E1">🔒 Vault: <tspan fill="#818CF8" font-weight="700">PBKDF2-600k</tspan></text>
     </g>
-    <!-- Item 4 -->
-    <g transform="translate(360, 0)">
-      <rect x="-95" y="-16" width="190" height="32" rx="16" fill="url(#pill-bg)" stroke="url(#pill-stroke)" stroke-width="1"/>
-      <circle cx="-75" cy="0" r="3.5" fill="#818CF8"/>
-      <text x="-62" y="4" fill="#E2E8F0">Tier-1 Heuristic Shield</text>
+    <!-- Stat 4 -->
+    <g transform="translate(390, 0)">
+      <rect x="-70" y="-13" width="140" height="26" rx="6" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+      <text x="0" y="4" text-anchor="middle" fill="#CBD5E1">📦 Memory: <tspan fill="#60A5FA" font-weight="700">~12MB</tspan></text>
     </g>
   </g>
 
-  <!-- Sleek Bottom Border Line -->
-  <line x1="200" y1="479" x2="1000" y2="479" stroke="url(#shield-stroke)" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Bottom Cyber Glow Trim Line -->
+  <line x1="240" y1="579" x2="1040" y2="579" stroke="url(#shield-3d-stroke)" stroke-width="1.5" stroke-linecap="round"/>
 </svg>
