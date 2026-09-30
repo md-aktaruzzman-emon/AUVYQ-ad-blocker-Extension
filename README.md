@@ -121,44 +121,83 @@ AUVYQ provides five standardized protection profiles designed to give users clea
 
 ---
 
-## Architecture
+## System Architecture
+
+AUVYQ is engineered around Chromium's Manifest V3 security boundaries, separating tasks across four isolated execution contexts to ensure wire-speed network performance, zero UI jank, and strict privilege isolation:
 
 ```mermaid
-flowchart TB
-    subgraph Browser["Chromium 120+ (Manifest V3 Environment)"]
-        subgraph SW["Service Worker (dist/sw.js)"]
-            Router["RPC Message Router"]
-            DNR["DNR Quota & Rule Manager"]
-            Stats["Local Stats & Rolling Snapshots"]
-            CookieGuard["Cookie Guard & Classifier"]
-            Heuristics["Tier-1 Threat Heuristics"]
-            Settings["Canonical Settings Store"]
-        end
+flowchart TD
+    subgraph UI_LAYER["1. Extension UI Surfaces"]
+        POPUP["Toolbar Popup<br><code>ui/popup</code>"]
+        DASH["Management Dashboard<br><code>ui/dashboard</code>"]
+        REPORT["Site Security Report<br><code>ui/site-report</code>"]
+        ONBOARD["First-Run Onboarding<br><code>ui/onboarding</code>"]
+    end
 
-        subgraph Offscreen["Offscreen Document (dist/offscreen.js)"]
-            CryptoVault["Crypto Vault (PBKDF2 / AES-GCM)"]
-            DOMParser["Defensive DOM Parser"]
-        end
+    subgraph SW_LAYER["2. Background Core (Service Worker — dist/sw.js)"]
+        RPC["Typed RPC Router<br><i>Sender Privilege Validation</i>"]
+        MUTEX["Settings & State Mutex<br><i>Canonical Single Source of Truth</i>"]
+        DNR_MGR["DNR Quota & Rule Manager<br><i>Safe Dynamic Capacity (4,500)</i>"]
+        COOKIE_GUARD["Cookie Guard & Classifier<br><i>Tab Lifecycle Cleanup</i>"]
+        THREAT_ENGINE["Tier-1 Threat Heuristics<br><i>Homoglyphs, Typosquatting, Forms</i>"]
+        STATS_ENGINE["Local Aggregation Engine<br><i>Rolling Daily Snapshots</i>"]
+    end
 
-        subgraph Injected["Injected Content Scripts"]
-            Scriptlets["scriptlet-dispatch.js (MAIN World)"]
-            Cosmetics["cosmetic-injector.js (ISOLATED World)"]
-            FPShields["fp-shields.js (MAIN World)"]
-            Banner["warning-banner.js (ISOLATED Shadow DOM)"]
-        end
+    subgraph OFFSCREEN_LAYER["3. Sandboxed Offscreen Worker (dist/offscreen.js)"]
+        CRYPTO["Crypto Vault<br><i>PBKDF2 (600k iter) + AES-GCM-256</i>"]
+        PARSER["Defensive DOM Parser<br><i>XML/HTML Sanitization</i>"]
+    end
 
-        subgraph UI["User Interface Surfaces"]
-            Popup["Toolbar Popup (ui/popup)"]
-            Dashboard["Management Dashboard (ui/dashboard)"]
-            SiteReport["Site Security Report (ui/site-report)"]
-            Onboarding["Onboarding Setup (ui/onboarding)"]
+    subgraph CONTENT_LAYER["4. Injected Content Script Worlds"]
+        subgraph MAIN_WORLD["MAIN World (Execution Context)"]
+            SCRIPTLETS["15 Sandboxed Scriptlets<br><code>content/scriptlet-dispatch.js</code>"]
+            FPSHIELDS["Fingerprint Shields<br><code>content/fp-shields.js</code>"]
+        end
+        subgraph ISOLATED_WORLD["ISOLATED World (DOM Context)"]
+            COSMETICS["Cosmetic Injector<br><code>content/cosmetic-injector.js</code>"]
+            BANNER["Warning Banner (Closed Shadow DOM)<br><code>content/warning-banner.js</code>"]
         end
     end
 
-    SW <-->|"Message Channel"| Offscreen
-    SW <-->|"chrome.scripting & tabs API"| Injected
-    UI <-->|"Typed RPC Protocol (isPrivilegedSender)"| SW
+    subgraph BROWSER_NET["Chromium Native Networking Stack"]
+        DNR_KERNEL["Chrome DeclarativeNetRequest Engine<br><i>Static & Dynamic Rulesets</i>"]
+    end
+
+    %% Interactions
+    UI_LAYER -->|"Privileged RPC Messages<br>(chrome.runtime.sendMessage)"| RPC
+    RPC --> MUTEX
+    MUTEX --> DNR_MGR
+    MUTEX --> COOKIE_GUARD
+    MUTEX --> THREAT_ENGINE
+
+    SW_LAYER <-->|"Offscreen Message Channel<br>(Lifecycle Auto-Teardown: 60s)"| OFFSCREEN_LAYER
+    SW_LAYER -->|"Dynamic CSS & Config Events"| CONTENT_LAYER
+    SW_LAYER -->|"DNR Rule Updates & Session Rules"| DNR_KERNEL
+
+    BROWSER_NET -->|"Direct Wire-Speed Filtering<br>(0ms JS Overhead)"| CONTENT_LAYER
 ```
+
+### Runtime Contexts & Security Boundaries
+
+| Runtime Context | Execution World | Lifetime Model | Security Policy & Privileges | Primary Responsibilities |
+| :--- | :--- | :--- | :--- | :--- |
+| **Service Worker** | Background Worker | Event-driven / On-demand | Strict CSP (`script-src 'self'`), extension storage, DNR & cookie APIs | Central state coordination, rule lifecycle, threat heuristics orchestration, and RPC routing. |
+| **Offscreen Document** | `offscreen.html` DOM | Ephemeral (Auto-terminates after 60s idle) | DOM access without network permissions, Web Crypto API | CPU-intensive PBKDF2-SHA256 key derivation and safe DOM parsing without stalling background/UI threads. |
+| **Content Scripts** | `ISOLATED` World | Page Lifecycle | Isolated DOM access; no access to page JavaScript variables | Synchronous cosmetic stylesheet injection, Shadow DOM threat alert banner rendering. |
+| **Scriptlet Dispatch** | `MAIN` World | Page Lifecycle | Direct page variable access; prototype-pollution guarded | Defusing anti-adblock traps and stubbing intrusive tracker globals before scripts execute. |
+| **UI Surfaces** | Extension Pages | User-invoked (Tabs / Popups) | Strict CSP; access to typed RPC and local theme engine | Dashboard management, telemetry opt-in, site reports, and preset switching. |
+
+### End-to-End Decision & Data Flows
+
+- **Network Filtering Flow**:
+  $$\text{Outbound HTTP Request} \longrightarrow \text{Chromium C++ DNR Engine} \longrightarrow \begin{cases} \textbf{Block / Redirect} & \text{(Rule Matched)} \\ \textbf{Strip Tracking Params} & \text{(URL Transform)} \\ \textbf{Allow} & \text{(Passed / Allowlisted)} \end{cases} \longrightarrow \text{Buffered Local Counter}$$
+  *Evaluated at native wire-speed inside the browser kernel before JavaScript execution.*
+
+- **Navigation Threat Assessment**:
+  $$\text{Navigation Commit} \longrightarrow \text{Tier-1 Heuristics Engine} \longrightarrow \begin{pmatrix} \text{Homoglyph Check} \\ \text{Typosquat Damerau-Levenshtein} \\ \text{Deceptive Subdomain Analysis} \\ \text{Foreign Login Origin Probe} \end{pmatrix} \longrightarrow \text{Risk Assessment} \longrightarrow \text{Shadow DOM Escalation Banner}$$
+
+- **Cryptographic Backup Derivation**:
+  $$\text{User Password} \xrightarrow{\text{RPC}} \text{Isolated Offscreen Document} \xrightarrow{\text{PBKDF2 (600k)}} \text{AES-GCM Key} \xrightarrow{\text{AES-256}} \text{Encrypted Binary Vault (AUVYQB)}$$
 
 ---
 
