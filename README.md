@@ -2,108 +2,122 @@
   <img src="assets/banner.svg" alt="AUVYQ — Advanced User Visibility & Privacy Quotient" width="100%">
 </p>
 
-<p align="center">
-  <strong>Intelligent Privacy &amp; Web Protection for Google Chrome</strong><br>
-  <em>Local-first, high-performance ad blocking, tracking prevention, and real-time threat defense built on Manifest V3.</em>
-</p>
+<div align="center">
+
+# AUVYQ
+
+### Local-First Privacy, Ad Blocking, Tracker Defense & Threat Protection for Chrome
+
+*A high-performance, security-focused Manifest V3 browser extension built with TypeScript, native DeclarativeNetRequest, and client-side threat heuristics.*
 
 <p align="center">
-  <a href="https://github.com/md-aktaruzzman-emon/AUVYQ-ad-blocker-Extension/actions"><img src="https://img.shields.io/badge/build-passing-2563eb?style=flat-square&logo=github" alt="Build Status"></a>
-  <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/manifest-v3-0891b2?style=flat-square&logo=googlechrome" alt="Manifest V3"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/typescript-5.6-3178c6?style=flat-square&logo=typescript" alt="TypeScript"></a>
-  <a href="#privacy--security"><img src="https://img.shields.io/badge/telemetry-opt--in%20only-10b981?style=flat-square" alt="Zero Telemetry Default"></a>
-  <a href="#crypto-vault--backup"><img src="https://img.shields.io/badge/crypto-PBKDF2%20%2F%20AES--GCM-818cf8?style=flat-square" alt="Crypto Vault"></a>
-  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/tests-70%20passing-3b82f6?style=flat-square&logo=vitest" alt="Vitest Tests"></a>
+  <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest%20V3-Chrome%20120%2B-0891b2?style=flat-square&logo=googlechrome&logoColor=white" alt="Manifest V3"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.6%20Strict-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-104%20Passing-10b981?style=flat-square&logo=vitest&logoColor=white" alt="Vitest Tests"></a>
+  <a href="#privacy-by-design"><img src="https://img.shields.io/badge/Telemetry-Opt--In%20Only-059669?style=flat-square" alt="Zero Telemetry Default"></a>
+  <a href="#6-cryptographic-settings-vault"><img src="https://img.shields.io/badge/Vault-PBKDF2%20%2B%20AES--GCM-818cf8?style=flat-square" alt="Crypto Vault"></a>
+  <a href="#license"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License"></a>
 </p>
+
+[Key Features](#key-features) • [Protection Presets](#protection-presets) • [Architecture](#architecture) • [Security & Privacy](#security-by-design) • [Installation](#installation--development) • [Project Structure](#project-structure)
+
+</div>
 
 ---
 
-## Overview
+## What is AUVYQ?
 
-**AUVYQ** (**A**dvanced **U**ser **V**isibility & **Y**our Privacy **Q**uotient) is a modern, local-first browser protection extension engineered for Google Chrome (Manifest V3, Chrome 120+). 
+**AUVYQ** (**A**dvanced **U**ser **V**isibility & Privacy **Q**uotient) is a modern, privacy-first browser extension engineered for Google Chrome (Manifest V3, Chrome 120+).
 
-Traditional ad blockers often rely on heavy background DOM engines, bloated remote lists, or invasive telemetry. AUVYQ takes a fundamentally different engineering approach:
+Traditional extensions often rely on resource-heavy background DOM parsing, unverified third-party scripts, or invasive telemetry collection. AUVYQ takes a fundamentally disciplined engineering approach:
 
-* **100% Local-First Processing**: Every rule compilation, heuristic risk score, cookie evaluation, and telemetry queue operates strictly on your local machine.
-* **Declarative Performance**: Utilizes Chrome's native `declarativeNetRequest` engine for wire-speed network blocking with zero per-request CPU overhead.
-* **Zero Arbitrary Code Execution**: Enforces a strict Content Security Policy (`script-src 'self'`). Dynamic `eval()`, `new Function()`, and remote script downloads are structurally impossible.
-* **Calm & Transparent UX**: Operates quietly without aggressive notifications or intrusive badges. Every metric is verifiable, and telemetry is completely disabled by default.
+- **100% Local-First**: Every network evaluation, heuristic risk calculation, cookie classification, and statistical aggregation runs locally on your machine.
+- **Wire-Speed Declarative Blocking**: Uses Chrome's native `declarativeNetRequest` (DNR) engine for line-rate network filtering with zero per-request JavaScript CPU overhead.
+- **Zero Remote Code Execution**: Enforces a strict Content Security Policy (`script-src 'self'; object-src 'self'`). Dynamic `eval()`, `new Function()`, and external code execution are structurally prohibited.
+- **Calm, Transparent UX**: Works silently in the background without intrusive notifications, false alarms, or misleading vanity metrics.
 
 ---
 
-## Core Features
+## Key Features
 
-### 1. High-Performance Network Ad & Tracker Blocking
-* **DeclarativeNetRequest Engine**: Evaluates network requests against compiled rulesets directly in the browser's networking stack, eliminating JavaScript execution overhead on every HTTP request.
-* **Static & Dynamic Rulesets**: Combines optimized static rule packs (`main.json`, `ads-trackers.json`, `annoyances.json`) with dynamic user rule management.
-* **Smart Dynamic Quota Management**: Enforces a strict safety ceiling of 28,000 dynamic rules (`SAFE_DYNAMIC_CAPACITY`), maintaining 2,000 rules of headroom below Chrome's 30,000 limit. Rules are utility-scored ($\text{frequency} \times \text{confidence}$); excess rules with visual selectors are automatically demoted to cosmetic CSS blocks to prevent visual ad regressions.
-* **Priority Stratification**: User-defined and per-site allow rules receive a +100 priority boost, guaranteeing instant, reliable site unbreaking without restarting the background service worker.
+### 1. Network Ad & Tracker Blocking (DNR Engine)
+- **Native Browser Filtering**: Network requests are evaluated directly inside Chromium's networking subsystem via pre-compiled rulesets (`main.json`, `easylist.json`, `easyprivacy.json`, `annoyances.json`, `ads-trackers.json`).
+- **Dynamic Quota Management**: Enforces a safe headroom threshold (`SAFE_DYNAMIC_CAPACITY = 4500` dynamic rules) under Chromium's dynamic rule limits. Overflow candidates are scored ($\text{frequency} \times \text{confidence}$) and deterministically demoted to cosmetic CSS rules when safe.
+- **Priority Stratification**: User overrides and per-site allow rules receive a +100 priority boost, guaranteeing instant site unbreaking without restarting the background service worker.
 
-### 2. Cosmetic Filtering & Visual Clean-up
-* **Early DOM Injection**: Synchronously injects curated cosmetic stylesheet rules into an isolated content script world at `document_start` and `document_idle`.
-* **Zero Layout Jumps**: Targets ad wrappers, sponsored units, empty placeholder containers, and video promotional frames before initial layout paint.
-* **Scoped Per-Domain Overlays**: Applies site-specific visual hiding rules while ensuring high site compatibility.
+### 2. Cosmetic Filtering & Layout Protection
+- **Pre-Paint CSS Injection**: Injects curated cosmetic stylesheets into an isolated content script world at `document_start` and `document_idle`.
+- **Elimination of Layout Shifts**: Hides ad wrappers, empty banners, interstitial frames, and sponsored video placeholders before browser paint.
+- **Per-Site Scoped Rules**: Balances robust visual hiding with maximum site compatibility.
 
 ### 3. Sandboxed Scriptlet Defenses (15 Fixed Scriptlets)
-AUVYQ bundles a closed, audited library of **15 pre-compiled scriptlets** executed in the page's `MAIN` world to neutralize advanced anti-adblock scripts and tracking hooks without dynamic code generation:
+AUVYQ bundles a closed, audited library of **15 pre-compiled scriptlets** executed in the page's `MAIN` world to neutralize anti-adblock traps and tracking probes without dynamic code generation:
 
-| Scriptlet | Purpose & Defense Mechanism |
+| Scriptlet | Defense Mechanism |
 | :--- | :--- |
-| `noop-callback` | Replaces tracking callback properties with safe no-op functions. |
+| `noop-callback` | Stubs tracking callback properties with safe no-op functions. |
 | `json-prune-lite` | Prunes injected ad/tracking payloads from API JSON responses. |
-| `set-constant` | Stubs tracking configuration flags with frozen, constant values. |
-| `prevent-addEventListener` | Blocks intrusive event listeners (e.g., `visibilitychange`, `blur` monitoring). |
+| `set-constant` | Freezes tracking configuration flags to constant dummy values. |
+| `prevent-addEventListener` | Blocks intrusive event hooks (e.g. tab visibility or blur monitoring). |
 | `prevent-setTimeout` | Neutralizes recurring timer loops used by aggressive ad injectors. |
-| `noop-fetch` | Defuses analytical beacon endpoints called via `window.fetch`. |
+| `noop-fetch` | Defuses analytical beacon endpoints invoked via `window.fetch`. |
 | `no-fetch-if` | Conditionally cancels fetch calls matching targeted ad/tracking substrings. |
 | `no-xhr-if` | Intercepts and drops tracking `XMLHttpRequest` payloads. |
-| `abort-on-property-read` | Throws reference errors upon read access to adblock detection probes. |
-| `close-window` | Automatically suppresses unauthorized popup and popunder window spawns. |
-| `hide-in-shadow` | Pierces closed Shadow DOM boundaries to hide encapsulated ad nodes. |
+| `abort-on-property-read` | Throws reference errors on read access to anti-adblock probe properties. |
+| `close-window` | Suppresses unauthorized popup and popunder window spawns. |
+| `hide-in-shadow` | Traverses Shadow DOM boundaries to hide encapsulated ad nodes. |
 | `remove-class` | Strips anti-adblock overlay CSS classes from document body elements. |
 | `remove-attr` | Removes adblock-probing attributes from page elements. |
-| `prevent-eval-if` | Wraps page-level `eval` to neutralize anti-adblock evaluation routines. |
-| `trusted-suppress-console` | Silences repetitive ad-network error spam in the developer console. |
+| `prevent-eval-if` | Wraps page-level `eval` calls to neutralize anti-adblock routines. |
+| `trusted-suppress-console` | Silences repetitive ad-network error noise in the developer console. |
 
-> **Prototype Pollution Defense**: All scriptlet parameters are strictly validated against prototype pollution vectors (`__proto__`, `constructor`, `prototype`), forbidden global roots (`window`, `document`, `location`), and character control limits before dispatch.
+> **Prototype Pollution Defense**: All scriptlet parameters undergo rigorous validation against prototype pollution vectors (`__proto__`, `constructor`, `prototype`), forbidden global roots (`window`, `document`, `location`), and strict regex patterns before injection.
 
 ### 4. Third-Party Tracker Cookie Guard
-* **Granular Cookie Classification**: Inspects and categorizes cookie domains into `tracker`, `analytics`, `session`, and `essential` based on a local domain classification dataset.
-* **Automated Contextual Cleanup**: Cleans third-party tracking cookies upon tab closure (`chrome.tabs.onRemoved`) and during periodic background sweeps.
-* **Session Integrity Guarantee**: Authentication cookies, first-party login tokens, and shopping carts are strictly preserved and never purged.
+- **Domain Classification**: Evaluates cookie origins against a structured domain classification database (`tracker`, `analytics`, `session`, `essential`).
+- **Contextual Cleanup**: Cleans third-party tracking cookies upon tab closure (`chrome.tabs.onRemoved`) and during scheduled background sweeps.
+- **Session Preservation Guarantee**: Essential authentication cookies, login tokens, and shopping carts are strictly protected and never purged.
 
 ### 5. Tracking Parameter Stripping
-* **Clean URLs**: Strips pervasive surveillance and campaign query parameters (e.g., `utm_*`, `fbclid`, `gclid`, `mc_eid`, `yclid`, `igshid`) before network requests leave the browser.
-* **DNR Redirect Transforms**: Uses native browser redirection rules without intermediary proxying or request logging.
+- **Clean URLs**: Strips surveillance and campaign tracking query parameters (`utm_*`, `fbclid`, `gclid`, `mc_eid`, `mc_cid`, `yclid`, `igshid`, etc.) via native DNR redirection transforms before outbound network requests leave the browser.
 
-### 6. Tier-1 Threat & Scam Heuristic Shield
-* **Client-Side Risk Assessment**: Evaluates visited domains upon navigation commit (`webNavigation.onCommitted`) in $< 0.5\text{ ms}$ using local heuristics:
-  * **Shannon Entropy Analysis**: Detects algorithmically generated domain names (DGA) and credential-harvesting endpoints.
-  * **Punycode / Homograph Attack Detection**: Identifies IDN spoofing patterns (e.g., `xn--...`).
-  * **Brand Typosquatting Analysis**: Evaluates Damerau-Levenshtein distance against ~200 high-value financial, social, and infrastructure domains.
-* **Isolated Threat Warning Banner**: Injects an alert inside a closed Shadow Root (`z-index: 2147483647`) with a **3-tier danger escalation model**:
-  1. *First Attempt*: CSS banner shake + plain-language explanation.
-  2. *Second Attempt*: Explicit confirmation dialog.
-  3. *Malicious Severity*: Mandatory typed confirmation (`"CONTINUE"` in capital letters) to prevent accidental click-throughs.
+### 6. Tier-1 Threat & Scam Heuristics
+AUVYQ analyzes visited domains upon navigation commit (`webNavigation.onCommitted`) using fast, client-side heuristics:
+- **Homoglyph & Punycode Detection**: Flags look-alike internationalized domain names (IDN / `xn--...`) and mixed-script impersonation attempts.
+- **Deceptive Subdomain Detection**: Detects subdomains attempting to spoof major service providers (e.g. `paypal.com.account-verify.example`).
+- **Brand Typosquatting**: Calculates Damerau-Levenshtein edit distances against a dataset of high-value domains.
+- **Risky TLD Analysis**: Flags domains hosted on high-abuse top-level domains.
+- **Redirect Chain Scoring**: Analyzes navigation hops, domain transitions, and landing origins.
+- **Foreign Login Detection**: Identifies credential forms submitting password inputs across unrelated origins.
+- **Isolated Shadow DOM Warning Banner**: Injects an escalation warning (shake, confirmation, or typed `"CONTINUE"` safeguard) directly inside a protected Shadow Root.
 
-### 7. Encrypted Cryptographic Settings Vault
-* **OWASP-Compliant Key Derivation**: PBKDF2 with SHA-256 and **600,000 iterations**.
-* **Authenticated Cipher**: AES-GCM-256 with 128-bit authentication tags, 16-byte random salt, and 12-byte initialization vectors per backup.
-* **Offscreen Document Isolation**: Heavy key derivation runs inside an isolated offscreen document (`offscreen.html`), preventing UI freezes or service worker stalling. The offscreen document automatically terminates after 60 seconds of inactivity.
-* **Zero Plaintext Leakage**: Master passwords are never stored in memory, storage, or logs.
+### 7. Optional Fingerprint Shields
+*For advanced users seeking defensive fingerprinting resistance (Default: OFF for maximum compatibility):*
+- **Canvas Readback Noise**: Injects subtle, non-visual entropy into `getImageData` and `toDataURL`.
+- **WebGL Masking**: Standardizes `UNMASKED_VENDOR_WEBGL` and `UNMASKED_RENDERER_WEBGL` identifiers.
+- **Navigator Normalization**: Normalizes `hardwareConcurrency` and `deviceMemory` reporting.
+- **Screen Dimension Normalization**: Rounds and harmonizes screen viewport metrics.
+- **High-Precision Timing Jitter**: Reduces microsecond precision in `performance.now()` to mitigate cache timing attacks.
+
+### 8. Cryptographic Settings Vault
+- **PBKDF2-SHA256**: Key derivation with **600,000 iterations**.
+- **AES-GCM-256**: Authenticated encryption with 128-bit authentication tags, 16-byte random salt, and 12-byte initialization vectors per backup.
+- **Isolated Offscreen Derivation**: Intensive cryptographic routines execute inside an isolated offscreen document (`offscreen.html`) with automatic lifecycle termination (60s inactivity timeout) to keep UI and service worker threads completely responsive.
+- **Zero Plaintext Storage**: Master passwords are never written to disk, session storage, or memory logs.
 
 ---
 
-## Why AUVYQ?
+## Protection Presets
 
-| Dimension | Standard Ad Blockers | AUVYQ |
-| :--- | :--- | :--- |
-| **Runtime Architecture** | Manifest V2 legacy or heavy MV3 adapters | Native Manifest V3 with synchronous top-level lifecycle |
-| **Security Surface** | May use dynamic `eval` or remote scriptlets | Strict CSP (`script-src 'self'`), 0% dynamic code execution |
-| **Privacy Default** | Often collects opt-out analytics | 100% Local-First; Telemetry disabled by default |
-| **Crypto Backups** | Plain JSON or base64 exports | PBKDF2 (600,000 iter) + AES-GCM-256 binary vault |
-| **Heuristic Protection** | Cloud lookup queries | Local Shannon entropy & typosquatting analysis |
-| **Resource Efficiency** | Constant background memory overhead | Auto-terminating offscreen documents & declarative rules |
+AUVYQ provides five standardized protection profiles designed to give users clear control over compatibility and privacy depth:
+
+| Preset | Target Use Case | Ads | Trackers | Cookies | Heuristics | Fingerprint Shields |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **Basic** | Maximum compatibility; essential ad blocking with zero site breakage. | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Balanced** *(Default)* | Everyday browsing; balanced ad, tracker, cookie, and threat protection. | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **Strong** | Stronger privacy protection for users who want stricter threat mitigation. | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **Maximum** | Maximum available protection; includes all fingerprint defenses. | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Expert** | Full manual customization; allows individual toggling of every module. | Custom | Custom | Custom | Custom | Custom |
 
 ---
 
@@ -111,42 +125,85 @@ AUVYQ bundles a closed, audited library of **15 pre-compiled scriptlets** execut
 
 ```mermaid
 flowchart TB
-    subgraph BrowserContext["Chrome 120+ (Manifest V3 Environment)"]
-        subgraph Background["Service Worker (dist/sw.js)"]
-            SW["sw.ts (Service Worker)"]
-            RPC["RPC Router (v: 1)"]
+    subgraph Browser["Chromium 120+ (Manifest V3 Environment)"]
+        subgraph SW["Service Worker (dist/sw.js)"]
+            Router["RPC Message Router"]
             DNR["DNR Quota & Rule Manager"]
             Stats["Local Stats & Rolling Snapshots"]
             CookieGuard["Cookie Guard & Classifier"]
-            Heuristics["Tier-1 Heuristic Classifier"]
+            Heuristics["Tier-1 Threat Heuristics"]
+            Settings["Canonical Settings Store"]
         end
 
-        subgraph OffscreenDoc["Offscreen Document (dist/offscreen.js)"]
-            Offscreen["offscreen.ts"]
-            Vault["Crypto Vault (PBKDF2 / AES-GCM)"]
+        subgraph Offscreen["Offscreen Document (dist/offscreen.js)"]
+            CryptoVault["Crypto Vault (PBKDF2 / AES-GCM)"]
             DOMParser["Defensive DOM Parser"]
         end
 
-        subgraph ContentLayers["Injected Content Scripts"]
+        subgraph Injected["Injected Content Scripts"]
             Scriptlets["scriptlet-dispatch.js (MAIN World)"]
             Cosmetics["cosmetic-injector.js (ISOLATED World)"]
-            Shields["fp-shields.js (MAIN World)"]
+            FPShields["fp-shields.js (MAIN World)"]
             Banner["warning-banner.js (ISOLATED Shadow DOM)"]
         end
 
-        subgraph UISurfaces["Extension User Interfaces"]
-            Popup["Toolbar Popup (ui/popup/)"]
-            Dashboard["Management Dashboard (ui/dashboard/)"]
-            SiteReport["Site Security Report (ui/site-report/)"]
-            Onboarding["Onboarding Flow (ui/onboarding/)"]
-            Motion["Motion Engine (ui/motion.js)"]
+        subgraph UI["User Interface Surfaces"]
+            Popup["Toolbar Popup (ui/popup)"]
+            Dashboard["Management Dashboard (ui/dashboard)"]
+            SiteReport["Site Security Report (ui/site-report)"]
+            Onboarding["Onboarding Setup (ui/onboarding)"]
         end
     end
 
-    SW <-->|"Message Channel (BLOBS / DOM_PARSER)"| Offscreen
-    SW <-->|"chrome.scripting & tabs.sendMessage"| ContentLayers
-    UISurfaces <-->|"Typed RPC Protocol"| SW
+    SW <-->|"Message Channel"| Offscreen
+    SW <-->|"chrome.scripting & tabs API"| Injected
+    UI <-->|"Typed RPC Protocol (isPrivilegedSender)"| SW
 ```
+
+---
+
+## Security by Design
+
+- **Manifest V3 Native**: Pure service worker architecture compatible with modern browser sandboxing standards.
+- **Strict Content Security Policy**: `script-src 'self'; object-src 'self'`.
+- **Privileged RPC Routing**: Mutating RPC commands (`SET_SETTINGS`, `CLEAR_AUVYQ_DATA`, `VAULT_RESTORE`) are gated by strict sender origin checks (`isPrivilegedSender`), rejecting requests from unprivileged web contexts or unauthorized frames.
+- **Deterministic Rule Compilation**: Adblock filter syntax is compiled into validated RE2-compatible DNR rules at build and update time.
+- **Cryptographically Signed Updates**: Remote filter updates are verified against ECDSA P-256 signatures with SHA-256 integrity hashing before atomic activation.
+
+---
+
+## Privacy by Design
+
+### What Stays on Your Device
+- **Rule Matching**: All DeclarativeNetRequest matching occurs directly within Chromium's C++ networking stack.
+- **Threat Scoring**: Heuristic threat indicators are computed locally without sending visited URLs to any cloud lookup API.
+- **Classification Data**: Cookie domains and tracker lists reside entirely on local storage.
+
+### What AUVYQ Does NOT Collect
+- ❌ No full browsing history or visited URL paths
+- ❌ No search queries or form input values
+- ❌ No password, authentication, or session tokens
+- ❌ No IP addresses, device identifiers, or unique tracking fingerprints
+
+### Telemetry Model
+Telemetry is **disabled by default** during onboarding. When explicitly enabled by the user:
+- Events record only coarse daily counters (`blocks`, `params`, `threats`).
+- Telemetry passes through a local $k$-anonymity gate ($k \ge 50$) before any outbound transmission can occur.
+- No per-site hostnames or personal metrics are ever transmitted.
+
+---
+
+## Technology Stack
+
+| Component | Technology | Role |
+| :--- | :--- | :--- |
+| **Runtime Target** | Google Chrome 120+ (Manifest V3) | Modern browser platform |
+| **Language** | TypeScript 5.6 (Strict Mode) | Full type safety with zero `any` policy |
+| **Bundler** | [esbuild](https://esbuild.github.io/) 0.24 | Deterministic ESM bundling to `dist/` |
+| **Test Framework** | [Vitest](https://vitest.dev/) 2.1 | 16 test suites, 104 automated tests |
+| **Linter** | ESLint 9 (Flat Config) | Code quality and MV3 security enforcement |
+| **Cryptography** | Web Crypto API (`SubtleCrypto`) | PBKDF2, AES-GCM, SHA-256, ECDSA P-256 |
+| **Browser APIs** | `declarativeNetRequest`, `storage`, `cookies`, `scripting`, `offscreen`, `webNavigation`, `alarms`, `tabs` | Platform integration |
 
 ---
 
@@ -154,63 +211,54 @@ flowchart TB
 
 ```text
 AUVYQ/
-├── assets/                  # Brand vectors (SVG), icons (16/32/48/128px), and banner
-├── content/                 # Injected content scripts (cosmetics, scriptlets, banner)
-├── core/                    # Core functional modules (local-first engine)
-│   ├── cosmetic-engine/     # Dynamic CSS stylesheet packing and generator
+├── assets/                  # Brand vectors, icons (16/32/48/128px), and banners
+├── content/                 # Injected content scripts (cosmetics, scriptlets, banner, fp-shields)
+├── core/                    # Core functional engine modules (local-first)
+│   ├── cosmetic-engine/     # Dynamic CSS stylesheet packing and generation
 │   ├── crypto/              # PBKDF2-SHA256 (600k) + AES-GCM-256 binary vault
-│   ├── domain/              # Hostname canonicalization and suffix matching
-│   ├── heuristic/           # Local entropy, homoglyph, and typosquatting scoring
+│   ├── domain/              # Hostname canonicalization, public suffix matching
+│   ├── heuristic/           # Homoglyph, typosquatting, and deceptive subdomain heuristics
 │   ├── logging/             # Privacy-preserving, host-only logging system
 │   ├── ml/                  # Lightweight client-side heuristic classification
-│   ├── quota-manager/       # Dynamic DNR rule capacity (28k ceiling) and demotion
+│   ├── quota-manager/       # Dynamic DNR rule capacity (4,500 ceiling) and CSS demotion
 │   ├── rule-compiler/       # FilterIR to DNR JSON and RE2 regex validation
 │   ├── rule-parser/         # Adblock filter syntax parser
 │   ├── scriptlet-engine/    # 15 pre-compiled, prototype-pollution safe scriptlets
-│   ├── stats/               # Daily aggregation counters and privacy scoring
-│   ├── storage/             # Schema migration, IndexedDB, and settings management
-│   ├── telemetry/           # Local-only coarse telemetry queue with k-anonymity
-│   └── update-channel/      # Cryptographically signed ECDSA rule update verification
+│   ├── stats/               # Daily aggregation counters and rolling snapshots
+│   ├── storage/             # Canonical schema, settings migrations, and IDB storage
+│   ├── telemetry/           # Local-only coarse telemetry queue with k-anonymity gate
+│   ├── update-channel/      # Cryptographically signed ECDSA rule update verification
+│   └── validation/          # Runtime schema validators for all trust boundaries
 ├── data/                    # Domain classifications, tracking params, and top domains
 ├── fixtures/                # Test pages, mock threats, and filter fixtures
-├── platform-chrome/         # Chrome extension API adapters (DNR, cookies, RPC)
-├── resources/               # Web-accessible resources (1x1 transparent gif, noop.js)
+├── platform-chrome/         # Chrome extension API adapters (DNR, Cookie Guard, RPC)
+├── resources/               # Web-accessible resources (1x1 transparent GIF, noop.js)
 ├── rules/                   # Compiled static DNR rulesets (main, ads, trackers, annoyances)
-├── tests/                   # 11 Vitest test suites (70 automated unit & security tests)
-├── tools/                   # Manifest, resource, icon, and packaging validators
-├── types/                   # TypeScript interfaces, schemas, and Chrome API types
+├── tests/                   # 16 Vitest test suites (104 unit, security & integration tests)
+├── tools/                   # Manifest, resource, icon, and filter validation scripts
+├── types/                   # TypeScript interfaces, schemas, and Chrome API definitions
 ├── ui/                      # Responsive HTML/CSS/JS surfaces with motion system
-│   ├── dashboard/           # Full settings, statistics, and rule management page
-│   ├── onboarding/          # 3-step first-run privacy preset selection
-│   ├── popup/               # Fast toolbar popup (<300ms target load time)
-│   └── site-report/         # In-depth per-domain security and tracker analysis
+│   ├── dashboard/           # Management dashboard (Protection, Cookies, Threats, Reports, Settings)
+│   ├── onboarding/          # First-run privacy preset selection flow
+│   ├── popup/               # Fast toolbar popup (<300ms load target)
+│   ├── site-report/         # Per-site security and tracker analysis view
+│   ├── motion.css           # Design tokens, themes (Light/Dark), and animations
+│   └── motion.js            # Accessibility and UI motion helpers
 ├── _locales/                # Internationalization strings (English default)
 ├── manifest.json            # Authoritative Chrome Manifest V3 configuration
-├── esbuild.mjs              # Deterministic ESM bundler and asset compiler
-├── package.json             # Project dependencies, scripts, and engine constraints
+├── esbuild.mjs              # Bundler and filter asset compilation script
+├── package.json             # Dependencies, scripts, and engine constraints
 └── tsconfig.json            # Strict TypeScript configuration
 ```
 
 ---
 
-## Technology Stack
-
-* **Runtime Target**: Google Chrome 120+ (Manifest V3)
-* **Language**: TypeScript 5.6 (Strict Mode, Zero `any` policy) & ECMAScript Modules (ESM)
-* **Build System**: [esbuild](https://esbuild.github.io/) 0.24 (Sub-millisecond bundling to `dist/sw.js` and `dist/offscreen.js`)
-* **Testing Framework**: [Vitest](https://vitest.dev/) 2.1 (Unit, integration, and security hygiene tests)
-* **Linter & Hygiene**: ESLint 9 (Flat config, custom Manifest V3 security rules)
-* **Cryptography**: Native Web Crypto API (`SubtleCrypto` — PBKDF2, AES-GCM, SHA-256, ECDSA P-256)
-* **Browser APIs**: `chrome.declarativeNetRequest`, `chrome.scripting`, `chrome.offscreen`, `chrome.storage`, `chrome.cookies`, `chrome.alarms`, `chrome.webNavigation`
-
----
-
-## Installation & Setup
+## Installation & Development
 
 ### Prerequisites
-* [Node.js](https://nodejs.org/) version 20.0.0 or higher
-* [npm](https://www.npmjs.com/) version 10.0.0 or higher
-* Google Chrome (or Chromium-based browser) version 120+
+- [Node.js](https://nodejs.org/) version 20.0.0 or higher
+- [npm](https://www.npmjs.com/) version 10.0.0 or higher
+- Google Chrome (or Chromium-based browser) version 120+
 
 ### 1. Clone the Repository
 ```bash
@@ -227,117 +275,77 @@ npm install
 ```bash
 npm run build
 ```
-The compiled, production-ready extension will be output to the `dist/` directory.
+This compiles the TypeScript service worker, offscreen worker, and filter lists into `dist/`.
 
 ### 4. Load in Google Chrome
 1. Open Google Chrome and navigate to `chrome://extensions`.
-2. Enable the **Developer mode** toggle in the top right corner.
-3. Click the **Load unpacked** button.
-4. Select the `dist/` directory inside the project repository.
+2. Enable the **Developer mode** toggle in the top-right corner.
+3. Click **Load unpacked**.
+4. Select the project directory (or `dist/` build output).
 5. The **AUVYQ** shield icon will appear in your browser toolbar.
 
 ---
 
-## Development & Verification
+## Testing & Quality Assurance
 
-The project includes a comprehensive test and validation pipeline:
+AUVYQ maintains a strict test suite covering security boundaries, parsers, cryptographic routines, and state synchronization:
 
 ```bash
-# Run strict TypeScript typechecking
+# Run strict TypeScript typecheck
 npm run typecheck
 
-# Lint all source files for security and style
+# Run ESLint across all source files
 npm run lint
 
-# Execute automated Vitest test suite (11 suites, 70 tests)
+# Run automated Vitest test suite (16 suites, 104 tests)
 npm test
 
-# Run the complete release verification pipeline
+# Run full CI verification pipeline (typecheck + lint + test + build + validate)
 npm run check
 ```
 
 ---
 
-## Browser Permissions & Transparency
-
-As a privacy and security product, AUVYQ maintains complete transparency regarding all requested permissions:
+## Permissions & Justification
 
 | Permission | Technical Requirement & Justification |
 | :--- | :--- |
-| `declarativeNetRequest` | Wire-speed network blocking of ads, tracking beacons, and malicious endpoints without intercepting request bodies. |
-| `declarativeNetRequestFeedback` | Provides accurate blocking counters in developer/unpacked mode for statistical validation. |
-| `storage` | Stores user configuration, per-site pause lists, and daily aggregate statistics locally on disk. |
-| `unlimitedStorage` | Prevents the browser from prematurely evicting compiled rule caches and historical snapshots. |
-| `scripting` | Dynamically registers isolated cosmetic stylesheets and scriptlet dispatchers into web pages. |
-| `alarms` | Schedules background maintenance (periodic cookie cleanup, stats flushing, and offscreen document teardown). |
-| `offscreen` | Spawns an isolated background document to execute intensive PBKDF2 cryptography without freezing the UI. |
-| `webNavigation` | Hooks into navigation commit events to evaluate client-side heuristic scam and phishing indicators. |
+| `declarativeNetRequest` | Wire-speed network blocking of ads, tracking beacons, and threats without inspecting payload bodies. |
+| `declarativeNetRequestFeedback` | Provides accurate blocked-request counters in developer/unpacked mode for statistical validation. |
+| `storage` | Stores user settings, per-site preferences, and aggregated daily statistics locally on disk. |
+| `unlimitedStorage` | Prevents the browser from evicting compiled rule caches and rolling snapshots. |
+| `scripting` | Dynamically registers isolated cosmetic stylesheets and scriptlets into web pages. |
+| `alarms` | Schedules background maintenance (periodic cookie cleanup, stats flushing, offscreen lifecycle teardown). |
+| `offscreen` | Spawns an isolated background document to execute intensive PBKDF2 cryptography without UI blocking. |
+| `webNavigation` | Hooks navigation commit events to evaluate client-side heuristic phishing and scam indicators. |
 | `cookies` | Reads cookie metadata to categorize and delete third-party tracking cookies upon tab closure. |
-| `tabs` | Resolves active tab hostnames to render per-site protection states and toggle pause controls. |
+| `tabs` | Resolves active tab hostnames to render per-site protection status and toggle pause controls. |
 | `<all_urls>` (Host) | Universal protection coverage across web pages visited by the user. |
-
----
-
-## Privacy & Security Guarantees
-
-* **Zero Browsing History Collection**: AUVYQ never records, logs, or transmits full URLs, paths, search queries, form inputs, or credentials.
-* **Host-Only Logging**: Internal logging is restricted to normalized hostnames (e.g., `example.com`), completely stripping URL query parameters and paths.
-* **Telemetry Off by Default**: Telemetry is strictly opt-in during onboarding. When enabled, telemetry collects only coarse daily category counters (`blocks`, `params`, `threats`) and requires a local k-anonymity cohort gate ($k \ge 50$) before transmission seams can activate.
-* **Zero Remote JavaScript**: All executable code is bundled at build time. No remote JavaScript is ever fetched or evaluated at runtime.
-
----
-
-## Roadmap
-
-### Completed (v0.3.0)
-- [x] Manifest V3 full migration with synchronous service worker lifecycle.
-- [x] DeclarativeNetRequest static rulesets & dynamic quota management (28,000 rule safety ceiling).
-- [x] Sandboxed 15-scriptlet engine with strict prototype-pollution defenses.
-- [x] Early cosmetic CSS stylesheet injection.
-- [x] Domain-classified third-party cookie guard with tab-close cleanup.
-- [x] Client-side Tier-1 heuristic threat detection (entropy, typosquatting, homographs).
-- [x] PBKDF2-SHA256 (600k iter) + AES-GCM-256 cryptographic settings vault.
-- [x] Complete motion system with 7 micro-interactions and `@media (prefers-reduced-motion)` compliance.
-- [x] Automated test suite with 11 suites and 70 passing tests.
-
-### In Progress
-- [ ] Multi-language localization expansion beyond English (`_locales/`).
-- [ ] Enhanced user-customizable filter list import with syntax linting.
-- [ ] Advanced fingerprint shielding telemetry diagnostics.
-
-### Planned
-- [ ] Firefox MV3 WebExtensions compatibility target.
-- [ ] WebAssembly-accelerated RE2 matching for custom filter lists.
-- [ ] Encrypted cross-device settings sync via user-controlled WebDAV/Cloud storage.
 
 ---
 
 ## Contributing
 
-Contributions to AUVYQ are welcome. To ensure safety and code quality:
+Contributions to AUVYQ are welcome. Please ensure:
 
-1. Fork the repository and create your branch from `main`:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-2. Ensure all changes adhere to strict TypeScript standards (zero `any`) and ESLint rules.
-3. Add unit tests in `tests/` covering any new functionality.
-4. Run the full verification suite before submitting your PR:
+1. All code adheres to strict TypeScript standards (zero `any`) and ESLint rules.
+2. New features or fixes include automated test coverage in `tests/`.
+3. The full verification pipeline passes cleanly:
    ```bash
    npm run check
    ```
-5. Open a Pull Request with a clear description of your changes and test coverage.
+4. Pull requests provide a clear summary of changes, rationale, and testing steps.
 
 ---
 
-## Author & Developer
+## Author
 
 **Md. Aktaruzzman Emon**  
-* GitHub: [@md-aktaruzzman-emon](https://github.com/md-aktaruzzman-emon)  
-* Repository: [AUVYQ-ad-blocker-Extension](https://github.com/md-aktaruzzman-emon/AUVYQ-ad-blocker-Extension)
+- GitHub: [@md-aktaruzzman-emon](https://github.com/md-aktaruzzman-emon)  
+- Repository: [AUVYQ-ad-blocker-Extension](https://github.com/md-aktaruzzman-emon/AUVYQ-ad-blocker-Extension)
 
 ---
 
 ## License
 
-Licensing information for bundled filter datasets and source code is documented in the [`licenses/`](licenses/) directory. Third-party filter lists retain their respective original licenses. Complete project licensing terms will be updated in upcoming releases.
+This project is licensed under the [MIT License](LICENSE). Third-party filter lists and assets retain their respective original licenses as documented in the [`licenses/`](licenses/) directory.
