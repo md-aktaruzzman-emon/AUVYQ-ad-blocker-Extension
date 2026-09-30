@@ -295,7 +295,10 @@ function renderCookies() {
 
     const cat = document.createElement('span');
     cat.className = `cookie-cat ${entry.category}`;
-    cat.innerHTML = `<span class="cat-dot"></span>${entry.category}`;
+    const catDot = document.createElement('span');
+    catDot.className = 'cat-dot';
+    cat.appendChild(catDot);
+    cat.appendChild(document.createTextNode(entry.category));
 
     const actionWrap = document.createElement('div');
     actionWrap.className = 'cookie-action-wrap';
@@ -315,7 +318,10 @@ function renderCookies() {
     } else {
       const note = document.createElement('span');
       note.className = 'cookie-kept-pill';
-      note.innerHTML = '<span class="kept-dot"></span>kept';
+      const keptDot = document.createElement('span');
+      keptDot.className = 'kept-dot';
+      note.appendChild(keptDot);
+      note.appendChild(document.createTextNode('kept'));
       actionWrap.appendChild(note);
     }
 
@@ -460,7 +466,7 @@ $('backup-export').addEventListener('click', async () => {
     link.href = url;
     link.download = `auvyq-backup-${new Date().toISOString().slice(0, 10)}.auvyq`;
     link.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
     setBackupStatus('Backup exported.');
   } catch (error) {
     setBackupStatus(`Export failed: ${error instanceof Error ? error.message : 'unknown error'}`);

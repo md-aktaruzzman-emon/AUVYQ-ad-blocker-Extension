@@ -24,12 +24,14 @@
       const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
       HTMLCanvasElement.prototype.toDataURL = function toDataURL(...args) {
         const context = this.getContext('2d');
-        if (context !== null) {
-          const image = originalGetImageData.call(context, 0, 0, this.width, this.height);
-          for (let i = 0; i < image.data.length; i += 4) {
-            image.data[i] = Math.max(0, Math.min(255, image.data[i] + noise()));
-          }
-          context.putImageData(image, 0, 0);
+        if (context !== null && this.width > 0 && this.height > 0) {
+          try {
+            const image = originalGetImageData.call(context, 0, 0, this.width, this.height);
+            for (let i = 0; i < image.data.length; i += 4) {
+              image.data[i] = Math.max(0, Math.min(255, image.data[i] + noise()));
+            }
+            context.putImageData(image, 0, 0);
+          } catch { /* canvas may be tainted */ }
         }
         return originalToDataURL.apply(this, args);
       };
@@ -38,7 +40,10 @@
 
   function installWebglShield() {
     try {
-      const masked = { vendor: 'AUVYQ', renderer: 'AUVYQ Graphics' };
+      const masked = {
+        vendor: 'Google Inc. (Intel)',
+        renderer: 'ANGLE (Intel, Intel(R) UHD Graphics 630 Direct3D11 vs_5_0 ps_5_0)'
+      };
       const original = WebGLRenderingContext.prototype.getParameter;
       WebGLRenderingContext.prototype.getParameter = function getParameter(parameter) {
         if (parameter === 37445) return masked.vendor;  // UNMASKED_VENDOR_WEBGL

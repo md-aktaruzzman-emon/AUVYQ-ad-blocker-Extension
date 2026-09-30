@@ -285,4 +285,23 @@
     }
     showBanner(risk, safeText(message.host, 253));
   });
+
+  // Query tab threat state upon script injection to handle committed navigation events
+  function checkInitialThreatState() {
+    rpc('GET_TAB_STATE', {}).then((data) => {
+      if (!data || !data.state) return;
+      const { host, risk, stage } = data.state;
+      if (!risk || stage === 'confirmed') return;
+      const severity = safeText(risk.severity, 12);
+      if (severity === 'medium' || severity === 'high' || severity === 'malicious') {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => showBanner(risk, safeText(host, 253)), { once: true });
+        } else {
+          showBanner(risk, safeText(host, 253));
+        }
+      }
+    }).catch(() => undefined);
+  }
+
+  checkInitialThreatState();
 })();

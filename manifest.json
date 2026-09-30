@@ -24,7 +24,6 @@
     "cookies",
     "tabs"
   ],
-  "optional_permissions": ["userScripts"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "sw.js",

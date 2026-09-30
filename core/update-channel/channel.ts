@@ -52,10 +52,36 @@ async function importVerifyKey(): Promise<CryptoKey> {
   return crypto.subtle.importKey('jwk', DEV_VERIFY_KEY_JWK as unknown as JsonWebKey, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
 }
 
+/** Converts ASN.1 DER ECDSA signature into IEEE P1363 raw 64-byte format if needed */
+export function derToRawSignature(sig: Uint8Array): Uint8Array {
+  if (sig.length === 64) return sig;
+  if (sig[0] !== 0x30) return sig;
+  try {
+    let offset = 2;
+    if (sig[1] & 0x80) offset += (sig[1] & 0x7f);
+    if (sig[offset] !== 0x02) return sig;
+    const rLen = sig[offset + 1];
+    let r = sig.subarray(offset + 2, offset + 2 + rLen);
+    offset += 2 + rLen;
+    if (sig[offset] !== 0x02) return sig;
+    const sLen = sig[offset + 1];
+    let s = sig.subarray(offset + 2, offset + 2 + sLen);
+    if (r.length === 33 && r[0] === 0) r = r.subarray(1);
+    if (s.length === 33 && s[0] === 0) s = s.subarray(1);
+    const raw = new Uint8Array(64);
+    raw.set(r, 32 - r.length);
+    raw.set(s, 64 - s.length);
+    return raw;
+  } catch {
+    return sig;
+  }
+}
+
 export async function verifySignature(messageUtf8: string, signatureBase64: string): Promise<boolean> {
   try {
     const key = await importVerifyKey();
-    const signature = Uint8Array.from(atob(signatureBase64), (c) => c.charCodeAt(0));
+    const rawBytes = Uint8Array.from(atob(signatureBase64), (c) => c.charCodeAt(0));
+    const signature = derToRawSignature(rawBytes);
     return crypto.subtle.verify(
       { name: 'ECDSA', hash: 'SHA-256' },
       key,

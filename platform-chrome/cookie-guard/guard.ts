@@ -167,4 +167,4 @@ export async function cleanupForTab(settings: Settings, tabId: number, observedT
 }
 
 export const COOKIE_SWEEP_ALARM = 'auvyq-cookie-sweep';
-export const COOKIE_SWEEP_PERIOD_MINUTES = 60; // Event-driven + longer interval (avoids 1-minute full sweep)
+export const COOKIE_SWEEP_PERIOD_MINUTES = 15; // 15-minute periodic sweep alongside event-driven removal

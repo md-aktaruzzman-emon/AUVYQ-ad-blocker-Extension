@@ -18,7 +18,7 @@ import { validateSettings, validateHostnameInput, validateRiskResult, isRecord, 
 import { normalizeHostname, displayHost, getDomainCandidates } from './core/domain/normalize.js';
 import { compileRulesDetailed } from './core/rule-compiler/compiler.js';
 import { applyQuota, SAFE_DYNAMIC_CAPACITY } from './core/quota-manager/quota.js';
-import { applyPackDiff, setSitePause, dnrMutex } from './platform-chrome/dnr-adapter/adapter.js';
+import { applyPackDiff, setSitePause, setSiteBlock, dnrMutex } from './platform-chrome/dnr-adapter/adapter.js';
 import { sweepTrackerCookies, cleanupForTab, handleCookieChanged, isKnownTrackingCookie, COOKIE_SWEEP_ALARM, COOKIE_SWEEP_PERIOD_MINUTES } from './platform-chrome/cookie-guard/guard.js';
 import { createTelemetryService } from './core/telemetry/queue.js';
 import { runUpdateCheck, defaultUpdateState } from './core/update-channel/channel.js';
@@ -58,6 +58,8 @@ async function ensureInitialized(): Promise<Settings> {
       const settings = await loadSettings();
       configureLogging(settings.developerMode ? 'debug' : 'warn', settings.developerMode);
       await ensureAlarms();
+      // Enable native Declarative Net Request badge count if supported
+      await chrome.declarativeNetRequest?.setExtensionActionOptions?.({ displayActionCountAsBadgeText: true }).catch?.(() => undefined);
       // Reconcile the actual blocking state with the stored master switch and module settings.
       await syncNetworkBlocking(settings.masterEnabled, settings);
       // Fire-and-forget: compile the bundled default filter pack if none exists.
@@ -81,26 +83,6 @@ async function ensureAlarms(): Promise<void> {
   chrome.alarms.create(COOKIE_SWEEP_ALARM, { periodInMinutes: COOKIE_SWEEP_PERIOD_MINUTES });
 }
 
-const CONTENT_SCRIPTS = [
-  { id: 'auvyq-cosmetic', matches: ['<all_urls>'], js: ['content/cosmetic-injector.js'], runAt: 'document_start' as const, world: 'ISOLATED' as const, persistAcrossSessions: true },
-  { id: 'auvyq-dispatch', matches: ['<all_urls>'], js: ['content/scriptlet-dispatch.js'], runAt: 'document_start' as const, world: 'MAIN' as const, persistAcrossSessions: true },
-  { id: 'auvyq-fp', matches: ['<all_urls>'], js: ['content/fp-shields.js'], runAt: 'document_start' as const, world: 'MAIN' as const, persistAcrossSessions: true },
-  { id: 'auvyq-banner', matches: ['<all_urls>'], js: ['content/warning-banner.js'], runAt: 'document_idle' as const, world: 'ISOLATED' as const, persistAcrossSessions: true }
-];
-
-async function registerContentScriptsSafely(): Promise<void> {
-  try {
-    await chrome.scripting.registerContentScripts(CONTENT_SCRIPTS);
-  } catch {
-    try {
-      await chrome.scripting.unregisterContentScripts({ ids: CONTENT_SCRIPTS.map((s) => s.id) });
-      await chrome.scripting.registerContentScripts(CONTENT_SCRIPTS);
-    } catch (error) {
-      log.warn('content script registration failed', error instanceof Error ? error.message : String(error));
-    }
-  }
-}
-
 async function handleInstalled(details: { reason: string }): Promise<void> {
   if (details.reason === 'install') {
     const raw = await chrome.storage.local.get(STORAGE_KEYS.settings);
@@ -113,13 +95,11 @@ async function handleInstalled(details: { reason: string }): Promise<void> {
       await chrome.tabs.create({ url: chrome.runtime.getURL('ui/onboarding/onboarding.html') });
     }
   }
-  await registerContentScriptsSafely();
   const settings = await ensureInitialized();
   void updateBadge(settings);
 }
 
 async function handleStartup(): Promise<void> {
-  await registerContentScriptsSafely();
   const settings = await ensureInitialized();
   void updateBadge(settings);
 }
@@ -895,9 +875,9 @@ const handlers: Record<string, RpcHandler> = {
     return { risk };
   },
 
-  THREAT_ACTION: async (payload) => {
+  THREAT_ACTION: async (payload, sender) => {
     if (!isRecord(payload)) throw new Error('bad payload');
-    let tabId = typeof payload['tabId'] === 'number' ? payload['tabId'] : undefined;
+    let tabId = typeof payload['tabId'] === 'number' ? payload['tabId'] : sender.tab?.id;
     if (tabId === undefined) {
       const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tabs[0]?.id === undefined) throw new Error('no tab available');
@@ -910,9 +890,11 @@ const handlers: Record<string, RpcHandler> = {
     const state = await getTabThreat(tabId);
     if (state !== null) {
       if (action === 'block') {
-        const applied = await setSitePause(state.host, true);
+        const applied = await setSiteBlock(state.host, true);
         if (!applied) throw new Error('block rule failed');
         await logThreat(state.host, state.risk, 'blocked');
+        await setTabThreat(tabId, null);
+        await chrome.tabs.update(tabId, { url: 'about:blank' }).catch(() => undefined);
       } else if (action === 'continue') {
         const nextStage = state.risk.severity === 'malicious' ? 'confirmed' : (state.stage === 'none' ? 'warned' : 'confirmed');
         await setTabThreat(tabId, { ...state, stage: nextStage });
@@ -927,9 +909,14 @@ const handlers: Record<string, RpcHandler> = {
     return { ok: true };
   },
 
-  GET_TAB_STATE: async (payload) => {
-    if (!isRecord(payload) || typeof payload['tabId'] !== 'number') throw new Error('bad payload');
-    const state = await getTabThreat(payload['tabId']);
+  GET_TAB_STATE: async (payload, sender) => {
+    let tabId = isRecord(payload) && typeof payload['tabId'] === 'number' ? payload['tabId'] : sender.tab?.id;
+    if (tabId === undefined) {
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      tabId = tabs[0]?.id;
+    }
+    if (tabId === undefined) return { state: null };
+    const state = await getTabThreat(tabId);
     return { state };
   }
 };

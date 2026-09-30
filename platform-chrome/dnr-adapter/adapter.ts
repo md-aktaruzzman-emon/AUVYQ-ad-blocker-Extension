@@ -207,6 +207,45 @@ export async function setSitePause(host: string, paused: boolean): Promise<boole
   });
 }
 
+/** Per-site threat block uses a high-priority session block rule. */
+export function siteBlockRuleId(host: string): number {
+  const offset = (fnv1a(`block:${host}`) * 2) % (PRIORITY_RANGES.userSession.max - PRIORITY_RANGES.userSession.min - 4);
+  return PRIORITY_RANGES.userSession.min + Math.abs(offset);
+}
+
+export async function setSiteBlock(host: string, blocked: boolean): Promise<boolean> {
+  return dnrMutex.run(async () => {
+    const id = siteBlockRuleId(host);
+    const id2 = id + 1;
+    try {
+      if (!blocked) {
+        await chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [id, id2] });
+        return true;
+      }
+      await chrome.declarativeNetRequest.updateSessionRules({
+        removeRuleIds: [id, id2],
+        addRules: [
+          {
+            id,
+            priority: PRIORITY_RANGES.userSession.max - 10,
+            action: { type: 'block' },
+            condition: { requestDomains: [host] }
+          },
+          {
+            id: id2,
+            priority: PRIORITY_RANGES.userSession.max - 10,
+            action: { type: 'block' },
+            condition: { urlFilter: `||${host}^` }
+          }
+        ]
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  });
+}
+
 /** Converts compiled rules into quota candidates for activation. */
 export function toPackEntries(rules: CompiledRule[]): { key: string; rule: DnrRule }[] {
   return rules.map((compiled) => ({ key: compiled.key, rule: compiled.rule }));

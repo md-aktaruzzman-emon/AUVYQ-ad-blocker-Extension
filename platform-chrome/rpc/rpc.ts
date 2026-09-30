@@ -9,6 +9,26 @@ import { createLogger } from '../../core/logging/logger.js';
 const log = createLogger('rpc');
 const HANDLER_TIMEOUT_MS = 10000;
 
+export const PRIVILEGED_MESSAGE_TYPES = new Set([
+  'SET_SETTINGS',
+  'SET_SITE_PAUSED',
+  'CLEAR_AUVYQ_DATA',
+  'EXPORT_BACKUP',
+  'IMPORT_BACKUP',
+  'CHECK_UPDATES',
+  'REMOVE_COOKIES',
+  'SET_ONBOARDING_DONE'
+]);
+
+export function isPrivilegedSender(sender: chrome.runtime.MessageSender): boolean {
+  if (typeof chrome === 'undefined' || !chrome.runtime?.id) {
+    return true; // Test environments without chrome runtime
+  }
+  if (sender.id !== chrome.runtime.id) return false;
+  const extOrigin = chrome.runtime.getURL('');
+  return typeof sender.url === 'string' && sender.url.startsWith(extOrigin);
+}
+
 export interface RpcRouter {
   handle(raw: unknown, sender: chrome.runtime.MessageSender): Promise<{ requestId: string; success: boolean; data?: unknown; error?: string }>;
 }
@@ -24,6 +44,13 @@ export function createRpcRouter(handlers: Record<string, RpcHandler>): RpcRouter
     if (handler === undefined) {
       return { requestId, success: false, error: `unknown message type: ${type}` };
     }
+
+    // Privilege guard: administrative / mutation RPCs must originate from extension pages
+    if (PRIVILEGED_MESSAGE_TYPES.has(type) && !isPrivilegedSender(sender)) {
+      log.warn(`unauthorized RPC attempt for ${type} from ${sender.url ?? 'unknown'}`);
+      return { requestId, success: false, error: 'unauthorized: privileged message type' };
+    }
+
     // Payload size guard (defense against resource exhaustion from compromised contexts).
     if (envelope.value.payload !== undefined) {
       try {

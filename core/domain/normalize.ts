@@ -15,7 +15,8 @@ export function normalizeHostname(hostname: string): string {
   }
   // Strip default ports only when part of an origin string was passed (defensive).
   candidate = candidate.replace(/:80$|:443$/, '');
-  // Strip a single trailing dot (root).
+  // Strip leading and trailing dots
+  while (candidate.startsWith('.')) candidate = candidate.slice(1);
   while (candidate.endsWith('.')) candidate = candidate.slice(0, -1);
   if (candidate.length === 0) return '';
   if (isIpv4(candidate)) return candidate;
