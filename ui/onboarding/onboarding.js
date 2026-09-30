@@ -146,12 +146,7 @@ document.getElementById('finish').addEventListener('click', async () => {
     // protection still works with defaults if this fails
   }
   try {
-    await chrome.runtime.sendMessage({
-      v: 1,
-      type: 'SET_ONBOARDING_DONE',
-      requestId: nextRequestId(),
-      payload: { done: true }
-    });
+    await rpc('SET_ONBOARDING_DONE', { done: true });
   } catch {
     // non-fatal
   }

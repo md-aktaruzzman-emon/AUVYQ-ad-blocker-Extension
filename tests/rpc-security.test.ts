@@ -26,6 +26,11 @@ describe('RPC Security & Sender Privilege Routing', () => {
       url: `chrome-extension://${fakeExtId}/ui/dashboard/dashboard.html`
     };
 
+    const dashboardTabSender: chrome.runtime.MessageSender = {
+      id: fakeExtId,
+      tab: { id: 101, url: `chrome-extension://${fakeExtId}/ui/dashboard/dashboard.html` } as chrome.tabs.Tab
+    };
+
     const contentScriptSender: chrome.runtime.MessageSender = {
       id: fakeExtId,
       url: 'https://malicious-webpage.example/phishing'
@@ -38,6 +43,7 @@ describe('RPC Security & Sender Privilege Routing', () => {
 
     expect(isPrivilegedSender(extSender)).toBe(true);
     expect(isPrivilegedSender(dashboardSender)).toBe(true);
+    expect(isPrivilegedSender(dashboardTabSender)).toBe(true);
     expect(isPrivilegedSender(contentScriptSender)).toBe(false);
     expect(isPrivilegedSender(externalSender)).toBe(false);
   });

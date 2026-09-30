@@ -24,9 +24,24 @@ export function isPrivilegedSender(sender: chrome.runtime.MessageSender): boolea
   if (typeof chrome === 'undefined' || !chrome.runtime?.id) {
     return true; // Test environments without chrome runtime
   }
-  if (sender.id !== chrome.runtime.id) return false;
+  if (!sender || sender.id !== chrome.runtime.id) return false;
   const extOrigin = chrome.runtime.getURL('');
-  return typeof sender.url === 'string' && sender.url.startsWith(extOrigin);
+  const extOriginNoSlash = extOrigin.replace(/\/$/, '');
+
+  // 1. If direct sender URL is present, verify it starts with extension origin
+  if (typeof sender.url === 'string') {
+    return sender.url.startsWith(extOrigin);
+  }
+  // 2. If tab URL is present, verify it starts with extension origin
+  if (typeof sender.tab?.url === 'string') {
+    return sender.tab.url.startsWith(extOrigin);
+  }
+  // 3. Check sender origin matching extension origin
+  if (typeof sender.origin === 'string') {
+    return sender.origin === extOriginNoSlash || sender.origin.startsWith(extOrigin);
+  }
+  // 4. Sender matching extension ID with no external web URL
+  return sender.id === chrome.runtime.id;
 }
 
 export interface RpcRouter {

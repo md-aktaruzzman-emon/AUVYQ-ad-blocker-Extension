@@ -176,8 +176,26 @@ async function loadSettings() {
         option.appendChild(rec);
       }
       option.appendChild(desc);
-      option.addEventListener('click', () => {
-        rpc('SET_SETTINGS', { preset: key }).then(loadSettings).catch(() => undefined);
+      const applySelected = async () => {
+        document.querySelectorAll('.preset-option').forEach((el) => {
+          el.classList.remove('selected');
+          el.setAttribute('aria-checked', 'false');
+        });
+        option.classList.add('selected');
+        option.setAttribute('aria-checked', 'true');
+        try {
+          await rpc('SET_SETTINGS', { preset: key });
+          await loadSettings();
+        } catch {
+          await loadSettings();
+        }
+      };
+      option.addEventListener('click', applySelected);
+      option.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          applySelected();
+        }
       });
       grid.appendChild(option);
     }
@@ -527,6 +545,8 @@ $('clear-data').addEventListener('click', () => {
 // ---- boot ------------------------------------------------------------------
 
 bindPressPop(document);
+const brandBadge = document.querySelector('.brand-badge');
+if (brandBadge) brandBadge.textContent = `v${chrome.runtime.getManifest().version}`;
 $('about-version').textContent = `Version ${chrome.runtime.getManifest().version} — Manifest V3, local-first.`;
 applyTheme('system');
 loadOverview();
