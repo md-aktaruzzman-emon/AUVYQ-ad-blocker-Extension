@@ -39,6 +39,10 @@ declare namespace chrome {
   }
 
   namespace storage {
+    interface StorageChange {
+      oldValue?: unknown;
+      newValue?: unknown;
+    }
     interface StorageArea {
       get(keys?: string | string[] | Record<string, unknown> | null): Promise<Record<string, unknown>>;
       set(items: Record<string, unknown>): Promise<void>;
@@ -47,6 +51,7 @@ declare namespace chrome {
     }
     const local: StorageArea;
     const session: StorageArea;
+    const onChanged: Event<(changes: Record<string, StorageChange>, areaName: string) => void>;
   }
 
   namespace tabs {

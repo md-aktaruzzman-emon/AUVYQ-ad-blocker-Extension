@@ -144,13 +144,38 @@
 
       <!-- Protection -->
       <section class="panel" id="panel-protection" aria-label="Protection">
-        <h1 class="panel-title">Protection</h1>
-        <div class="auvyq-card section-card">
-          <h2 class="section-title">Presets</h2>
-          <div class="preset-grid" id="preset-grid" role="radiogroup" aria-label="Protection preset"></div>
+        <div class="panel-header-block">
+          <h1 class="panel-title">Protection</h1>
+          <p class="panel-subtitle">Choose how AUVYQ protects your browsing. Your profile controls the protection level across the extension.</p>
         </div>
-        <div class="auvyq-card section-card">
-          <h2 class="section-title">Modules</h2>
+
+        <div class="auvyq-card section-card" id="protection-preset-card">
+          <div class="section-card-header">
+            <div>
+              <h2 class="section-title" id="preset-heading">Protection profile</h2>
+              <p class="section-subtitle">Choose how much protection AUVYQ applies.</p>
+            </div>
+          </div>
+          <div class="preset-grid" id="preset-grid" role="radiogroup" aria-labelledby="preset-heading"></div>
+          
+          <div class="preset-status-banner" id="preset-status-banner" role="status" aria-live="polite">
+            <div class="preset-status-icon" id="preset-status-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
+            <div class="preset-status-content">
+              <div class="preset-status-title" id="preset-status-title">Balanced protection is active</div>
+              <div class="preset-status-desc" id="preset-status-desc">Everyday ad, tracker, cookie, and threat protection. Recommended for most browsing.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="auvyq-card section-card" id="protection-modules-card">
+          <div class="section-card-header">
+            <div>
+              <h2 class="section-title">Protection modules</h2>
+              <p class="section-subtitle">Fine-tune how AUVYQ protects this browser.</p>
+            </div>
+          </div>
           <div id="module-list" class="module-list"></div>
         </div>
       </section>
@@ -383,6 +408,7 @@
       </section>
     </main>
   </div>
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
   <script type="module" src="dashboard.js"></script>
 </body>
 </html>

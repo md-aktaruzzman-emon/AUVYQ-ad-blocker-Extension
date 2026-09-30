@@ -36,6 +36,39 @@ const elements = {
   sweepPanel: document.getElementById('sweep-panel')
 };
 
+let currentConfiguredTheme = 'system';
+
+function applyTheme(theme) {
+  if (typeof theme === 'string') {
+    currentConfiguredTheme = theme;
+  }
+  const target = theme || currentConfiguredTheme;
+  const resolved = target === 'system'
+    ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+    : target;
+  document.documentElement.setAttribute('data-theme', resolved);
+}
+
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+  if (currentConfiguredTheme === 'system') {
+    applyTheme('system');
+  }
+});
+
+chrome.storage.local.get('settings', (result) => {
+  if (result?.settings?.theme) {
+    applyTheme(result.settings.theme);
+  } else {
+    applyTheme('system');
+  }
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.settings?.newValue?.theme) {
+    applyTheme(changes.settings.newValue.theme);
+  }
+});
+
 let masterEnabled = false;
 let sitePaused = false;
 let currentHost = '';
@@ -55,6 +88,9 @@ function applyShieldState(state) {
 
 function renderSnapshot(data) {
   if (data === null || typeof data !== 'object') return;
+  if (typeof data.theme === 'string') {
+    applyTheme(data.theme);
+  }
   const nextMaster = data.masterEnabled === true;
   const wasEnabled = masterEnabled;
   masterEnabled = nextMaster;

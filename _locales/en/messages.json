@@ -22,5 +22,105 @@
   "statusDisabled": {
     "message": "Protection disabled",
     "description": "Protection disabled status label."
+  },
+  "presetBasicName": {
+    "message": "Basic",
+    "description": "Basic preset label."
+  },
+  "presetBasicDesc": {
+    "message": "Essential ad blocking with maximum compatibility.",
+    "description": "Basic preset description."
+  },
+  "presetBasicTag": {
+    "message": "Best when you want simple ad blocking with minimal site impact.",
+    "description": "Basic preset tradeoff explanation."
+  },
+  "presetBalancedName": {
+    "message": "Balanced",
+    "description": "Balanced preset label."
+  },
+  "presetBalancedDesc": {
+    "message": "Everyday ad, tracker, cookie, and threat protection.",
+    "description": "Balanced preset description."
+  },
+  "presetBalancedTag": {
+    "message": "Recommended for most browsing.",
+    "description": "Balanced preset tradeoff explanation."
+  },
+  "presetStrongName": {
+    "message": "Strong",
+    "description": "Strong preset label."
+  },
+  "presetStrongDesc": {
+    "message": "Stronger tracking and threat protection.",
+    "description": "Strong preset description."
+  },
+  "presetStrongTag": {
+    "message": "More protection with a higher chance of website compatibility issues.",
+    "description": "Strong preset tradeoff explanation."
+  },
+  "presetMaximumName": {
+    "message": "Maximum",
+    "description": "Maximum preset label."
+  },
+  "presetMaximumDesc": {
+    "message": "Maximum available protection, including fingerprint defenses.",
+    "description": "Maximum preset description."
+  },
+  "presetMaximumTag": {
+    "message": "Strongest protection. Some websites may require additional adjustments.",
+    "description": "Maximum preset tradeoff explanation."
+  },
+  "presetExpertName": {
+    "message": "Expert",
+    "description": "Expert preset label."
+  },
+  "presetExpertDesc": {
+    "message": "Full manual control over protection modules.",
+    "description": "Expert preset description."
+  },
+  "presetExpertTag": {
+    "message": "Configure each protection module individually.",
+    "description": "Expert preset tradeoff explanation."
+  },
+  "moduleAdsName": {
+    "message": "Ad Blocking",
+    "description": "Ad blocking module name."
+  },
+  "moduleAdsDesc": {
+    "message": "Blocks known ads and advertising requests.",
+    "description": "Ad blocking module description."
+  },
+  "moduleTrackersName": {
+    "message": "Tracker Blocking",
+    "description": "Tracker blocking module name."
+  },
+  "moduleTrackersDesc": {
+    "message": "Stops known trackers and tracking requests across websites.",
+    "description": "Tracker blocking module description."
+  },
+  "moduleCookiesName": {
+    "message": "Cookie Guard",
+    "description": "Cookie guard module name."
+  },
+  "moduleCookiesDesc": {
+    "message": "Removes selected tracking cookies from third-party sites.",
+    "description": "Cookie guard module description."
+  },
+  "moduleHeuristicsName": {
+    "message": "Threat Detection",
+    "description": "Threat heuristics module name."
+  },
+  "moduleHeuristicsDesc": {
+    "message": "Detects suspicious websites, domain lookalikes, and risky login pages.",
+    "description": "Threat heuristics module description."
+  },
+  "moduleFpName": {
+    "message": "Fingerprint Protection",
+    "description": "Fingerprint shields module name."
+  },
+  "moduleFpDesc": {
+    "message": "Reduces browser fingerprinting signals.",
+    "description": "Fingerprint shields module description."
   }
 }

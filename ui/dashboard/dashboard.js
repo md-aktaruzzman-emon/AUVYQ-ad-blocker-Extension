@@ -24,12 +24,35 @@ const $ = (id) => document.getElementById(id);
 
 // ---- theme -----------------------------------------------------------------
 
+let currentConfiguredTheme = 'system';
+
 function applyTheme(theme) {
-  const resolved = theme === 'system'
+  if (typeof theme === 'string') {
+    currentConfiguredTheme = theme;
+  }
+  const target = theme || currentConfiguredTheme;
+  const resolved = target === 'system'
     ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
-    : theme;
+    : target;
   document.documentElement.setAttribute('data-theme', resolved);
 }
+
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+  if (currentConfiguredTheme === 'system') {
+    applyTheme('system');
+  }
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.settings?.newValue?.theme) {
+    const nextTheme = changes.settings.newValue.theme;
+    applyTheme(nextTheme);
+    const themeSelect = $('theme-select');
+    if (themeSelect && themeSelect.value !== nextTheme) {
+      themeSelect.value = nextTheme;
+    }
+  }
+});
 
 // ---- navigation ------------------------------------------------------------
 
@@ -104,29 +127,132 @@ async function renderChart() {
 
 // ---- protection (presets + modules) ----------------------------------------
 
+function t(key, fallback) {
+  try {
+    const msg = chrome?.i18n?.getMessage?.(key);
+    if (typeof msg === 'string' && msg.length > 0) return msg;
+  } catch {
+    // fallback
+  }
+  return fallback;
+}
+
+const PRESET_KEYS = ['basic', 'balanced', 'strong', 'maximum', 'expert'];
+
 const PRESET_INFO = {
-  basic: { label: 'Basic', desc: 'Ads only. Maximum compatibility.', recommended: false },
-  balanced: { label: 'Balanced', desc: 'Recommended everyday protection.', recommended: true },
-  strong: { label: 'Strong', desc: 'Adds stricter threat detection.', recommended: false },
-  maximum: { label: 'Maximum', desc: 'Adds fingerprint shields.', recommended: false },
-  expert: { label: 'Expert', desc: 'Full manual control + diagnostics.', recommended: false }
+  basic: {
+    key: 'basic',
+    label: t('presetBasicName', 'Basic'),
+    desc: t('presetBasicDesc', 'Essential ad blocking with maximum compatibility.'),
+    tag: t('presetBasicTag', 'Best when you want simple ad blocking with minimal site impact.'),
+    recommended: false,
+    statusTitle: 'Basic protection is active',
+    statusDesc: 'Essential ad blocking with maximum compatibility. Best when you want simple ad blocking with minimal site impact.',
+    toast: 'Basic protection enabled.'
+  },
+  balanced: {
+    key: 'balanced',
+    label: t('presetBalancedName', 'Balanced'),
+    desc: t('presetBalancedDesc', 'Everyday ad, tracker, cookie, and threat protection.'),
+    tag: t('presetBalancedTag', 'Recommended for most browsing.'),
+    recommended: true,
+    statusTitle: 'Balanced protection is active',
+    statusDesc: 'Everyday ad, tracker, cookie, and threat protection. Recommended for most browsing.',
+    toast: 'Balanced protection enabled.'
+  },
+  strong: {
+    key: 'strong',
+    label: t('presetStrongName', 'Strong'),
+    desc: t('presetStrongDesc', 'Stronger tracking and threat protection.'),
+    tag: t('presetStrongTag', 'More protection with a higher chance of website compatibility issues.'),
+    recommended: false,
+    statusTitle: 'Strong protection is active',
+    statusDesc: 'Stronger tracking and threat protection. More protection with a higher chance of website compatibility issues.',
+    toast: 'Strong protection enabled.'
+  },
+  maximum: {
+    key: 'maximum',
+    label: t('presetMaximumName', 'Maximum'),
+    desc: t('presetMaximumDesc', 'Maximum available protection, including fingerprint defenses.'),
+    tag: t('presetMaximumTag', 'Strongest protection. Some websites may require additional adjustments.'),
+    recommended: false,
+    statusTitle: 'Maximum protection is active',
+    statusDesc: 'Maximum available protection, including fingerprint defenses. Some websites may require additional adjustments.',
+    toast: 'Maximum protection enabled.'
+  },
+  expert: {
+    key: 'expert',
+    label: t('presetExpertName', 'Expert'),
+    desc: t('presetExpertDesc', 'Full manual control over protection modules.'),
+    tag: t('presetExpertTag', 'Configure each protection module individually.'),
+    recommended: false,
+    statusTitle: 'Expert — Custom protection is active',
+    statusDesc: 'Manual protection control. Configure each protection module individually.',
+    toast: 'Custom protection settings active.'
+  }
 };
 
 const MODULE_INFO = [
-  { key: 'ads', name: 'Ad Blocking', desc: 'Blocks known advertising requests' },
-  { key: 'trackers', name: 'Tracker Blocking', desc: 'Stops known tracking requests' },
-  { key: 'cookies', name: 'Cookie Guard', desc: 'Cleans selected third-party tracker cookies' },
-  { key: 'heuristics', name: 'Threat Heuristics', desc: 'Detects suspicious domains and login forms' },
-  { key: 'fingerprintShields', name: 'Fingerprint Shields', desc: 'Optional browser fingerprint defenses' }
+  { key: 'ads', name: t('moduleAdsName', 'Ad Blocking'), desc: t('moduleAdsDesc', 'Blocks known ads and advertising requests.') },
+  { key: 'trackers', name: t('moduleTrackersName', 'Tracker Blocking'), desc: t('moduleTrackersDesc', 'Stops known trackers and tracking requests across websites.') },
+  { key: 'cookies', name: t('moduleCookiesName', 'Cookie Guard'), desc: t('moduleCookiesDesc', 'Removes selected tracking cookies from third-party sites.') },
+  { key: 'heuristics', name: t('moduleHeuristicsName', 'Threat Detection'), desc: t('moduleHeuristicsDesc', 'Detects suspicious websites, domain lookalikes, and risky login pages.') },
+  { key: 'fingerprintShields', name: t('moduleFpName', 'Fingerprint Protection'), desc: t('moduleFpDesc', 'Reduces browser fingerprinting signals.') }
 ];
 
 const FP_INFO = [
-  { key: 'canvas', name: 'Canvas', desc: 'Adds subtle noise to canvas readback' },
-  { key: 'webgl', name: 'WebGL', desc: 'Masks GPU vendor and renderer strings' },
-  { key: 'navigator', name: 'Navigator', desc: 'Generalizes hardware metadata' },
-  { key: 'screen', name: 'Screen', desc: 'Hides exact screen placement values' },
-  { key: 'timing', name: 'Timing', desc: 'Reduces clock precision' }
+  { key: 'canvas', name: 'Canvas Defense', desc: 'Adds subtle noise to canvas readback' },
+  { key: 'webgl', name: 'WebGL Masking', desc: 'Masks GPU vendor and renderer strings' },
+  { key: 'navigator', name: 'Navigator Protection', desc: 'Generalizes hardware and platform metadata' },
+  { key: 'screen', name: 'Screen Obfuscation', desc: 'Hides exact display geometry and placement' },
+  { key: 'timing', name: 'Timing Jitter', desc: 'Reduces high-resolution timer precision' }
 ];
+
+function showToast(message, isError = false) {
+  const container = $('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `auvyq-toast${isError ? ' auvyq-toast-error' : ''}`;
+  toast.setAttribute('role', isError ? 'alert' : 'status');
+
+  const icon = document.createElement('span');
+  icon.className = 'auvyq-toast-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML = isError
+    ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+    : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  const text = document.createElement('span');
+  text.textContent = message;
+
+  toast.appendChild(icon);
+  toast.appendChild(text);
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.24s ease, transform 0.24s ease';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    setTimeout(() => toast.remove(), 250);
+  }, 3000);
+}
+
+function updatePresetStatusBanner(presetKey) {
+  const banner = $('preset-status-banner');
+  const titleEl = $('preset-status-title');
+  const descEl = $('preset-status-desc');
+  const iconEl = $('preset-status-icon');
+  if (!banner || !titleEl || !descEl) return;
+  const info = PRESET_INFO[presetKey] || PRESET_INFO.balanced;
+  banner.classList.toggle('is-expert', presetKey === 'expert');
+  banner.classList.toggle('is-protected', presetKey !== 'expert');
+  titleEl.textContent = info.statusTitle;
+  descEl.textContent = info.statusDesc;
+  if (iconEl) {
+    iconEl.innerHTML = presetKey === 'expert'
+      ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>'
+      : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>';
+  }
+}
 
 function makeSwitch(checked, label, onToggle) {
   const button = document.createElement('button');
@@ -151,54 +277,144 @@ function makeSwitch(checked, label, onToggle) {
   return button;
 }
 
-async function loadSettings() {
+async function applyPresetChoice(key) {
+  const info = PRESET_INFO[key] || PRESET_INFO.balanced;
   try {
-    const settings = await rpc('GET_SETTINGS');
-    // presets
+    const updated = await rpc('SET_SETTINGS', { preset: key });
+    await loadSettings(updated);
+    showToast(info.toast);
+  } catch {
+    await loadSettings();
+    showToast('Could not apply this protection profile. Your previous settings are still active.', true);
+  }
+}
+
+async function toggleModule(key, next) {
+  try {
+    const updated = await rpc('SET_SETTINGS', { modules: { [key]: next } });
+    await loadSettings(updated);
+    const activeInfo = PRESET_INFO[updated.preset] || PRESET_INFO.expert;
+    showToast(updated.preset === 'expert' ? 'Custom protection settings active.' : `${activeInfo.label} protection active.`);
+  } catch {
+    await loadSettings();
+    showToast('Could not update module settings.', true);
+  }
+}
+
+async function toggleFpShield(key, next) {
+  try {
+    const updated = await rpc('SET_SETTINGS', { fpShields: { [key]: next } });
+    await loadSettings(updated);
+  } catch {
+    await loadSettings();
+    showToast('Could not update fingerprint defense setting.', true);
+  }
+}
+
+async function loadSettings(providedSettings) {
+  try {
+    const settings = providedSettings || await rpc('GET_SETTINGS');
+
+    // presets grid
     const grid = $('preset-grid');
     grid.textContent = '';
+    const activePreset = settings.preset || 'balanced';
+
     for (const [key, info] of Object.entries(PRESET_INFO)) {
+      const isSelected = activePreset === key;
       const option = document.createElement('button');
-      option.className = `preset-option${settings.preset === key ? ' selected' : ''}`;
+      option.type = 'button';
+      option.className = `preset-option${isSelected ? ' selected' : ''}`;
       option.setAttribute('role', 'radio');
-      option.setAttribute('aria-checked', String(settings.preset === key));
+      option.setAttribute('aria-checked', String(isSelected));
+      option.setAttribute('tabindex', isSelected ? '0' : '-1');
+      option.id = `preset-${key}`;
+
+      const header = document.createElement('div');
+      header.className = 'preset-header';
+
       const name = document.createElement('span');
       name.className = 'preset-name';
       name.textContent = info.label;
-      const desc = document.createElement('span');
-      desc.className = 'preset-desc';
-      desc.textContent = info.desc;
-      option.appendChild(name);
+      header.appendChild(name);
+
+      const statusIndicator = document.createElement('span');
+      statusIndicator.className = 'preset-status-indicator';
+      statusIndicator.setAttribute('aria-hidden', 'true');
+      statusIndicator.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      header.appendChild(statusIndicator);
+      option.appendChild(header);
+
       if (info.recommended) {
         const rec = document.createElement('span');
         rec.className = 'preset-recommended';
-        rec.textContent = 'Recommended';
+        rec.textContent = 'RECOMMENDED';
         option.appendChild(rec);
       }
+
+      const desc = document.createElement('p');
+      desc.className = 'preset-desc';
+      desc.textContent = info.desc;
       option.appendChild(desc);
-      const applySelected = async () => {
-        document.querySelectorAll('.preset-option').forEach((el) => {
-          el.classList.remove('selected');
-          el.setAttribute('aria-checked', 'false');
-        });
-        option.classList.add('selected');
-        option.setAttribute('aria-checked', 'true');
-        try {
-          await rpc('SET_SETTINGS', { preset: key });
-          await loadSettings();
-        } catch {
-          await loadSettings();
-        }
-      };
-      option.addEventListener('click', applySelected);
+
+      if (info.tag) {
+        const tag = document.createElement('div');
+        tag.className = 'preset-tradeoff';
+        tag.textContent = info.tag;
+        option.appendChild(tag);
+      }
+
+      option.addEventListener('click', () => {
+        applyPresetChoice(key);
+      });
+
       option.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          applySelected();
+          applyPresetChoice(key);
+        } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          const currentIndex = PRESET_KEYS.indexOf(key);
+          const nextIndex = (currentIndex + 1) % PRESET_KEYS.length;
+          const nextKey = PRESET_KEYS[nextIndex];
+          const nextBtn = document.getElementById(`preset-${nextKey}`);
+          if (nextBtn) {
+            nextBtn.focus();
+            applyPresetChoice(nextKey);
+          }
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const currentIndex = PRESET_KEYS.indexOf(key);
+          const prevIndex = (currentIndex - 1 + PRESET_KEYS.length) % PRESET_KEYS.length;
+          const prevKey = PRESET_KEYS[prevIndex];
+          const prevBtn = document.getElementById(`preset-${prevKey}`);
+          if (prevBtn) {
+            prevBtn.focus();
+            applyPresetChoice(prevKey);
+          }
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          const firstBtn = document.getElementById(`preset-${PRESET_KEYS[0]}`);
+          if (firstBtn) {
+            firstBtn.focus();
+            applyPresetChoice(PRESET_KEYS[0]);
+          }
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          const lastBtn = document.getElementById(`preset-${PRESET_KEYS[PRESET_KEYS.length - 1]}`);
+          if (lastBtn) {
+            lastBtn.focus();
+            applyPresetChoice(PRESET_KEYS[PRESET_KEYS.length - 1]);
+          }
         }
       });
+
       grid.appendChild(option);
     }
+
+    // update preset status banner
+    updatePresetStatusBanner(activePreset);
+
     // modules
     const moduleList = $('module-list');
     moduleList.textContent = '';
@@ -217,36 +433,43 @@ async function loadSettings() {
       info.appendChild(desc);
       row.appendChild(info);
       row.appendChild(makeSwitch(settings.modules[module.key] === true, module.name, (next) => {
-        rpc('SET_SETTINGS', { modules: { [module.key]: next } }).catch(() => loadSettings());
+        toggleModule(module.key, next);
       }));
       moduleList.appendChild(row);
     }
+
     // fp shields
     const fpList = $('fp-list');
-    fpList.textContent = '';
-    for (const shield of FP_INFO) {
-      const row = document.createElement('div');
-      row.className = 'module-row';
-      const info = document.createElement('div');
-      info.className = 'module-info';
-      const name = document.createElement('span');
-      name.className = 'module-name';
-      name.textContent = shield.name;
-      const desc = document.createElement('span');
-      desc.className = 'module-desc';
-      desc.textContent = shield.desc;
-      info.appendChild(name);
-      info.appendChild(desc);
-      row.appendChild(info);
-      row.appendChild(makeSwitch(settings.fpShields[shield.key] === true, shield.name, (next) => {
-        rpc('SET_SETTINGS', { fpShields: { [shield.key]: next } }).catch(() => loadSettings());
-      }));
-      fpList.appendChild(row);
+    if (fpList) {
+      fpList.textContent = '';
+      for (const shield of FP_INFO) {
+        const row = document.createElement('div');
+        row.className = 'module-row';
+        const info = document.createElement('div');
+        info.className = 'module-info';
+        const name = document.createElement('span');
+        name.className = 'module-name';
+        name.textContent = shield.name;
+        const desc = document.createElement('span');
+        desc.className = 'module-desc';
+        desc.textContent = shield.desc;
+        info.appendChild(name);
+        info.appendChild(desc);
+        row.appendChild(info);
+        row.appendChild(makeSwitch(settings.fpShields[shield.key] === true, shield.name, (next) => {
+          toggleFpShield(shield.key, next);
+        }));
+        fpList.appendChild(row);
+      }
     }
+
     // settings inputs
-    $('theme-select').value = settings.theme;
-    $('retention-select').value = String(settings.logRetentionDays);
-    $('telemetry-switch').setAttribute('aria-checked', String(settings.telemetryOptIn === true));
+    const themeSelect = $('theme-select');
+    if (themeSelect) themeSelect.value = settings.theme;
+    const retentionSelect = $('retention-select');
+    if (retentionSelect) retentionSelect.value = String(settings.logRetentionDays);
+    const telemetrySwitch = $('telemetry-switch');
+    if (telemetrySwitch) telemetrySwitch.setAttribute('aria-checked', String(settings.telemetryOptIn === true));
     applyTheme(settings.theme);
   } catch {
     // keep last rendered state
@@ -542,13 +765,19 @@ $('clear-data').addEventListener('click', () => {
   }).catch(() => undefined);
 });
 
-// ---- boot ------------------------------------------------------------------
-
 bindPressPop(document);
 const brandBadge = document.querySelector('.brand-badge');
 if (brandBadge) brandBadge.textContent = `v${chrome.runtime.getManifest().version}`;
 $('about-version').textContent = `Version ${chrome.runtime.getManifest().version} — Manifest V3, local-first.`;
-applyTheme('system');
+
+chrome.storage.local.get('settings', (result) => {
+  if (result?.settings?.theme) {
+    applyTheme(result.settings.theme);
+  } else {
+    applyTheme('system');
+  }
+});
+
 loadOverview();
 loadSettings();
 loadCookies();

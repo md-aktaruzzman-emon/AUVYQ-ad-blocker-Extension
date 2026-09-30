@@ -11,7 +11,7 @@ import { createStatsService, emptySnapshot, computePrivacyScore, todayKey } from
 import { createRequestObserver, registerPackRuleCategories } from './platform-chrome/request-observer/observer.js';
 import { createRpcRouter, registerRpcListener } from './platform-chrome/rpc/rpc.js';
 import type { RpcHandler } from './types/messages.js';
-import { loadSettings, saveSettings, applyPatch, applyPreset, setSitePaused, isSitePaused } from './core/storage/settings.js';
+import { loadSettings, saveSettings, applyPatch, applyPreset, setSitePaused, isSitePaused, type SettingsPatch } from './core/storage/settings.js';
 import { STORAGE_KEYS, defaultSettings, PRESETS } from './core/storage/schema.js';
 import type { Settings, Snapshot, RiskResult, ThreatLogEntry, UpdateState, TabThreatState, PresetName } from './types/schemas.js';
 import { validateSettings, validateHostnameInput, validateRiskResult, isRecord, isFiniteNumber, LIMITS } from './core/validation/schemas.js';
@@ -36,7 +36,6 @@ const log = createLogger('sw');
 // ---------------------------------------------------------------------------
 const stats = createStatsService();
 const observer = createRequestObserver(stats);
-let initPromise: Promise<Settings> | null = null;
 let offscreenLastUse = 0;
 let offscreenInFlight = new Map<string, Promise<unknown>>();
 const OFFSCREEN_IDLE_MS = 60000;
@@ -49,31 +48,47 @@ const ALARMS = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Settings + lifecycle
+// Settings + lifecycle (single source of truth with responsive in-memory cache)
 // ---------------------------------------------------------------------------
 
+let cachedSettings: Settings | null = null;
+let lifecyclePromise: Promise<void> | null = null;
+
 async function ensureInitialized(): Promise<Settings> {
-  if (initPromise === null) {
-    initPromise = (async () => {
-      const settings = await loadSettings();
-      configureLogging(settings.developerMode ? 'debug' : 'warn', settings.developerMode);
+  if (lifecyclePromise === null) {
+    lifecyclePromise = (async () => {
+      cachedSettings = await loadSettings();
+      configureLogging(cachedSettings.developerMode ? 'debug' : 'warn', cachedSettings.developerMode);
       await ensureAlarms();
-      // Enable native Declarative Net Request badge count if supported
       await chrome.declarativeNetRequest?.setExtensionActionOptions?.({ displayActionCountAsBadgeText: true }).catch?.(() => undefined);
-      // Reconcile the actual blocking state with the stored master switch and module settings.
-      await syncNetworkBlocking(settings.masterEnabled, settings);
-      // Fire-and-forget: compile the bundled default filter pack if none exists.
+      await syncNetworkBlocking(cachedSettings.masterEnabled, cachedSettings);
       void activateDefaultPackIfNeeded();
-      void updateBadge(settings);
-      return settings;
+      void updateBadge(cachedSettings);
     })().catch(async (error) => {
-      initPromise = null;
+      lifecyclePromise = null;
       log.error('initialization failed', error instanceof Error ? error.message : String(error));
-      return defaultSettings();
     });
   }
-  return initPromise;
+  await lifecyclePromise;
+  if (cachedSettings === null) {
+    cachedSettings = await loadSettings();
+  }
+  return cachedSettings;
 }
+
+async function updateSettings(next: Settings): Promise<void> {
+  await saveSettings(next);
+  cachedSettings = next;
+}
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && changes[STORAGE_KEYS.settings]) {
+    const validated = validateSettings(changes[STORAGE_KEYS.settings].newValue);
+    if (validated.ok) {
+      cachedSettings = validated.value;
+    }
+  }
+});
 
 async function ensureAlarms(): Promise<void> {
   chrome.alarms.create(ALARMS.statsFlush, { periodInMinutes: 1 });
@@ -445,7 +460,7 @@ async function restoreBackupPayload(value: unknown): Promise<{ restored: string[
   if (settingsRaw !== undefined) {
     const validated = validateSettings(settingsRaw);
     if (!validated.ok) throw new Error('backup settings failed validation');
-    await saveSettings(validated.value);
+    await updateSettings(validated.value);
     restored.push(STORAGE_KEYS.settings);
   }
   if (value[STORAGE_KEYS.snapshots] !== undefined && isRecord(value[STORAGE_KEYS.snapshots])) {
@@ -500,6 +515,7 @@ const handlers: Record<string, RpcHandler> = {
       privacyScore: computePrivacyScore(snapshot),
       masterEnabled: settings.masterEnabled,
       sitePaused: host.length > 0 ? isSitePaused(settings, host) : false,
+      theme: settings.theme,
       host
     };
   },
@@ -520,13 +536,13 @@ const handlers: Record<string, RpcHandler> = {
         throw new Error('unknown preset');
       }
       const next = applyPreset(current, preset as PresetName);
-      await saveSettings(next);
+      await updateSettings(next);
       void syncNetworkBlocking(next.masterEnabled, next);
       void updateBadge(next);
       return next;
     }
-    const next = applyPatch(current, payload as Partial<Settings>);
-    await saveSettings(next);
+    const next = applyPatch(current, payload as SettingsPatch);
+    await updateSettings(next);
     configureLogging(next.developerMode ? 'debug' : 'warn', next.developerMode);
     if (next.masterEnabled !== current.masterEnabled ||
         next.modules.ads !== current.modules.ads ||
@@ -574,7 +590,7 @@ const handlers: Record<string, RpcHandler> = {
         };
       }
     }
-    await saveSettings(next);
+    await updateSettings(next);
     const applied = await setSitePause(host.value, payload['paused']);
     if (!applied) throw new Error('DNR session rule failed; settings updated');
     void updateBadge(next);
@@ -815,7 +831,7 @@ const handlers: Record<string, RpcHandler> = {
     ]);
     await chrome.storage.session.clear().catch(() => undefined);
     const settings = defaultSettings();
-    await chrome.storage.local.set({ [STORAGE_KEYS.settings]: settings });
+    await updateSettings(settings);
     await applyPackDiff([]);
     // Clearing resets to defaults: the default pack is part of the default state.
     defaultPackChecked = false;

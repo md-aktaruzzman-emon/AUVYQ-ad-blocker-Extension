@@ -22,6 +22,39 @@ function rpc(type, payload) {
 
 const $ = (id) => document.getElementById(id);
 
+let currentConfiguredTheme = 'system';
+
+function applyTheme(theme) {
+  if (typeof theme === 'string') {
+    currentConfiguredTheme = theme;
+  }
+  const target = theme || currentConfiguredTheme;
+  const resolved = target === 'system'
+    ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+    : target;
+  document.documentElement.setAttribute('data-theme', resolved);
+}
+
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+  if (currentConfiguredTheme === 'system') {
+    applyTheme('system');
+  }
+});
+
+chrome.storage.local.get('settings', (result) => {
+  if (result?.settings?.theme) {
+    applyTheme(result.settings.theme);
+  } else {
+    applyTheme('system');
+  }
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.settings?.newValue?.theme) {
+    applyTheme(changes.settings.newValue.theme);
+  }
+});
+
 function safeHostFromUrl(url) {
   if (typeof url !== 'string' || url.length === 0) return '';
   try {
