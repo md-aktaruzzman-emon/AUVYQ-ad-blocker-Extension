@@ -88,4 +88,19 @@ describe('Heuristic Threat Engine (Tier 1)', () => {
     expect(result.reasons.length).toBeGreaterThanOrEqual(2);
     expect(result.confidence).toBeGreaterThan(0.7);
   });
+
+  it('detects punycode in subdomains as homoglyph threats', () => {
+    expect(detectHomoglyph('sub.xn--pple-43d.com')).toBe(true);
+    expect(detectHomoglyph('login.xn--pypal-4ve.com')).toBe(true);
+    expect(detectHomoglyph('secure.bank.xn--e1awd7f.com')).toBe(true);
+  });
+
+  it('detects deceptive subdomains spoofing popular services', () => {
+    const threat = assessThreat({
+      url: 'https://paypal.com.evil-site.com/login',
+      hostname: 'paypal.com.evil-site.com'
+    });
+    expect(threat.score).toBeGreaterThanOrEqual(50);
+    expect(threat.reasons.some((r) => r.includes('Deceptive subdomain'))).toBe(true);
+  });
 });

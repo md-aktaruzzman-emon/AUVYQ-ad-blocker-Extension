@@ -38,5 +38,7 @@
   { "id": 37, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "/safeframe/", "resourceTypes": ["sub_frame", "script"] } },
   { "id": 38, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "/vast/", "resourceTypes": ["script", "xmlhttprequest", "media"], "domainType": "thirdParty" } },
   { "id": 39, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "/vpaid/", "resourceTypes": ["script", "xmlhttprequest"], "domainType": "thirdParty" } },
-  { "id": 40, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "/interstitial", "resourceTypes": ["sub_frame", "script"], "domainType": "thirdParty" } }
+  { "id": 40, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "/interstitial", "resourceTypes": ["sub_frame", "script"], "domainType": "thirdParty" } },
+  { "id": 41, "priority": 4, "action": { "type": "redirect", "redirect": { "transform": { "queryTransform": { "removeParams": ["mc_eid", "mc_cid"] } } } }, "condition": { "regexFilter": "^https?://[^/]+/.*[?&]mc_eid=", "resourceTypes": ["main_frame"] } },
+  { "id": 42, "priority": 4, "action": { "type": "redirect", "redirect": { "transform": { "queryTransform": { "removeParams": ["yclid"] } } } }, "condition": { "regexFilter": "^https?://[^/]+/.*[?&]yclid=", "resourceTypes": ["main_frame"] } }
 ]

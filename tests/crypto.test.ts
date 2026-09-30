@@ -61,6 +61,14 @@ describe('Crypto Vault', () => {
     await expect(decryptBackup(badVersion, password)).rejects.toThrow(VaultError);
   });
 
+  it('fails decryption if extra trailing data is appended to the backup', async () => {
+    const encrypted = await encryptBackup(payload, password, meta);
+    const withExtra = new Uint8Array(encrypted.length + 8);
+    withExtra.set(encrypted, 0);
+    withExtra.set([1, 2, 3, 4, 5, 6, 7, 8], encrypted.length);
+    await expect(decryptBackup(withExtra, password)).rejects.toThrow(VaultError);
+  });
+
   it('computes SHA-256 hex digest correctly', async () => {
     const data = new TextEncoder().encode('AUVYQ-TEST');
     const hash = await sha256Hex(data);

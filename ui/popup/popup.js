@@ -64,8 +64,11 @@ chrome.storage.local.get('settings', (result) => {
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && changes.settings?.newValue?.theme) {
-    applyTheme(changes.settings.newValue.theme);
+  if (area === 'local' && changes.settings?.newValue) {
+    if (changes.settings.newValue.theme) {
+      applyTheme(changes.settings.newValue.theme);
+    }
+    void refresh();
   }
 });
 

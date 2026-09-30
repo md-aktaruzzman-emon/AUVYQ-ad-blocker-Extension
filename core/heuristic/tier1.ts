@@ -45,7 +45,7 @@ export function makeRisk(score: number, reasons: string[], confidence: number): 
 export function detectHomoglyph(hostname: string): boolean {
   const host = normalizeHostname(hostname);
   if (host.length === 0) return false;
-  if (host.startsWith('xn--')) return true; // punycode label: requires user scrutiny
+  if (host.startsWith('xn--') || host.split('.').some((l) => l.startsWith('xn--'))) return true; // punycode label: requires user scrutiny
   let hasLatin = false;
   let hasNonLatin = false;
   for (const ch of host) {
@@ -57,6 +57,22 @@ export function detectHomoglyph(hostname: string): boolean {
     if (HOMOGLYPH_RANGES.some(([lo, hi]) => code >= lo && code <= hi)) hasNonLatin = true;
   }
   return hasLatin && hasNonLatin;
+}
+
+export function detectDeceptiveSubdomain(hostname: string): { suspicious: boolean; target?: string } {
+  const host = normalizeHostname(hostname);
+  if (host.length === 0 || /^\d+\.\d+\.\d+\.\d+$/.test(host) || host.includes(':')) {
+    return { suspicious: false };
+  }
+  const base = registrableDomain(host);
+  if (host === base) return { suspicious: false };
+  const subPrefix = host.slice(0, host.length - base.length).replace(/\.$/, '');
+  for (const popular of TOP_DOMAINS) {
+    if (subPrefix === popular || subPrefix.endsWith(`.${popular}`) || subPrefix.includes(`${popular}.`)) {
+      return { suspicious: true, target: popular };
+    }
+  }
+  return { suspicious: false };
 }
 
 // ---------------------------------------------------------------------------
@@ -234,6 +250,12 @@ export function assessThreat(input: HeuristicInput): RiskResult {
       score += 50;
       signals += 1;
       reasons.push(`Domain closely resembles the popular site ${typo.target}`);
+    }
+    const deceptive = detectDeceptiveSubdomain(host);
+    if (deceptive.suspicious && deceptive.target) {
+      score += 55;
+      signals += 1;
+      reasons.push(`Deceptive subdomain impersonating ${deceptive.target}`);
     }
     const tld = registrableDomain(host).split('.').pop() ?? '';
     if (RISKY_TLDS.has(tld)) {

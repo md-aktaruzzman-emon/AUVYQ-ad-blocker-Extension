@@ -154,4 +154,27 @@ describe('Protection Presets & Canonical State Synchronization', () => {
     expect(patched.theme).toBe('light');
     expect(patched.preset).toBe('expert');
   });
+
+  it('correctly applies preset combined with other setting fields', () => {
+    const initial = defaultSettings();
+    const withPreset = applyPreset(initial, 'basic');
+    const withPatch = applyPatch(withPreset, { telemetryOptIn: true, theme: 'light' });
+
+    expect(withPatch.preset).toBe('basic');
+    expect(withPatch.modules.trackers).toBe(false);
+    expect(withPatch.telemetryOptIn).toBe(true);
+    expect(withPatch.theme).toBe('light');
+  });
+
+  it('handles rapid sequential preset switches deterministically', () => {
+    let current = defaultSettings();
+    const sequence = ['basic', 'balanced', 'strong', 'maximum', 'expert', 'basic'] as const;
+    for (const target of sequence) {
+      current = applyPreset(current, target);
+      expect(current.preset).toBe(target);
+      expect(validateSettings(current).ok).toBe(true);
+    }
+    expect(current.preset).toBe('basic');
+    expect(current.modules.trackers).toBe(false);
+  });
 });

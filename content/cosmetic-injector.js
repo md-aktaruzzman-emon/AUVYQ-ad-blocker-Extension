@@ -292,7 +292,7 @@
     sendScriptlets((data && Array.isArray(data.entries)) ? data.entries : []);
   }).catch(() => undefined);
 
-  rpc('GET_FP_SHIELDS', {}).then((data) => {
+  rpc('GET_FP_SHIELDS', { host }).then((data) => {
     dispatchToMain('auvyq-fp-config', (data && typeof data.shields === 'object' && data.shields !== null) ? data.shields : {});
   }).catch(() => undefined);
 

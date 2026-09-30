@@ -131,8 +131,8 @@ export function createRequestObserver(stats: StatsService) {
       if (initiatorHost.length > 0 && initiatorHost !== host && isTrackerDomain(host)) {
         trackTabHost(details.tabId, host);
       }
-      if (paramsSeen && removeParamHosts.has(host)) {
-        buffer('params');
+      if (paramsSeen) {
+        buffer('params', 1, host);
       }
     }, { urls: ['<all_urls>'] });
   }

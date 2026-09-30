@@ -41,11 +41,17 @@ describe('RPC Security & Sender Privilege Routing', () => {
       url: 'chrome-extension://other-extension-id/popup.html'
     };
 
+    const untrustedTabSender: chrome.runtime.MessageSender = {
+      id: fakeExtId,
+      tab: { id: 102 } as chrome.tabs.Tab
+    };
+
     expect(isPrivilegedSender(extSender)).toBe(true);
     expect(isPrivilegedSender(dashboardSender)).toBe(true);
     expect(isPrivilegedSender(dashboardTabSender)).toBe(true);
     expect(isPrivilegedSender(contentScriptSender)).toBe(false);
     expect(isPrivilegedSender(externalSender)).toBe(false);
+    expect(isPrivilegedSender(untrustedTabSender)).toBe(false);
   });
 
   it('rejects privileged RPC requests when initiated by untrusted senders', async () => {

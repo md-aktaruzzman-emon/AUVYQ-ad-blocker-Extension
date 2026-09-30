@@ -165,6 +165,7 @@ export async function decryptBackup(blob: Uint8Array, password: string): Promise
   const ctLen = readUint64(blob, offset);
   offset += 8;
   if (ctLen > blob.byteLength - offset) throw new VaultError('format', 'ciphertext length exceeds file');
+  if (offset + ctLen !== blob.byteLength) throw new VaultError('format', 'unexpected trailing data in backup');
   const ciphertext = blob.slice(offset, offset + ctLen);
 
   let meta: unknown;

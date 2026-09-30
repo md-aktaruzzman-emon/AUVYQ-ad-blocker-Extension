@@ -44,13 +44,17 @@ window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', ()
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && changes.settings?.newValue?.theme) {
-    const nextTheme = changes.settings.newValue.theme;
-    applyTheme(nextTheme);
-    const themeSelect = $('theme-select');
-    if (themeSelect && themeSelect.value !== nextTheme) {
-      themeSelect.value = nextTheme;
+  if (area === 'local' && changes.settings?.newValue) {
+    const nextSettings = changes.settings.newValue;
+    if (nextSettings.theme) {
+      applyTheme(nextSettings.theme);
+      const themeSelect = $('theme-select');
+      if (themeSelect && themeSelect.value !== nextSettings.theme) {
+        themeSelect.value = nextSettings.theme;
+      }
     }
+    loadSettings(nextSettings);
+    loadOverview();
   }
 });
 
@@ -277,25 +281,33 @@ function makeSwitch(checked, label, onToggle) {
   return button;
 }
 
+let presetSequence = 0;
 async function applyPresetChoice(key) {
+  const seq = ++presetSequence;
   const info = PRESET_INFO[key] || PRESET_INFO.balanced;
   try {
     const updated = await rpc('SET_SETTINGS', { preset: key });
+    if (seq !== presetSequence) return;
     await loadSettings(updated);
     showToast(info.toast);
   } catch {
+    if (seq !== presetSequence) return;
     await loadSettings();
     showToast('Could not apply this protection profile. Your previous settings are still active.', true);
   }
 }
 
+let moduleSequence = 0;
 async function toggleModule(key, next) {
+  const seq = ++moduleSequence;
   try {
     const updated = await rpc('SET_SETTINGS', { modules: { [key]: next } });
+    if (seq !== moduleSequence) return;
     await loadSettings(updated);
     const activeInfo = PRESET_INFO[updated.preset] || PRESET_INFO.expert;
     showToast(updated.preset === 'expert' ? 'Custom protection settings active.' : `${activeInfo.label} protection active.`);
   } catch {
+    if (seq !== moduleSequence) return;
     await loadSettings();
     showToast('Could not update module settings.', true);
   }
@@ -314,6 +326,12 @@ async function toggleFpShield(key, next) {
 async function loadSettings(providedSettings) {
   try {
     const settings = providedSettings || await rpc('GET_SETTINGS');
+
+    // Remember focused elements to preserve keyboard navigation across re-renders
+    const focusedPresetId = document.activeElement?.id?.startsWith('preset-') ? document.activeElement.id : null;
+    const focusedSwitchLabel = document.activeElement?.classList?.contains('auvyq-switch')
+      ? document.activeElement.getAttribute('aria-label')
+      : null;
 
     // presets grid
     const grid = $('preset-grid');
@@ -412,6 +430,12 @@ async function loadSettings(providedSettings) {
       grid.appendChild(option);
     }
 
+    // Restore preset button focus if user was navigating with keyboard
+    if (focusedPresetId) {
+      const toFocus = document.getElementById(focusedPresetId) || document.getElementById(`preset-${activePreset}`);
+      if (toFocus) toFocus.focus();
+    }
+
     // update preset status banner
     updatePresetStatusBanner(activePreset);
 
@@ -436,6 +460,12 @@ async function loadSettings(providedSettings) {
         toggleModule(module.key, next);
       }));
       moduleList.appendChild(row);
+    }
+
+    // Restore module switch focus if user was interacting with keyboard
+    if (focusedSwitchLabel) {
+      const switchEl = document.querySelector(`[aria-label="${CSS.escape(focusedSwitchLabel)}"]`);
+      if (switchEl) switchEl.focus();
     }
 
     // fp shields

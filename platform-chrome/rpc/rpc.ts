@@ -32,9 +32,12 @@ export function isPrivilegedSender(sender: chrome.runtime.MessageSender): boolea
   if (typeof sender.url === 'string') {
     return sender.url.startsWith(extOrigin);
   }
-  // 2. If tab URL is present, verify it starts with extension origin
-  if (typeof sender.tab?.url === 'string') {
-    return sender.tab.url.startsWith(extOrigin);
+  // 2. If tab is present, verify it is an extension page tab
+  if (sender.tab !== undefined) {
+    if (typeof sender.tab.url === 'string') {
+      return sender.tab.url.startsWith(extOrigin);
+    }
+    return false;
   }
   // 3. Check sender origin matching extension origin
   if (typeof sender.origin === 'string') {

@@ -14,7 +14,7 @@ import type { RpcHandler } from './types/messages.js';
 import { loadSettings, saveSettings, applyPatch, applyPreset, setSitePaused, isSitePaused, type SettingsPatch } from './core/storage/settings.js';
 import { STORAGE_KEYS, defaultSettings, PRESETS } from './core/storage/schema.js';
 import type { Settings, Snapshot, RiskResult, ThreatLogEntry, UpdateState, TabThreatState, PresetName } from './types/schemas.js';
-import { validateSettings, validateHostnameInput, validateRiskResult, isRecord, isFiniteNumber, LIMITS } from './core/validation/schemas.js';
+import { validateSettings, validateSnapshot, validateThreatLogEntry, validateHostnameInput, validateRiskResult, isRecord, isFiniteNumber, LIMITS } from './core/validation/schemas.js';
 import { normalizeHostname, displayHost, getDomainCandidates } from './core/domain/normalize.js';
 import { compileRulesDetailed } from './core/rule-compiler/compiler.js';
 import { applyQuota, SAFE_DYNAMIC_CAPACITY } from './core/quota-manager/quota.js';
@@ -51,6 +51,16 @@ const ALARMS = {
 // Settings + lifecycle (single source of truth with responsive in-memory cache)
 // ---------------------------------------------------------------------------
 
+class AsyncMutex {
+  private queue = Promise.resolve();
+  run<T>(fn: () => Promise<T>): Promise<T> {
+    const res = this.queue.then(fn, fn);
+    this.queue = res.then(() => {}, () => {});
+    return res;
+  }
+}
+const settingsMutex = new AsyncMutex();
+
 let cachedSettings: Settings | null = null;
 let lifecyclePromise: Promise<void> | null = null;
 
@@ -62,6 +72,14 @@ async function ensureInitialized(): Promise<Settings> {
       await ensureAlarms();
       await chrome.declarativeNetRequest?.setExtensionActionOptions?.({ displayActionCountAsBadgeText: true }).catch?.(() => undefined);
       await syncNetworkBlocking(cachedSettings.masterEnabled, cachedSettings);
+      // Re-populate session DNR rules for paused sites (session rules are cleared on browser restart)
+      if (cachedSettings.perSite) {
+        for (const [site, entry] of Object.entries(cachedSettings.perSite)) {
+          if (entry && entry.paused) {
+            void setSitePause(site, true).catch(() => undefined);
+          }
+        }
+      }
       void activateDefaultPackIfNeeded();
       void updateBadge(cachedSettings);
     })().catch(async (error) => {
@@ -456,21 +474,65 @@ async function buildBackupPayload(): Promise<string> {
 async function restoreBackupPayload(value: unknown): Promise<{ restored: string[] }> {
   if (!isRecord(value)) throw new Error('backup payload is not an object');
   const restored: string[] = [];
+
+  // 1. Validate all parts before applying any modifications (atomic apply)
+  let validatedSettings: Settings | null = null;
   const settingsRaw = value[STORAGE_KEYS.settings];
   if (settingsRaw !== undefined) {
     const validated = validateSettings(settingsRaw);
     if (!validated.ok) throw new Error('backup settings failed validation');
-    await updateSettings(validated.value);
+    validatedSettings = validated.value;
+  }
+
+  let validatedSnapshots: Record<string, unknown> | null = null;
+  const snapshotsRaw = value[STORAGE_KEYS.snapshots];
+  if (snapshotsRaw !== undefined) {
+    if (!isRecord(snapshotsRaw)) throw new Error('backup snapshots failed validation');
+    for (const [day, snap] of Object.entries(snapshotsRaw)) {
+      const validSnap = validateSnapshot(snap);
+      if (!validSnap.ok) throw new Error(`backup snapshot for ${day} failed validation`);
+    }
+    validatedSnapshots = snapshotsRaw;
+  }
+
+  let validatedThreatLog: unknown[] | null = null;
+  const threatLogRaw = value[STORAGE_KEYS.threatLog];
+  if (threatLogRaw !== undefined) {
+    if (!Array.isArray(threatLogRaw)) throw new Error('backup threat log failed validation');
+    for (const entry of threatLogRaw) {
+      const validEntry = validateThreatLogEntry(entry);
+      if (!validEntry.ok) throw new Error('backup threat log entry failed validation');
+    }
+    validatedThreatLog = threatLogRaw;
+  }
+
+  // 2. Apply all validated sections atomically
+  const updates: Record<string, unknown> = {};
+  if (validatedSettings !== null) {
+    updates[STORAGE_KEYS.settings] = validatedSettings;
+    cachedSettings = validatedSettings;
     restored.push(STORAGE_KEYS.settings);
   }
-  if (value[STORAGE_KEYS.snapshots] !== undefined && isRecord(value[STORAGE_KEYS.snapshots])) {
-    await chrome.storage.local.set({ [STORAGE_KEYS.snapshots]: value[STORAGE_KEYS.snapshots] });
+  if (validatedSnapshots !== null) {
+    updates[STORAGE_KEYS.snapshots] = validatedSnapshots;
     restored.push(STORAGE_KEYS.snapshots);
   }
-  if (value[STORAGE_KEYS.threatLog] !== undefined && Array.isArray(value[STORAGE_KEYS.threatLog])) {
-    await chrome.storage.local.set({ [STORAGE_KEYS.threatLog]: value[STORAGE_KEYS.threatLog] });
+  if (validatedThreatLog !== null) {
+    updates[STORAGE_KEYS.threatLog] = validatedThreatLog;
     restored.push(STORAGE_KEYS.threatLog);
   }
+
+  if (Object.keys(updates).length > 0) {
+    await chrome.storage.local.set(updates);
+  }
+
+  // 3. Re-sync runtime engines if settings were restored
+  if (validatedSettings !== null) {
+    configureLogging(validatedSettings.developerMode ? 'debug' : 'warn', validatedSettings.developerMode);
+    void syncNetworkBlocking(validatedSettings.masterEnabled, validatedSettings);
+    void updateBadge(validatedSettings);
+  }
+
   return { restored };
 }
 
@@ -529,29 +591,31 @@ const handlers: Record<string, RpcHandler> = {
 
   SET_SETTINGS: async (payload) => {
     if (!isRecord(payload)) throw new Error('bad payload');
-    const current = await ensureInitialized();
-    if (payload['preset'] !== undefined) {
-      const preset = payload['preset'];
-      if (typeof preset !== 'string' || PRESETS[preset as PresetName] === undefined) {
-        throw new Error('unknown preset');
+    return settingsMutex.run(async () => {
+      const current = await ensureInitialized();
+      let next = current;
+      if (payload['preset'] !== undefined) {
+        const preset = payload['preset'];
+        if (typeof preset !== 'string' || PRESETS[preset as PresetName] === undefined) {
+          throw new Error('unknown preset');
+        }
+        next = applyPreset(next, preset as PresetName);
       }
-      const next = applyPreset(current, preset as PresetName);
+      const patchKeys = Object.keys(payload).filter((k) => k !== 'preset');
+      if (patchKeys.length > 0) {
+        next = applyPatch(next, payload as SettingsPatch);
+      }
       await updateSettings(next);
-      void syncNetworkBlocking(next.masterEnabled, next);
+      configureLogging(next.developerMode ? 'debug' : 'warn', next.developerMode);
+      if (next.masterEnabled !== current.masterEnabled ||
+          next.modules.ads !== current.modules.ads ||
+          next.modules.trackers !== current.modules.trackers ||
+          next.modules.annoyances !== current.modules.annoyances) {
+        void syncNetworkBlocking(next.masterEnabled, next);
+      }
       void updateBadge(next);
       return next;
-    }
-    const next = applyPatch(current, payload as SettingsPatch);
-    await updateSettings(next);
-    configureLogging(next.developerMode ? 'debug' : 'warn', next.developerMode);
-    if (next.masterEnabled !== current.masterEnabled ||
-        next.modules.ads !== current.modules.ads ||
-        next.modules.trackers !== current.modules.trackers ||
-        next.modules.annoyances !== current.modules.annoyances) {
-      void syncNetworkBlocking(next.masterEnabled, next);
-    }
-    void updateBadge(next);
-    return next;
+    });
   },
 
   GET_SITE_REPORT: async (payload, sender) => {
@@ -602,7 +666,7 @@ const handlers: Record<string, RpcHandler> = {
     const host = validateHostnameInput(payload['host']);
     if (!host.ok) throw new Error(host.error);
     const settings = await ensureInitialized();
-    if (!settings.masterEnabled || !settings.modules.ads) return { entries: [] };
+    if (!settings.masterEnabled || !settings.modules.ads || isSitePaused(settings, host.value)) return { entries: [] };
 
     const result = await chrome.storage.local.get(STORAGE_KEYS.pack);
     const pack = result[STORAGE_KEYS.pack];
@@ -646,9 +710,9 @@ const handlers: Record<string, RpcHandler> = {
     const host = validateHostnameInput(payload['host']);
     if (!host.ok) throw new Error(host.error);
     const settings = await ensureInitialized();
-    // With protection (or the ads module) off, the injector must also remove its
+    // With protection (or the ads module) off or site paused, the injector must also remove its
     // built-in fallback selectors, hence the explicit enabled flag.
-    if (!settings.masterEnabled || !settings.modules.ads) {
+    if (!settings.masterEnabled || !settings.modules.ads || isSitePaused(settings, host.value)) {
       return { css: '', selectors: [], enabled: false };
     }
     const result = await chrome.storage.local.get(STORAGE_KEYS.pack);
@@ -712,9 +776,10 @@ const handlers: Record<string, RpcHandler> = {
     return { recorded: true };
   },
 
-  GET_FP_SHIELDS: async () => {
+  GET_FP_SHIELDS: async (payload) => {
     const settings = await ensureInitialized();
-    if (!settings.modules.fingerprintShields || !settings.masterEnabled) {
+    const host = isRecord(payload) && typeof payload['host'] === 'string' ? normalizeHostname(payload['host']) : '';
+    if (!settings.modules.fingerprintShields || !settings.masterEnabled || (host.length > 0 && isSitePaused(settings, host))) {
       return { shields: {} };
     }
     return { shields: settings.fpShields };
