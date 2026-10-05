@@ -785,6 +785,16 @@ async function loadDiagnostics() {
   }
 }
 
+const copyBtn = $('copy-diagnostics');
+if (copyBtn) {
+  copyBtn.addEventListener('click', () => {
+    const text = $('diagnostics')?.textContent || '';
+    if (text) {
+      navigator.clipboard.writeText(text).then(() => showToast('Diagnostics copied to clipboard.')).catch(() => undefined);
+    }
+  });
+}
+
 $('clear-data').addEventListener('click', () => {
   const confirmed = window.confirm('Clear all AUVYQ data (settings, statistics, logs, rules)? This does not touch any other browser data.');
   if (!confirmed) return;

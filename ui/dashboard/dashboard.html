@@ -197,13 +197,29 @@
               <span>Clean All Trackers</span>
             </button>
           </div>
-          <div class="table-head">
-            <span class="th-name">Cookie</span>
-            <span class="th-domain">Domain</span>
-            <span class="th-cat">Category</span>
-            <span class="th-action">Action</span>
+          <div class="cookie-stat-chips">
+            <div class="cookie-chip">
+              <span class="chip-label">Essential Sessions</span>
+              <span class="chip-val protected">Guarded</span>
+            </div>
+            <div class="cookie-chip">
+              <span class="chip-label">Tracker Sweep</span>
+              <span class="chip-val active">On-Demand</span>
+            </div>
+            <div class="cookie-chip">
+              <span class="chip-label">Storage Engine</span>
+              <span class="chip-val">Local-Only</span>
+            </div>
           </div>
-          <ul class="cookie-list" id="cookie-list" aria-live="polite"></ul>
+          <div class="cookie-table-container">
+            <div class="table-head">
+              <span class="th-name">Cookie</span>
+              <span class="th-domain">Domain</span>
+              <span class="th-cat">Category</span>
+              <span class="th-action">Action</span>
+            </div>
+            <ul class="cookie-list" id="cookie-list" aria-live="polite"></ul>
+          </div>
           <div class="pager">
             <button class="auvyq-button auvyq-button-secondary" id="cookie-prev">Previous</button>
             <span class="pager-text">Page <strong id="cookie-page">1</strong></span>
@@ -342,57 +358,88 @@
       <section class="panel" id="panel-settings" aria-label="Settings">
         <h1 class="panel-title">Settings</h1>
 
-        <div class="auvyq-card section-card">
-          <h2 class="section-title">Appearance</h2>
-          <div class="setting-row"><span>Theme</span>
-            <select id="theme-select" class="auvyq-input" aria-label="Theme">
-              <option value="system">System</option>
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
-            </select>
+        <div class="settings-grid-row">
+          <div class="auvyq-card section-card">
+            <h2 class="section-title">Appearance</h2>
+            <p class="section-note">Customize extension color scheme.</p>
+            <div class="setting-row"><span>Theme</span>
+              <select id="theme-select" class="auvyq-input" aria-label="Theme">
+                <option value="system">System (Automatic)</option>
+                <option value="dark">Dark Theme</option>
+                <option value="light">Light Theme</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="auvyq-card section-card">
+            <h2 class="section-title">Privacy & Retention</h2>
+            <div class="setting-row">
+              <div>
+                <span>Telemetry</span>
+                <p class="setting-subtext">Zero telemetry by default. Core protection works completely on-device.</p>
+              </div>
+              <button class="auvyq-switch" role="switch" aria-checked="false" id="telemetry-switch" aria-label="Telemetry opt-in"><span class="auvyq-knob"></span></button>
+            </div>
+            <div class="setting-row"><span>Log retention window</span>
+              <select id="retention-select" class="auvyq-input" aria-label="Log retention">
+                <option value="7">7 days retention</option>
+                <option value="30">30 days retention</option>
+              </select>
+            </div>
           </div>
         </div>
 
         <div class="auvyq-card section-card">
-          <h2 class="section-title">Privacy</h2>
-          <div class="setting-row"><span>Telemetry</span>
-            <button class="auvyq-switch" role="switch" aria-checked="false" id="telemetry-switch" aria-label="Telemetry opt-in"><span class="auvyq-knob"></span></button>
+          <div class="section-card-header">
+            <div>
+              <h2 class="section-title">Fingerprint shields</h2>
+              <p class="section-note">Optional client-side shields. May affect canvas tools or 3D games.</p>
+            </div>
           </div>
-          <p class="section-note">Off by default. Core protection works entirely locally without telemetry.</p>
-          <div class="setting-row"><span>Log retention</span>
-            <select id="retention-select" class="auvyq-input" aria-label="Log retention">
-              <option value="7">7 days</option>
-              <option value="30">30 days</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="auvyq-card section-card">
-          <h2 class="section-title">Fingerprint shields</h2>
-          <p class="section-note">Optional, off by default. Can break fingerprinting-heavy websites.</p>
           <div id="fp-list" class="module-list"></div>
         </div>
 
         <div class="auvyq-card section-card">
-          <h2 class="section-title">Encrypted backup</h2>
+          <h2 class="section-title">Encrypted backup & migration</h2>
+          <p class="section-note">Export or import your rules and whitelist securely encrypted with AES-256-GCM.</p>
           <div class="backup-row">
-            <label class="backup-label" for="backup-password">Password (min 8 characters)</label>
-            <input id="backup-password" class="auvyq-input" type="password" autocomplete="new-password" />
-            <button class="auvyq-button auvyq-button-secondary" id="backup-export">Export</button>
-            <button class="auvyq-button auvyq-button-secondary" id="backup-import">Import</button>
+            <label class="backup-label" for="backup-password">Master Password</label>
+            <input id="backup-password" class="auvyq-input" type="password" placeholder="Minimum 8 characters" autocomplete="new-password" />
+            <button class="auvyq-button auvyq-button-secondary" id="backup-export">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Export</span>
+            </button>
+            <button class="auvyq-button auvyq-button-secondary" id="backup-import">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Import</span>
+            </button>
             <input id="backup-file" type="file" accept=".auvyq" hidden />
           </div>
           <p class="section-note" id="backup-status" aria-live="polite"></p>
         </div>
 
-        <div class="auvyq-card section-card">
-          <h2 class="section-title">Diagnostics</h2>
+        <div class="auvyq-card section-card diagnostics-card">
+          <div class="terminal-bar">
+            <div class="terminal-dots">
+              <span class="t-dot red"></span>
+              <span class="t-dot yellow"></span>
+              <span class="t-dot green"></span>
+            </div>
+            <span class="terminal-title">auvyq-runtime-diagnostics.json</span>
+            <button class="terminal-copy-btn" id="copy-diagnostics" type="button" title="Copy diagnostics to clipboard">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Copy JSON</span>
+            </button>
+          </div>
           <pre id="diagnostics" class="diagnostics">Loading…</pre>
         </div>
 
         <div class="auvyq-card section-card danger-zone">
-          <h2 class="section-title">Clear AUVYQ data</h2>
-          <p class="section-note">Removes only AUVYQ-owned data (settings, statistics, logs, rules). Browser data is untouched.</p>
+          <div class="danger-header">
+            <svg class="danger-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <h2 class="section-title">Clear AUVYQ data</h2>
+          </div>
+          <p class="section-note">Removes only AUVYQ-owned data (settings, statistics, logs, rules). Browser data is completely untouched.</p>
           <button class="auvyq-button auvyq-button-danger" id="clear-data">Clear AUVYQ data</button>
         </div>
       </section>
