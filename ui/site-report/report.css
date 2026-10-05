@@ -86,15 +86,15 @@ html, body {
   color: var(--auvyq-text-primary);
 }
 
-.report-card:nth-child(1) .report-number { color: var(--auvyq-text-accent); }
-.report-card:nth-child(2) .report-number { color: var(--auvyq-cyan); }
-.report-card:nth-child(3) .report-number { color: var(--auvyq-primary); }
-.report-card:nth-child(4) .report-number { color: var(--auvyq-protected); }
+.report-card:nth-child(1) .report-number { color: #818CF8; }
+.report-card:nth-child(2) .report-number { color: #38BDF8; }
+.report-card:nth-child(3) .report-number { color: #A78BFA; }
+.report-card:nth-child(4) .report-number { color: #4ADE80; }
 
-[data-theme="light"] .report-card:nth-child(1) .report-number { color: var(--auvyq-primary); }
-[data-theme="light"] .report-card:nth-child(2) .report-number { color: var(--auvyq-info); }
-[data-theme="light"] .report-card:nth-child(3) .report-number { color: var(--auvyq-indigo); }
-[data-theme="light"] .report-card:nth-child(4) .report-number { color: var(--auvyq-protected); }
+[data-theme="light"] .report-card:nth-child(1) .report-number { color: #4338CA; }
+[data-theme="light"] .report-card:nth-child(2) .report-number { color: #0284C7; }
+[data-theme="light"] .report-card:nth-child(3) .report-number { color: #7C3AED; }
+[data-theme="light"] .report-card:nth-child(4) .report-number { color: #16A34A; }
 
 .report-label {
   font-size: 11.5px;
