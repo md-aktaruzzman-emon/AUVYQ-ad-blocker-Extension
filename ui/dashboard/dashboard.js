@@ -648,8 +648,27 @@ async function loadThreats() {
     const entries = Array.isArray(data.entries) ? data.entries : [];
     if (entries.length === 0) {
       const empty = document.createElement('li');
-      empty.className = 'threat-row';
-      empty.textContent = 'No threats detected.';
+      empty.className = 'threat-empty-row';
+
+      const iconWrap = document.createElement('div');
+      iconWrap.className = 'threat-empty-icon';
+      iconWrap.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>';
+
+      const textWrap = document.createElement('div');
+      textWrap.className = 'threat-empty-text';
+
+      const title = document.createElement('div');
+      title.className = 'threat-empty-title';
+      title.textContent = 'All Clear — No Threats Detected';
+
+      const desc = document.createElement('div');
+      desc.className = 'threat-empty-desc';
+      desc.textContent = 'AUVYQ continuously scans visited origins and forms in real-time. No deceptive lookalikes, foreign credential harvesting, or dangerous redirects have been detected.';
+
+      textWrap.appendChild(title);
+      textWrap.appendChild(desc);
+      empty.appendChild(iconWrap);
+      empty.appendChild(textWrap);
       list.appendChild(empty);
     }
     for (const entry of entries) {
@@ -810,6 +829,8 @@ bindPressPop(document);
 const brandBadge = document.querySelector('.brand-badge');
 if (brandBadge) brandBadge.textContent = `v${chrome.runtime.getManifest().version}`;
 $('about-version').textContent = `Version ${chrome.runtime.getManifest().version} — Manifest V3, local-first.`;
+const aboutVersionBadge = $('about-version-badge');
+if (aboutVersionBadge) aboutVersionBadge.textContent = `v${chrome.runtime.getManifest().version}`;
 
 chrome.storage.local.get('settings', (result) => {
   if (result?.settings?.theme) {
