@@ -360,7 +360,7 @@ async function callOffscreen<T>(op: string, payload: unknown, timeoutMs = 30000)
     offscreenLastUse = Date.now();
     const requestId = `off-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const response = await Promise.race([
-      chrome.runtime.sendMessage({ requestId, op, payload }) as Promise<{ requestId: string; success: boolean; data?: unknown; error?: string }>,
+      chrome.runtime.sendMessage({ target: 'offscreen', requestId, op, payload }) as Promise<{ requestId: string; success: boolean; data?: unknown; error?: string }>,
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error('offscreen timeout')), timeoutMs))
     ]);
     if (response.success !== true) throw new Error(response.error ?? 'offscreen op failed');
@@ -922,7 +922,7 @@ const handlers: Record<string, RpcHandler> = {
     };
   },
 
-  CHECK_LOGIN_FORMS: async (payload) => {
+  CHECK_LOGIN_FORMS: async (payload, sender) => {
     if (!isRecord(payload) || typeof payload['pageOrigin'] !== 'string' || !Array.isArray(payload['forms'])) {
       throw new Error('bad payload');
     }
@@ -944,11 +944,16 @@ const handlers: Record<string, RpcHandler> = {
       loginForms: forms
     });
     if (risk.severity === 'high' || risk.severity === 'malicious') {
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      let tabId = sender?.tab?.id;
+      if (tabId === undefined) {
+        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+        tabId = tabs[0]?.id;
+      }
       const host = hostOfUrl(payload['pageOrigin']);
-      if (tabs[0]?.id !== undefined) {
-        const previous = await getTabThreat(tabs[0].id);
-        await setTabThreat(tabs[0].id, { host, risk, stage: previous?.stage ?? 'none' });
+      if (tabId !== undefined) {
+        const previous = await getTabThreat(tabId);
+        await setTabThreat(tabId, { host, risk, stage: previous?.stage ?? 'none' });
+        await chrome.tabs.sendMessage(tabId, { v: 1, type: 'AUVYQ_SHOW_THREAT', risk, host }).catch(() => undefined);
       }
       await logThreat(host, risk, 'warned').catch(() => undefined);
       void updateBadge(settings, risk);

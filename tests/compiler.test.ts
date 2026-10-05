@@ -37,7 +37,7 @@ describe('Rule Compiler', () => {
     expect(JSON.stringify(packA.dnrRules)).toEqual(JSON.stringify(packB.dnrRules));
   });
 
-  it('assigns priorities in the required ranges and gives allow rules higher priority (+100)', () => {
+  it('assigns priorities in the required ranges and gives allow rules higher priority (7000-7999)', () => {
     const list = [
       '||blocked-ad.example^',
       '@@||blocked-ad.example^'
@@ -54,8 +54,10 @@ describe('Rule Compiler', () => {
     expect(allowRule).toBeDefined();
     if (blockRule && allowRule) {
       expect(blockRule.priority).toBeGreaterThanOrEqual(PRIORITY_RANGES.listDynamic.min);
-      expect(blockRule.priority).toBeLessThanOrEqual(PRIORITY_RANGES.listDynamic.max);
-      expect(allowRule.priority).toBe(blockRule.priority + 100);
+      expect(blockRule.priority).toBeLessThanOrEqual(6999);
+      expect(allowRule.priority).toBeGreaterThanOrEqual(7000);
+      expect(allowRule.priority).toBeLessThanOrEqual(PRIORITY_RANGES.listDynamic.max);
+      expect(allowRule.priority).toBeGreaterThan(blockRule.priority);
     }
   });
 

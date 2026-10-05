@@ -103,4 +103,26 @@ describe('Heuristic Threat Engine (Tier 1)', () => {
     expect(threat.score).toBeGreaterThanOrEqual(50);
     expect(threat.reasons.some((r) => r.includes('Deceptive subdomain'))).toBe(true);
   });
+
+  it('does not falsely flag legitimate short brand domains as typosquats', () => {
+    const legit = ['fox.com', 'ubs.com', 'ring.com', 'king.com', 'mac.com', 'okta.com', 'github.io', 'redfin.com'];
+    for (const domain of legit) {
+      expect(typosquatCheck(domain).suspicious, `Expected ${domain} not to be flagged as typosquat`).toBe(false);
+      const threat = assessThreat({ url: `https://${domain}/`, hostname: domain });
+      expect(threat.severity, `Expected ${domain} not to have medium/high threat`).toBe('none');
+    }
+  });
+
+  it('preserves legitimate SSO authentication forms (e.g. Okta, Auth0, Google, Microsoft)', () => {
+    const pageOrigin = 'https://app.example.com';
+    const ssoForms = [
+      { actionOrigin: 'https://example.okta.com/login', hasPasswordField: true },
+      { actionOrigin: 'https://auth.company.auth0.com/authorize', hasPasswordField: true },
+      { actionOrigin: 'https://accounts.google.com/signin', hasPasswordField: true },
+      { actionOrigin: 'https://login.microsoftonline.com/common/login', hasPasswordField: true }
+    ];
+    const detected = detectForeignLogin(pageOrigin, ssoForms);
+    expect(detected.score).toBe(0);
+    expect(detected.reasons.length).toBe(0);
+  });
 });

@@ -110,19 +110,54 @@ export interface TyposquatResult {
   distance?: number;
 }
 
+// Common short dictionary / brand words and known legitimate domains that must never be flagged as typosquats
+const KNOWN_LEGITIMATE_DOMAINS = new Set([
+  'fox.com', 'ubs.com', 'ring.com', 'king.com', 'mac.com', 'max.com', 'box.com', 'ups.com',
+  'x.com', 'email.com', 'okta.com', 'github.io', 'paypal.me', 'redfin.com'
+]);
+
+function extractBrandLabel(registrable: string): string {
+  const parts = registrable.split('.');
+  return parts[0] ?? '';
+}
+
 export function typosquatCheck(hostname: string, maxDistance = 2): TyposquatResult {
   const host = normalizeHostname(hostname);
   if (host.length === 0 || /^\d+\.\d+\.\d+\.\d+$/.test(host) || host.includes(':')) {
     return { suspicious: false };
   }
   const base = registrableDomain(host);
-  if (TOP_DOMAINS.includes(base)) return { suspicious: false };
+  if (TOP_DOMAINS.includes(base) || KNOWN_LEGITIMATE_DOMAINS.has(base)) return { suspicious: false };
+
+  const baseLabel = extractBrandLabel(base);
+  // Short labels (<= 4 chars) are high-entropy acronyms/words (e.g. fox, ubs, ring, mac, king).
+  // They must not be flagged by general edit distance unless an explicit digit substitution is present.
+  const hasDigitSubstitution = /\d/.test(baseLabel);
+  if (baseLabel.length <= 4 && !hasDigitSubstitution) {
+    return { suspicious: false };
+  }
 
   let best: { target: string; distance: number } | null = null;
   for (const popular of TOP_DOMAINS) {
-    const distance = damerauLevenshtein(base, popular, maxDistance);
+    const popularLabel = extractBrandLabel(popular);
+    if (baseLabel === popularLabel) {
+      // Identical brand label on a legitimate alternate domain (e.g. github.io vs github.com)
+      continue;
+    }
+
+    // Distance 1 requires candidate and target to be at least 5 chars (or digit substitution present)
+    // Distance 2 requires longer words (at least 8 chars) to prevent false positives like okta vs ikea
+    const distance = damerauLevenshtein(baseLabel, popularLabel, maxDistance);
     if (distance > 0 && distance <= maxDistance) {
-      if (best === null || distance < best.distance) best = { target: popular, distance };
+      if (distance === 1 && (baseLabel.length < 5 || popularLabel.length < 5) && !hasDigitSubstitution) {
+        continue;
+      }
+      if (distance === 2 && (baseLabel.length < 8 || popularLabel.length < 8)) {
+        continue;
+      }
+      if (best === null || distance < best.distance) {
+        best = { target: popular, distance };
+      }
       if (distance === 1) break;
     }
   }
@@ -192,6 +227,32 @@ export interface LoginFormInput {
   hasPasswordField: boolean;
 }
 
+const SSO_IDP_PROVIDERS = new Set([
+  'okta.com',
+  'auth0.com',
+  'onelogin.com',
+  'microsoftonline.com',
+  'login.microsoftonline.com',
+  'login.live.com',
+  'accounts.google.com',
+  'appleid.apple.com',
+  'id.apple.com',
+  'pingidentity.com',
+  'cognito.com',
+  'firebaseapp.com',
+  'supabase.co'
+]);
+
+function isKnownSsoProvider(hostname: string): boolean {
+  const norm = normalizeHostname(hostname);
+  const reg = registrableDomain(norm);
+  if (SSO_IDP_PROVIDERS.has(norm) || SSO_IDP_PROVIDERS.has(reg)) return true;
+  for (const sso of SSO_IDP_PROVIDERS) {
+    if (norm.endsWith(`.${sso}`)) return true;
+  }
+  return false;
+}
+
 export function detectForeignLogin(pageOrigin: string, forms: LoginFormInput[]): RedirectAssessment {
   const reasons: string[] = [];
   let score = 0;
@@ -214,6 +275,10 @@ export function detectForeignLogin(pageOrigin: string, forms: LoginFormInput[]):
     }
     if (actionOrigin === pageOrigin) continue;
     if (actionHost.length > 0 && actionHost !== pageHost) {
+      if (isKnownSsoProvider(actionHost)) {
+        // Legitimate SSO authentication provider (e.g. Okta, Auth0, Google, Microsoft)
+        continue;
+      }
       const foreignDomain = registrableDomain(actionHost);
       const pageDomain = registrableDomain(pageHost);
       score = Math.max(score, foreignDomain === pageDomain ? 35 : 70);

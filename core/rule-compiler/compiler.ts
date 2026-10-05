@@ -128,17 +128,24 @@ export function compileRulesDetailed(irs: FilterIR[]): DetailedCompileResult {
     ].join('|');
   };
 
-  const blockPriorities = new Map<string, number>();
+  const BLOCK_PRIORITY_BASE = 1000;
+  const BLOCK_PRIORITY_CAP = 6999;
+  const ALLOW_PRIORITY_BASE = 7000;
+  const ALLOW_PRIORITY_CAP = 7999;
+
   converted.forEach((entry, idx) => {
     if (entry.rule.action.type === 'allow') return;
-    const priority = Math.min(DYNAMIC_PRIORITY_BASE + (idx % (DYNAMIC_PRIORITY_CAP - DYNAMIC_PRIORITY_BASE)), DYNAMIC_PRIORITY_CAP - 100);
+    const priority = BLOCK_PRIORITY_BASE + (idx % (BLOCK_PRIORITY_CAP - BLOCK_PRIORITY_BASE + 1));
     entry.rule.priority = priority;
-    blockPriorities.set(conditionKey(entry.rule), priority);
   });
+
+  let allowIdx = 0;
   converted.forEach((entry) => {
     if (entry.rule.action.type !== 'allow') return;
-    const blockPriority = blockPriorities.get(conditionKey(entry.rule));
-    entry.rule.priority = blockPriority !== undefined ? blockPriority + 100 : DYNAMIC_PRIORITY_BASE + 100;
+    // Allow rules are guaranteed to sit strictly above all block rules in priority (7000-7999 range)
+    const priority = ALLOW_PRIORITY_BASE + (allowIdx % (ALLOW_PRIORITY_CAP - ALLOW_PRIORITY_BASE + 1));
+    entry.rule.priority = priority;
+    allowIdx += 1;
   });
 
   // ---- Assemble ----

@@ -39,10 +39,10 @@ export interface CookieCleanupResult {
 }
 
 /** Known tracking / ad profiling cookie name patterns (Google, Facebook, Bing, Criteo, etc.) */
-const TRACKER_COOKIE_PATTERN = /^(Conversion|APISID|SAPISID|__Secure-[13]PAPISID|1P_JAR|NID|ANID|IDE|DSID|OTZ|_ga|_gid|_gat|_fbp|_fbc|fr|_uetsid|_uetvid|_gcl_.*|_gac_.*|__cf_bm|_clck|_clsk|__utma|__utmb|__utmc|__utmz|uuid2|tuuid|anj)$/i;
+const TRACKER_COOKIE_PATTERN = /^(Conversion|1P_JAR|NID|ANID|IDE|DSID|OTZ|_ga|_gid|_gat|_fbp|_fbc|fr|_uetsid|_uetvid|_gcl_.*|_gac_.*|_clck|_clsk|__utma|__utmb|__utmc|__utmz|uuid2|tuuid|anj)$/i;
 
-/** Essential session/login cookie name patterns that must NEVER be deleted */
-const ESSENTIAL_COOKIE_PATTERN = /^(ACCOUNT_CHOOSER|SID|HSID|SSID|__Secure-[13]PSID|__Secure-.*OSID|OSID|__Secure-DIVERSION.*|__Host-|auth|token|jwt|csrf|xsrf|session|PHPSESSID|JSESSIONID|ASPSESSIONID|connect\.sid|remember_web_|wordpress_logged_in_|li_at|sessionid|authToken|access_token|refresh_token|id_token)$/i;
+/** Essential session/login/security cookie name patterns that must NEVER be deleted */
+const ESSENTIAL_COOKIE_PATTERN = /^(ACCOUNT_CHOOSER|SID|HSID|SSID|APISID|SAPISID|__Secure-[13]P(APISID|SID)|__Secure-.*OSID|OSID|__Secure-DIVERSION.*|__cf_bm|__cfuvid|cf_clearance|cf_chl_.*|__Host-|auth|token|jwt|csrf|xsrf|session|PHPSESSID|JSESSIONID|ASPSESSIONID|connect\.sid|remember_web_|wordpress_logged_in_|li_at|sessionid|authToken|access_token|refresh_token|id_token)$/i;
 
 export function cookieUrl(cookie: { domain: string; path?: string; secure?: boolean }): string {
   const protocol = cookie.secure ? 'https:' : 'http:';
@@ -52,12 +52,12 @@ export function cookieUrl(cookie: { domain: string; path?: string; secure?: bool
 }
 
 export function isKnownTrackingCookie(cookie: { name: string; domain: string }): boolean {
-  // 1. Never remove essential authentication/login cookies (checked FIRST for safety)
+  // 1. Never remove essential authentication/login/security cookies (checked FIRST for safety)
   if (ESSENTIAL_COOKIE_PATTERN.test(cookie.name) || /^(sess|auth|token|jwt|csrf|xsrf|login|secure_session|identity|user_session|sso)/i.test(cookie.name)) {
     return false;
   }
 
-  // 2. Explicit tracking/profiling cookies are always tracking
+  // 2. Explicit tracking/profiling cookies are tracking
   if (TRACKER_COOKIE_PATTERN.test(cookie.name)) {
     return true;
   }

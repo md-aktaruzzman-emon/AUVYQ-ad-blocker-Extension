@@ -13,18 +13,20 @@ const log = createLogger('offscreen');
 type OpResult = { ok: true; data: unknown } | { ok: false; error: string };
 
 interface OffscreenRequest {
+  target: 'offscreen';
   requestId: string;
   op: string;
   payload?: unknown;
 }
 
-function validateRequest(raw: unknown): OffscreenRequest | string {
-  if (!isRecord(raw)) return 'not an object';
+function validateRequest(raw: unknown): OffscreenRequest | null {
+  if (!isRecord(raw)) return null;
+  if (raw['target'] !== 'offscreen') return null;
   if (typeof raw['requestId'] !== 'string' || raw['requestId'].length === 0 || raw['requestId'].length > 64) {
-    return 'bad requestId';
+    return null;
   }
-  if (typeof raw['op'] !== 'string' || raw['op'].length === 0 || raw['op'].length > 32) return 'bad op';
-  return { requestId: raw['requestId'], op: raw['op'], payload: raw['payload'] };
+  if (typeof raw['op'] !== 'string' || raw['op'].length === 0 || raw['op'].length > 32) return null;
+  return { target: 'offscreen', requestId: raw['requestId'], op: raw['op'], payload: raw['payload'] };
 }
 
 /** Defensive parse: rejects payloads that smuggle markup/script-looking content. */
@@ -90,10 +92,19 @@ async function handleOp(op: string, payload: unknown): Promise<OpResult> {
   }
 }
 
-chrome.runtime.onMessage.addListener((raw, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((raw, sender, sendResponse) => {
+  // Only accept requests originating from our extension runtime ID
+  if (typeof chrome !== 'undefined' && chrome.runtime?.id && sender?.id !== chrome.runtime.id) {
+    return false;
+  }
+  // Reject requests sent from content scripts or page tabs (tab must be undefined)
+  if (sender && sender.tab !== undefined) {
+    return false;
+  }
   const request = validateRequest(raw);
-  if (typeof request === 'string') {
-    sendResponse({ requestId: '', success: false, error: request });
+  // Crucial: if not targeted to offscreen, stay silent and return false so UI RPC messages
+  // are never answered with an offscreen error.
+  if (request === null) {
     return false;
   }
   void handleOp(request.op, request.payload)

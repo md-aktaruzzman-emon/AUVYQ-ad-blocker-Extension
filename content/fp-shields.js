@@ -10,27 +10,51 @@
   if (window.__auvyqFpActive === true) return;
   window.__auvyqFpActive = true;
 
+  function createHostPrng() {
+    const host = (typeof location !== 'undefined' && location.hostname) ? location.hostname : 'localhost';
+    let seed = 0x811c9dc5;
+    for (let i = 0; i < host.length; i++) {
+      seed = (Math.imul(seed ^ host.charCodeAt(i), 0x01000193)) >>> 0;
+    }
+    return function nextNoise(idx) {
+      let t = (seed + Math.imul(idx, 0x6D2B79F5)) | 0;
+      t = Math.imul(t ^ (t >>> 15), 1 | t);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t >>> 14) % 3) - 1; // subtle deterministic delta: -1, 0, or +1
+    };
+  }
+
   function installCanvasShield() {
-    const noise = () => (Math.random() - 0.5) * 2; // subtle per-readback variation
+    const getNoise = createHostPrng();
     try {
       const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
       CanvasRenderingContext2D.prototype.getImageData = function getImageData(...args) {
         const data = originalGetImageData.apply(this, args);
-        for (let i = 0; i < data.data.length; i += 4) {
-          data.data[i] = Math.max(0, Math.min(255, data.data[i] + noise()));
+        // Create a copy of the ImageData buffer to avoid mutating backing store
+        const cloned = new ImageData(new Uint8ClampedArray(data.data), data.width, data.height);
+        for (let i = 0; i < cloned.data.length; i += 4) {
+          cloned.data[i] = Math.max(0, Math.min(255, cloned.data[i] + getNoise(i)));
         }
-        return data;
+        return cloned;
       };
       const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
       HTMLCanvasElement.prototype.toDataURL = function toDataURL(...args) {
-        const context = this.getContext('2d');
-        if (context !== null && this.width > 0 && this.height > 0) {
+        if (this.width > 0 && this.height > 0) {
           try {
-            const image = originalGetImageData.call(context, 0, 0, this.width, this.height);
-            for (let i = 0; i < image.data.length; i += 4) {
-              image.data[i] = Math.max(0, Math.min(255, image.data[i] + noise()));
+            // Export from a temporary copy canvas; NEVER mutate the source canvas backing store!
+            const offscreen = document.createElement('canvas');
+            offscreen.width = this.width;
+            offscreen.height = this.height;
+            const offCtx = offscreen.getContext('2d');
+            if (offCtx !== null) {
+              offCtx.drawImage(this, 0, 0);
+              const imgData = originalGetImageData.call(offCtx, 0, 0, this.width, this.height);
+              for (let i = 0; i < imgData.data.length; i += 4) {
+                imgData.data[i] = Math.max(0, Math.min(255, imgData.data[i] + getNoise(i)));
+              }
+              offCtx.putImageData(imgData, 0, 0);
+              return originalToDataURL.apply(offscreen, args);
             }
-            context.putImageData(image, 0, 0);
           } catch { /* canvas may be tainted */ }
         }
         return originalToDataURL.apply(this, args);
