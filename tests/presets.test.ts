@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PRESETS, defaultSettings, matchPreset } from '../core/storage/schema.js';
+import { PRESETS, defaultSettings, matchPreset, DEFAULT_FP_SHIELDS } from '../core/storage/schema.js';
 import { applyPreset, applyPatch } from '../core/storage/settings.js';
 import { validateSettings } from '../core/validation/schemas.js';
 import type { Settings } from '../types/schemas.js';
@@ -67,7 +67,7 @@ describe('Protection Presets & Canonical State Synchronization', () => {
     expect(validateSettings(updated).ok).toBe(true);
   });
 
-  it('applies the Maximum preset correctly', () => {
+  it('applies the Maximum preset correctly with all fingerprint shields enabled', () => {
     const initial = defaultSettings();
     const updated = applyPreset(initial, 'maximum');
 
@@ -80,8 +80,49 @@ describe('Protection Presets & Canonical State Synchronization', () => {
       fingerprintShields: true,
       annoyances: true
     });
+    expect(updated.fpShields).toEqual({
+      canvas: true,
+      webgl: true,
+      navigator: true,
+      screen: true,
+      timing: true
+    });
     expect(matchPreset(updated)).toBe('maximum');
     expect(validateSettings(updated).ok).toBe(true);
+
+    // Switching back to balanced resets fpShields to default
+    const reset = applyPreset(updated, 'balanced');
+    expect(reset.modules.fingerprintShields).toBe(false);
+    expect(reset.fpShields).toEqual(DEFAULT_FP_SHIELDS);
+    expect(matchPreset(reset)).toBe('balanced');
+  });
+
+  it('synchronizes fpShields and modules.fingerprintShields during partial patches', () => {
+    const initial = defaultSettings();
+    expect(initial.modules.fingerprintShields).toBe(false);
+
+    // Toggling an individual shield on enables modules.fingerprintShields and sets preset to expert
+    const patched1 = applyPatch(initial, { fpShields: { canvas: true } });
+    expect(patched1.modules.fingerprintShields).toBe(true);
+    expect(patched1.fpShields.canvas).toBe(true);
+    expect(patched1.preset).toBe('expert');
+
+    // Toggling all shields to true while having all modules matches maximum preset
+    const maxPatched = applyPatch(patched1, {
+      modules: { annoyances: true },
+      fpShields: { webgl: true, navigator: true, screen: true, timing: true }
+    });
+    expect(maxPatched.preset).toBe('maximum');
+
+    // Disabling one shield in maximum makes it expert
+    const expertShield = applyPatch(maxPatched, { fpShields: { timing: false } });
+    expect(expertShield.preset).toBe('expert');
+
+    // Disabling all shields disables modules.fingerprintShields
+    const allDisabled = applyPatch(expertShield, {
+      fpShields: { canvas: false, webgl: false, navigator: false, screen: false, timing: false }
+    });
+    expect(allDisabled.modules.fingerprintShields).toBe(false);
   });
 
   it('applies Expert preset without overwriting existing custom module settings', () => {

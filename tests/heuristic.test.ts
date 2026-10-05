@@ -3,6 +3,7 @@ import {
   detectHomoglyph,
   damerauLevenshtein,
   typosquatCheck,
+  detectDeceptiveSubdomain,
   scoreRedirectChain,
   detectForeignLogin,
   assessThreat
@@ -95,13 +96,22 @@ describe('Heuristic Threat Engine (Tier 1)', () => {
     expect(detectHomoglyph('secure.bank.xn--e1awd7f.com')).toBe(true);
   });
 
-  it('detects deceptive subdomains spoofing popular services', () => {
+  it('detects deceptive subdomains spoofing popular services with strict label boundaries', () => {
     const threat = assessThreat({
       url: 'https://paypal.com.evil-site.com/login',
       hostname: 'paypal.com.evil-site.com'
     });
     expect(threat.score).toBeGreaterThanOrEqual(50);
     expect(threat.reasons.some((r) => r.includes('Deceptive subdomain'))).toBe(true);
+
+    // Exact label matches and dot boundaries
+    expect(detectDeceptiveSubdomain('paypal.com.evil.com').suspicious).toBe(true);
+    expect(detectDeceptiveSubdomain('login.paypal.com.evil.com').suspicious).toBe(true);
+    expect(detectDeceptiveSubdomain('secure.paypal.com.login.evil.com').suspicious).toBe(true);
+
+    // Prefix substring without dot boundary is NOT falsely flagged as deceptive paypal.com
+    expect(detectDeceptiveSubdomain('badpaypal.com.verify.evil.com').suspicious).toBe(false);
+    expect(detectDeceptiveSubdomain('notpaypal.com.evil.com').suspicious).toBe(false);
   });
 
   it('does not falsely flag legitimate short brand domains as typosquats', () => {

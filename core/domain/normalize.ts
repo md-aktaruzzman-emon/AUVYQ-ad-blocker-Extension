@@ -21,6 +21,7 @@ export function normalizeHostname(hostname: string): string {
   if (candidate.length === 0) return '';
   if (isIpv4(candidate)) return candidate;
   if (isIpv6(candidate)) return candidate;
+  if (candidate === 'localhost') return candidate;
   // Unicode / IDN -> punycode via the URL parser (standard-compliant, no hand-rolled IDNA).
   if (/[^\x00-\x7F]/.test(candidate) || candidate.includes('%')) {
     try {

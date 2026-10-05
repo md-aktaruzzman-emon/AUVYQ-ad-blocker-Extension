@@ -1,6 +1,6 @@
 /** Settings service: validated load/save, preset application, per-site state. */
 import type { Settings, PresetName } from '../../types/schemas.js';
-import { STORAGE_KEYS, defaultSettings, PRESETS, CURRENT_SCHEMA_VERSION, matchPreset } from './schema.js';
+import { STORAGE_KEYS, defaultSettings, PRESETS, CURRENT_SCHEMA_VERSION, matchPreset, MAXIMUM_FP_SHIELDS, DEFAULT_FP_SHIELDS } from './schema.js';
 import { migrateStorage } from './migrate.js';
 import { validateSettings } from '../validation/schemas.js';
 import { normalizeHostname } from '../domain/normalize.js';
@@ -44,18 +44,27 @@ export function applyPatch(current: Settings, patch: SettingsPatch): Settings {
     }
   }
 
+  let shieldsChanged = false;
   if (patch.fpShields !== undefined) {
     const shields = patch.fpShields as Record<string, unknown>;
     for (const key of Object.keys(next.fpShields)) {
-      if (typeof shields[key] === 'boolean') {
+      if (typeof shields[key] === 'boolean' && next.fpShields[key] !== shields[key]) {
         next.fpShields[key] = shields[key] as boolean;
+        shieldsChanged = true;
+      }
+    }
+    if (shieldsChanged && patch.modules?.fingerprintShields === undefined) {
+      const anyShieldActive = Object.values(next.fpShields).some(Boolean);
+      if (next.modules.fingerprintShields !== anyShieldActive) {
+        next.modules.fingerprintShields = anyShieldActive;
+        modulesChanged = true;
       }
     }
   }
 
   if (patch.preset !== undefined) {
     next.preset = patch.preset;
-  } else if (modulesChanged) {
+  } else if (modulesChanged || shieldsChanged) {
     next.preset = matchPreset(next);
   }
 
@@ -76,10 +85,15 @@ export function applyPreset(settings: Settings, preset: PresetName): Settings {
     };
   }
 
+  const fpShields = preset === 'maximum'
+    ? { ...MAXIMUM_FP_SHIELDS }
+    : { ...DEFAULT_FP_SHIELDS };
+
   return {
     ...settings,
     preset,
     modules: { ...config.modules },
+    fpShields,
     developerMode: config.developerMode,
     schemaVersion: CURRENT_SCHEMA_VERSION
   };

@@ -68,7 +68,7 @@ export function detectDeceptiveSubdomain(hostname: string): { suspicious: boolea
   if (host === base) return { suspicious: false };
   const subPrefix = host.slice(0, host.length - base.length).replace(/\.$/, '');
   for (const popular of TOP_DOMAINS) {
-    if (subPrefix === popular || subPrefix.endsWith(`.${popular}`) || subPrefix.includes(`${popular}.`)) {
+    if (subPrefix === popular || subPrefix.startsWith(`${popular}.`) || subPrefix.endsWith(`.${popular}`) || subPrefix.includes(`.${popular}.`)) {
       return { suspicious: true, target: popular };
     }
   }

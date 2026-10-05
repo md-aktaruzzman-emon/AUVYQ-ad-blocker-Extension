@@ -122,7 +122,6 @@ async function handleInstalled(details: { reason: string }): Promise<void> {
     if (raw[STORAGE_KEYS.settings] === undefined) {
       await chrome.storage.local.set({ [STORAGE_KEYS.settings]: defaultSettings() });
     }
-    await chrome.storage.local.get(STORAGE_KEYS.onboardingDone);
     const done = (await chrome.storage.local.get(STORAGE_KEYS.onboardingDone))[STORAGE_KEYS.onboardingDone];
     if (done !== true) {
       await chrome.tabs.create({ url: chrome.runtime.getURL('ui/onboarding/onboarding.html') });

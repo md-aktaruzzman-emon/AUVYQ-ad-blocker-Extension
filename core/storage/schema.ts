@@ -79,12 +79,20 @@ export const DEFAULT_FP_SHIELDS: Record<string, boolean> = {
   timing: false
 };
 
+export const MAXIMUM_FP_SHIELDS: Record<string, boolean> = {
+  canvas: true,
+  webgl: true,
+  navigator: true,
+  screen: true,
+  timing: true
+};
+
 /**
  * Derives the active preset from the canonical module configuration.
  * If modules match a standard preset profile, returns that preset name.
  * If modules have been customized, returns 'expert'.
  */
-export function matchPreset(settings: Pick<Settings, 'modules' | 'preset'>): PresetName {
+export function matchPreset(settings: Pick<Settings, 'modules' | 'preset'> & { fpShields?: Record<string, boolean> }): PresetName {
   const m = settings.modules;
   if (!m) return 'balanced';
 
@@ -103,9 +111,12 @@ export function matchPreset(settings: Pick<Settings, 'modules' | 'preset'>): Pre
     return 'strong';
   }
 
-  // Maximum: all modules active
+  // Maximum: all modules active AND all fpShields active
   if (m.ads === true && m.trackers === true && m.cookies === true && m.heuristics === true && m.fingerprintShields === true && m.annoyances === true) {
-    return 'maximum';
+    if (!settings.fpShields || Object.values(settings.fpShields).every(Boolean)) {
+      return 'maximum';
+    }
+    return 'expert';
   }
 
   // Custom configuration not matching standard presets

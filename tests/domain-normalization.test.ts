@@ -32,7 +32,13 @@ describe('Domain Normalization', () => {
     expect(isIpv6('2001:db8::1')).toBe(true);
   });
 
-  it('rejects invalid hostnames safely returning empty string', () => {
+  it('normalizes localhost and rejects other invalid single-label hostnames safely', () => {
+    expect(normalizeHostname('localhost')).toBe('localhost');
+    expect(normalizeHostname('  LOCALHOST  ')).toBe('localhost');
+    expect(matchSuffix('localhost', 'localhost')).toBe(true);
+    expect(matchSuffix('evillocalhost', 'localhost')).toBe(false);
+    expect(registrableDomain('localhost')).toBe('localhost');
+
     expect(normalizeHostname('')).toBe('');
     expect(normalizeHostname('   ')).toBe('');
     expect(normalizeHostname('-invalid.com')).toBe('');
