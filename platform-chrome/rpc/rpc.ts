@@ -9,6 +9,16 @@ import { createLogger } from '../../core/logging/logger.js';
 const log = createLogger('rpc');
 const HANDLER_TIMEOUT_MS = 10000;
 
+export const CONTENT_SCRIPT_ALLOWED_TYPES = new Set([
+  'GET_COSMETIC',
+  'GET_DISPATCH',
+  'GET_FP_SHIELDS',
+  'REPORT_COSMETIC',
+  'CHECK_LOGIN_FORMS',
+  'THREAT_ACTION',
+  'GET_TAB_STATE'
+]);
+
 export const PRIVILEGED_MESSAGE_TYPES = new Set([
   'SET_SETTINGS',
   'SET_SITE_PAUSED',
@@ -17,7 +27,14 @@ export const PRIVILEGED_MESSAGE_TYPES = new Set([
   'IMPORT_BACKUP',
   'CHECK_UPDATES',
   'REMOVE_COOKIES',
-  'SET_ONBOARDING_DONE'
+  'SET_ONBOARDING_DONE',
+  'GET_COOKIE_REPORT',
+  'GET_THREAT_LOG',
+  'GET_STATS_HISTORY',
+  'GET_SETTINGS',
+  'GET_SNAPSHOT',
+  'GET_SITE_STATS',
+  'GET_UPDATE_STATE'
 ]);
 
 export function isPrivilegedSender(sender: chrome.runtime.MessageSender): boolean {
@@ -63,8 +80,9 @@ export function createRpcRouter(handlers: Record<string, RpcHandler>): RpcRouter
       return { requestId, success: false, error: `unknown message type: ${type}` };
     }
 
-    // Privilege guard: administrative / mutation RPCs must originate from extension pages
-    if (PRIVILEGED_MESSAGE_TYPES.has(type) && !isPrivilegedSender(sender)) {
+    // Privilege guard: Deny by default.
+    // Unprivileged senders (e.g. content scripts in web pages) can ONLY access explicitly allowlisted types.
+    if (!isPrivilegedSender(sender) && !CONTENT_SCRIPT_ALLOWED_TYPES.has(type)) {
       log.warn(`unauthorized RPC attempt for ${type} from ${sender.url ?? 'unknown'}`);
       return { requestId, success: false, error: 'unauthorized: privileged message type' };
     }

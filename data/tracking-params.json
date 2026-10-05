@@ -39,5 +39,12 @@
   "oly_anon_id",
   "rb_clickid",
   "ml_subscriber",
-  "ml_subscriber_hash"
+  "ml_subscriber_hash",
+  "ttclid",
+  "li_fat_id",
+  "epik",
+  "_openstat",
+  "srsltid",
+  "gbraid",
+  "wbraid"
 ]

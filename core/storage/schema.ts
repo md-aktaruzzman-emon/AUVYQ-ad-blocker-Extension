@@ -16,7 +16,7 @@ export const STORAGE_KEYS = {
   tabThreats: 'tabThreats'
 } as const;
 
-export type ModuleToggles = Pick<Settings['modules'], 'ads' | 'trackers' | 'cookies' | 'heuristics' | 'fingerprintShields'>;
+export type ModuleToggles = Pick<Settings['modules'], 'ads' | 'trackers' | 'cookies' | 'heuristics' | 'fingerprintShields' | 'annoyances'>;
 
 export interface PresetConfig {
   label: string;
@@ -34,7 +34,7 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     description: 'Essential ad blocking with maximum compatibility.',
     tag: 'Best when you want simple ad blocking with minimal site impact.',
     recommended: false,
-    modules: { ads: true, trackers: false, cookies: false, heuristics: false, fingerprintShields: false },
+    modules: { ads: true, trackers: false, cookies: false, heuristics: false, fingerprintShields: false, annoyances: false },
     developerMode: false
   },
   balanced: {
@@ -42,15 +42,15 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     description: 'Everyday ad, tracker, cookie, and threat protection.',
     tag: 'Recommended for most browsing.',
     recommended: true,
-    modules: { ads: true, trackers: true, cookies: true, heuristics: true, fingerprintShields: false },
+    modules: { ads: true, trackers: true, cookies: true, heuristics: true, fingerprintShields: false, annoyances: false },
     developerMode: false
   },
   strong: {
     label: 'Strong',
-    description: 'Stronger tracking and threat protection.',
+    description: 'Stronger tracking, annoyance, and threat protection.',
     tag: 'More protection with a higher chance of website compatibility issues.',
     recommended: false,
-    modules: { ads: true, trackers: true, cookies: true, heuristics: true, fingerprintShields: false },
+    modules: { ads: true, trackers: true, cookies: true, heuristics: true, fingerprintShields: false, annoyances: true },
     developerMode: false
   },
   maximum: {
@@ -58,7 +58,7 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     description: 'Maximum available protection, including fingerprint defenses.',
     tag: 'Strongest protection. Some websites may require additional adjustments.',
     recommended: false,
-    modules: { ads: true, trackers: true, cookies: true, heuristics: true, fingerprintShields: true },
+    modules: { ads: true, trackers: true, cookies: true, heuristics: true, fingerprintShields: true, annoyances: true },
     developerMode: false
   },
   expert: {
@@ -66,7 +66,7 @@ export const PRESETS: Record<PresetName, PresetConfig> = {
     description: 'Full manual control over protection modules.',
     tag: 'Configure each protection module individually.',
     recommended: false,
-    modules: { ads: true, trackers: true, cookies: true, heuristics: true, fingerprintShields: true },
+    modules: { ads: true, trackers: true, cookies: true, heuristics: true, fingerprintShields: true, annoyances: true },
     developerMode: true
   }
 };
@@ -89,19 +89,23 @@ export function matchPreset(settings: Pick<Settings, 'modules' | 'preset'>): Pre
   if (!m) return 'balanced';
 
   // Basic: ads only
-  if (m.ads === true && m.trackers === false && m.cookies === false && m.heuristics === false && m.fingerprintShields === false) {
+  if (m.ads === true && m.trackers === false && m.cookies === false && m.heuristics === false && m.fingerprintShields === false && !m.annoyances) {
     return 'basic';
   }
 
-  // Maximum: all 5 modules active
-  if (m.ads === true && m.trackers === true && m.cookies === true && m.heuristics === true && m.fingerprintShields === true) {
-    return 'maximum';
+  // Balanced: ads + trackers + cookies + heuristics, annoyances and fpShields off
+  if (m.ads === true && m.trackers === true && m.cookies === true && m.heuristics === true && m.fingerprintShields === false && !m.annoyances) {
+    return 'balanced';
   }
 
-  // Balanced or Strong profile: ads + trackers + cookies + heuristics, fpShields off
-  if (m.ads === true && m.trackers === true && m.cookies === true && m.heuristics === true && m.fingerprintShields === false) {
-    if (settings.preset === 'strong') return 'strong';
-    return 'balanced';
+  // Strong: ads + trackers + cookies + heuristics + annoyances, fpShields off
+  if (m.ads === true && m.trackers === true && m.cookies === true && m.heuristics === true && m.fingerprintShields === false && m.annoyances === true) {
+    return 'strong';
+  }
+
+  // Maximum: all modules active
+  if (m.ads === true && m.trackers === true && m.cookies === true && m.heuristics === true && m.fingerprintShields === true && m.annoyances === true) {
+    return 'maximum';
   }
 
   // Custom configuration not matching standard presets

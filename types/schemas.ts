@@ -78,7 +78,7 @@ export interface Settings {
     cookies: boolean;
     heuristics: boolean;
     fingerprintShields: boolean;
-    annoyances?: boolean;
+    annoyances: boolean;
   };
   perSite: Record<string, { paused: boolean; allowlist: string[] }>;
   telemetryOptIn: boolean;

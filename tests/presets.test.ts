@@ -26,7 +26,8 @@ describe('Protection Presets & Canonical State Synchronization', () => {
       trackers: false,
       cookies: false,
       heuristics: false,
-      fingerprintShields: false
+      fingerprintShields: false,
+      annoyances: false
     });
     expect(matchPreset(updated)).toBe('basic');
     expect(validateSettings(updated).ok).toBe(true);
@@ -42,13 +43,14 @@ describe('Protection Presets & Canonical State Synchronization', () => {
       trackers: true,
       cookies: true,
       heuristics: true,
-      fingerprintShields: false
+      fingerprintShields: false,
+      annoyances: false
     });
     expect(matchPreset(updated)).toBe('balanced');
     expect(validateSettings(updated).ok).toBe(true);
   });
 
-  it('applies the Strong preset correctly', () => {
+  it('applies the Strong preset correctly and is distinct from Balanced', () => {
     const initial = defaultSettings();
     const updated = applyPreset(initial, 'strong');
 
@@ -58,6 +60,9 @@ describe('Protection Presets & Canonical State Synchronization', () => {
     expect(updated.modules.cookies).toBe(true);
     expect(updated.modules.heuristics).toBe(true);
     expect(updated.modules.fingerprintShields).toBe(false);
+    expect(updated.modules.annoyances).toBe(true);
+    // Verified distinct from balanced
+    expect(PRESETS.strong.modules).not.toEqual(PRESETS.balanced.modules);
     expect(matchPreset(updated)).toBe('strong');
     expect(validateSettings(updated).ok).toBe(true);
   });
@@ -72,7 +77,8 @@ describe('Protection Presets & Canonical State Synchronization', () => {
       trackers: true,
       cookies: true,
       heuristics: true,
-      fingerprintShields: true
+      fingerprintShields: true,
+      annoyances: true
     });
     expect(matchPreset(updated)).toBe('maximum');
     expect(validateSettings(updated).ok).toBe(true);
@@ -84,7 +90,8 @@ describe('Protection Presets & Canonical State Synchronization', () => {
       trackers: false,
       cookies: true,
       heuristics: false,
-      fingerprintShields: true
+      fingerprintShields: true,
+      annoyances: false
     };
     const initial: Settings = {
       ...defaultSettings(),
@@ -118,13 +125,14 @@ describe('Protection Presets & Canonical State Synchronization', () => {
         trackers: false,
         cookies: false,
         heuristics: false,
-        fingerprintShields: false
+        fingerprintShields: false,
+        annoyances: false
       }
     };
 
     expect(matchPreset(custom)).toBe('basic');
 
-    const patched = applyPatch(custom, { modules: { trackers: true, cookies: true, heuristics: true } });
+    const patched = applyPatch(custom, { modules: { trackers: true, cookies: true, heuristics: true, annoyances: false } });
     expect(patched.preset).toBe('balanced');
   });
 

@@ -138,6 +138,10 @@ export async function cleanupForTab(settings: Settings, tabId: number, observedT
   if (!settings.masterEnabled || !settings.modules.cookies) {
     return { removed: 0, skipped: 'module disabled' };
   }
+  // Strong and Maximum presets perform aggressive tracker-cookie sweeps on tab closure
+  if (settings.preset === 'strong' || settings.preset === 'maximum') {
+    return sweepTrackerCookies(settings);
+  }
   const hosts = observedTrackerHosts;
   if (hosts.size === 0) {
     return sweepTrackerCookies(settings);

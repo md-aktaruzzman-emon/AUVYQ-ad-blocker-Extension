@@ -62,6 +62,13 @@ export function validateSettings(value: unknown): Valid<Settings> {
   for (const key of ['ads', 'trackers', 'cookies', 'heuristics', 'fingerprintShields']) {
     if (typeof modules[key] !== 'boolean') return fail(`settings: module ${key} not boolean`);
   }
+  if (typeof modules['annoyances'] !== 'boolean') {
+    if (modules['annoyances'] === undefined) {
+      modules['annoyances'] = false;
+    } else {
+      return fail('settings: module annoyances not boolean');
+    }
+  }
   const perSite = value['perSite'];
   if (!isRecord(perSite)) return fail('settings: bad perSite');
   for (const [host, entry] of Object.entries(perSite)) {

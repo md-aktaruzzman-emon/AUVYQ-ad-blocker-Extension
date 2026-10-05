@@ -278,7 +278,7 @@ async function syncNetworkBlocking(enabled: boolean, settings?: Settings): Promi
 
         const adsOn = settings ? settings.modules.ads : true;
         const trackersOn = settings ? settings.modules.trackers : true;
-        const annoyancesOn = settings ? settings.modules.annoyances : true;
+        const annoyancesOn = settings ? (settings.modules.annoyances === true) : false;
 
         if (adsOn) enableIds.push('ads');
         else disableIds.push('ads');
@@ -289,7 +289,7 @@ async function syncNetworkBlocking(enabled: boolean, settings?: Settings): Promi
         if (annoyancesOn) enableIds.push('annoyances');
         else disableIds.push('annoyances');
 
-        if (adsOn || trackersOn) enableIds.push('ads-trackers');
+        if (trackersOn) enableIds.push('ads-trackers');
         else disableIds.push('ads-trackers');
 
         if (enableIds.length > 0) {
@@ -450,11 +450,16 @@ async function assessNavigation(tabId: number, url: string): Promise<void> {
 
   const risk = classify(url, { hostname: host, url });
   const previous = await getTabThreat(tabId);
-  if (risk.severity === 'medium' || risk.severity === 'high' || risk.severity === 'malicious') {
-    await setTabThreat(tabId, { host, risk, stage: previous?.stage ?? 'none' });
-    await logThreat(host, risk, 'warned').catch(() => undefined);
-    await chrome.tabs.sendMessage(tabId, { v: 1, type: 'AUVYQ_SHOW_THREAT', risk, host }).catch(() => undefined);
-    void updateBadge(settings, risk);
+  const threatThreshold = (settings.preset === 'strong' || settings.preset === 'maximum') ? 30 : 40;
+  const isThreat = (risk.score >= threatThreshold) || risk.severity === 'high' || risk.severity === 'malicious';
+  if (isThreat) {
+    const effectiveRisk = (risk.score >= threatThreshold && (risk.severity === 'none' || risk.severity === 'low'))
+      ? { ...risk, severity: 'medium' as const }
+      : risk;
+    await setTabThreat(tabId, { host, risk: effectiveRisk, stage: previous?.stage ?? 'none' });
+    await logThreat(host, effectiveRisk, 'warned').catch(() => undefined);
+    await chrome.tabs.sendMessage(tabId, { v: 1, type: 'AUVYQ_SHOW_THREAT', risk: effectiveRisk, host }).catch(() => undefined);
+    void updateBadge(settings, effectiveRisk);
   } else if (previous !== null) {
     await setTabThreat(tabId, null);
     void updateBadge(settings);

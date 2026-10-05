@@ -99,6 +99,14 @@
     "message": "Stops known trackers and tracking requests across websites.",
     "description": "Tracker blocking module description."
   },
+  "moduleAnnoyancesName": {
+    "message": "Annoyance Blocking",
+    "description": "Annoyance blocking module name."
+  },
+  "moduleAnnoyancesDesc": {
+    "message": "Blocks cookie consent banners, newsletter prompts, and intrusive overlays.",
+    "description": "Annoyance blocking module description."
+  },
   "moduleCookiesName": {
     "message": "Cookie Guard",
     "description": "Cookie guard module name."

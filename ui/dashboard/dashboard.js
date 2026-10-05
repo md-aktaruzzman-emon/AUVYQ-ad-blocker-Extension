@@ -199,6 +199,7 @@ const PRESET_INFO = {
 const MODULE_INFO = [
   { key: 'ads', name: t('moduleAdsName', 'Ad Blocking'), desc: t('moduleAdsDesc', 'Blocks known ads and advertising requests.') },
   { key: 'trackers', name: t('moduleTrackersName', 'Tracker Blocking'), desc: t('moduleTrackersDesc', 'Stops known trackers and tracking requests across websites.') },
+  { key: 'annoyances', name: t('moduleAnnoyancesName', 'Annoyance Blocking'), desc: t('moduleAnnoyancesDesc', 'Blocks cookie consent banners, newsletter prompts, and intrusive overlays.') },
   { key: 'cookies', name: t('moduleCookiesName', 'Cookie Guard'), desc: t('moduleCookiesDesc', 'Removes selected tracking cookies from third-party sites.') },
   { key: 'heuristics', name: t('moduleHeuristicsName', 'Threat Detection'), desc: t('moduleHeuristicsDesc', 'Detects suspicious websites, domain lookalikes, and risky login pages.') },
   { key: 'fingerprintShields', name: t('moduleFpName', 'Fingerprint Protection'), desc: t('moduleFpDesc', 'Reduces browser fingerprinting signals.') }

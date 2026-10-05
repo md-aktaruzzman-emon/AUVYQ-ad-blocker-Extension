@@ -90,9 +90,9 @@ export function compileFilters(targetDir = rootDir) {
   ensureVendorListFiles(vendorDir);
 
   const lists = [
-    { file: 'easylist.txt', category: 'ads', idStart: 1000, idEnd: 9999, outFile: 'rules/easylist.json' },
-    { file: 'easyprivacy.txt', category: 'trackers', idStart: 10000, idEnd: 19999, outFile: 'rules/easyprivacy.json' },
-    { file: 'annoyances.txt', category: 'annoyances', idStart: 20000, idEnd: 24999, outFile: 'rules/annoyances.json' }
+    { file: 'easylist.txt', category: 'ads', idStart: 1, maxRules: 80000, outFile: 'rules/easylist.json' },
+    { file: 'easyprivacy.txt', category: 'trackers', idStart: 1, maxRules: 80000, outFile: 'rules/easyprivacy.json' },
+    { file: 'annoyances.txt', category: 'annoyances', idStart: 1, maxRules: 80000, outFile: 'rules/annoyances.json' }
   ];
 
   const allGenericCss = [];
@@ -104,6 +104,7 @@ export function compileFilters(targetDir = rootDir) {
   let totalCosmeticRules = 0;
   let totalScriptletRules = 0;
   let totalDropped = 0;
+  const listStats = [];
 
   for (const listCfg of lists) {
     const filePath = path.join(vendorDir, listCfg.file);
@@ -112,6 +113,7 @@ export function compileFilters(targetDir = rootDir) {
 
     const dnrRules = [];
     let currentId = listCfg.idStart;
+    let listDnrCount = 0;
 
     for (let line of lines) {
       line = line.trim();
@@ -154,15 +156,20 @@ export function compileFilters(targetDir = rootDir) {
 
       // Network rule
       const dnrRule = parseNetworkRule(line, currentId);
-      if (dnrRule && currentId <= listCfg.idEnd) {
+      if (dnrRule) {
+        if (currentId > listCfg.maxRules) {
+          throw new Error(`Ruleset ${listCfg.outFile} exceeded maximum static rule limit of ${listCfg.maxRules}`);
+        }
         dnrRules.push(dnrRule);
         currentId++;
         totalDnrRules++;
+        listDnrCount++;
       } else {
         totalDropped++;
       }
     }
 
+    listStats.push({ file: listCfg.file, dnrCount: listDnrCount });
     writeFileSync(path.join(targetDir, listCfg.outFile), JSON.stringify(dnrRules, null, 2), 'utf8');
   }
 
@@ -179,11 +186,14 @@ export function compileFilters(targetDir = rootDir) {
   // Scriptlet dispatch
   writeFileSync(path.join(targetDir, 'data', 'scriptlets', 'dispatch.json'), JSON.stringify(allScriptlets, null, 2), 'utf8');
 
+  const perListReport = listStats.map((s) => `  - ${s.file}: ${s.dnrCount} DNR rules`).join('\n');
+
   console.log(`============================================================
 AUVYQ FILTER COMPILER STATISTICS
 ============================================================
 Total Filter Lines Parsed:   ${totalParsed}
 DNR Network Rules Compiled:  ${totalDnrRules}
+${perListReport}
 Cosmetic Selectors Compiled: ${totalCosmeticRules} (Generic: ${uniqueGeneric.length}, Domains: ${Object.keys(allSpecificCosmetic).length})
 Scriptlet Rules Compiled:    ${totalScriptletRules}
 Unsupported/Dropped:         ${totalDropped}
@@ -597,6 +607,18 @@ function getEmbeddedEasyPrivacy() {
 function getEmbeddedAnnoyances() {
   return `! Title: Annoyances Core Pinned Snapshot
 ! Description: Cookie popups, intrusive banners and floating widgets
+||cookielaw.org^$third-party
+||cookiebot.com^$third-party
+||usercentrics.eu^$third-party
+||consensu.org^$third-party
+||trustarc.com^$third-party
+||widget.intercom.io^$third-party
+||onesignal.com/sdks/*$third-party
+||cdn.onesignal.com^$third-party
+||pushwoosh.com^$third-party
+||pushcrew.com^$third-party
+||drift.com^$third-party
+||driftt.com^$third-party
 ##.cookie-banner
 ##.cookie-notice
 ##.cookie-consent

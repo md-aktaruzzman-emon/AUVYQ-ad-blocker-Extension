@@ -22,7 +22,8 @@
     "offscreen",
     "webNavigation",
     "cookies",
-    "tabs"
+    "tabs",
+    "webRequest"
   ],
   "host_permissions": ["<all_urls>"],
   "background": {

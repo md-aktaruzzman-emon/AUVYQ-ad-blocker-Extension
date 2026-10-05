@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest%20V3-Chrome%20120%2B-0891b2?style=flat-square&logo=googlechrome&logoColor=white" alt="Manifest V3"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.6%20Strict-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"></a>
-  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-104%20Passing-10b981?style=flat-square&logo=vitest&logoColor=white" alt="Vitest Tests"></a>
+  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-117%20Passing-10b981?style=flat-square&logo=vitest&logoColor=white" alt="Vitest Tests"></a>
   <a href="#privacy-by-design"><img src="https://img.shields.io/badge/Telemetry-Opt--In%20Only-059669?style=flat-square" alt="Zero Telemetry Default"></a>
   <a href="#6-cryptographic-settings-vault"><img src="https://img.shields.io/badge/Vault-PBKDF2%20%2B%20AES--GCM-818cf8?style=flat-square" alt="Crypto Vault"></a>
   <a href="#license"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License"></a>
@@ -79,9 +79,12 @@ AUVYQ bundles a closed, audited library of **15 pre-compiled scriptlets** execut
 - **Session Preservation Guarantee**: Essential authentication cookies, login tokens, and shopping carts are strictly protected and never purged.
 
 ### 5. Tracking Parameter Stripping
-- **Clean URLs**: Strips surveillance and campaign tracking query parameters (`utm_*`, `fbclid`, `gclid`, `mc_eid`, `mc_cid`, `yclid`, `igshid`, etc.) via native DNR redirection transforms before outbound network requests leave the browser.
+- **Clean URLs**: Strips surveillance and campaign tracking query parameters (`utm_*`, `fbclid`, `gclid`, `msclkid`, `mc_eid`, `mc_cid`, `yclid`, `ttclid`, `li_fat_id`, `epik`, `_openstat`, `srsltid`, `gbraid`, `wbraid`) via native DNR redirection transforms before outbound network requests leave the browser.
 
-### 6. Tier-1 Threat & Scam Heuristics
+### 6. Annoyance & Cookie Popup Blocking
+- **Distraction-Free Web**: Suppresses intrusive cookie consent popups, newsletter subscription modals, push notification prompts, and floating widgets via dedicated Declarative Net Request rules (`rules/annoyances.json`) and cosmetic selectors without breaking page interaction.
+
+### 7. Tier-1 Threat & Scam Heuristics
 AUVYQ analyzes visited domains upon navigation commit (`webNavigation.onCommitted`) using fast, client-side heuristics:
 - **Homoglyph & Punycode Detection**: Flags look-alike internationalized domain names (IDN / `xn--...`) and mixed-script impersonation attempts.
 - **Deceptive Subdomain Detection**: Detects subdomains attempting to spoof major service providers (e.g. `paypal.com.account-verify.example`).
@@ -91,7 +94,7 @@ AUVYQ analyzes visited domains upon navigation commit (`webNavigation.onCommitte
 - **Foreign Login Detection**: Identifies credential forms submitting password inputs across unrelated origins.
 - **Isolated Shadow DOM Warning Banner**: Injects an escalation warning (shake, confirmation, or typed `"CONTINUE"` safeguard) directly inside a protected Shadow Root.
 
-### 7. Optional Fingerprint Shields
+### 8. Optional Fingerprint Shields
 *For advanced users seeking defensive fingerprinting resistance (Default: OFF for maximum compatibility):*
 - **Canvas Readback Noise**: Injects subtle, non-visual entropy into `getImageData` and `toDataURL`.
 - **WebGL Masking**: Standardizes `UNMASKED_VENDOR_WEBGL` and `UNMASKED_RENDERER_WEBGL` identifiers.
@@ -99,7 +102,7 @@ AUVYQ analyzes visited domains upon navigation commit (`webNavigation.onCommitte
 - **Screen Dimension Normalization**: Rounds and harmonizes screen viewport metrics.
 - **High-Precision Timing Jitter**: Reduces microsecond precision in `performance.now()` to mitigate cache timing attacks.
 
-### 8. Cryptographic Settings Vault
+### 9. Cryptographic Settings Vault
 - **PBKDF2-SHA256**: Key derivation with **600,000 iterations**.
 - **AES-GCM-256**: Authenticated encryption with 128-bit authentication tags, 16-byte random salt, and 12-byte initialization vectors per backup.
 - **Isolated Offscreen Derivation**: Intensive cryptographic routines execute inside an isolated offscreen document (`offscreen.html`) with automatic lifecycle termination (60s inactivity timeout) to keep UI and service worker threads completely responsive.
@@ -111,13 +114,13 @@ AUVYQ analyzes visited domains upon navigation commit (`webNavigation.onCommitte
 
 AUVYQ provides five standardized protection profiles designed to give users clear control over compatibility and privacy depth:
 
-| Preset | Target Use Case | Ads | Trackers | Cookies | Heuristics | Fingerprint Shields |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Basic** | Maximum compatibility; essential ad blocking with zero site breakage. | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Balanced** *(Default)* | Everyday browsing; balanced ad, tracker, cookie, and threat protection. | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Strong** | Stronger privacy protection for users who want stricter threat mitigation. | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Maximum** | Maximum available protection; includes all fingerprint defenses. | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Expert** | Full manual customization; allows individual toggling of every module. | Custom | Custom | Custom | Custom | Custom |
+| Preset | Target Use Case | Ads | Trackers | Annoyances | Cookies | Heuristics | Fingerprint Shields |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Basic** | Maximum compatibility; essential ad blocking with zero site breakage. | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Balanced** *(Default)* | Everyday browsing; balanced ad, tracker, cookie, and threat protection. | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| **Strong** | Stricter protection; enables annoyance blocking, stricter threat sensitivity, and aggressive cookie cleanup. | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **Maximum** | Maximum available protection; includes all fingerprint defenses and full shield suite. | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Expert** | Full manual customization; allows individual toggling of every module. | Custom | Custom | Custom | Custom | Custom | Custom |
 
 ---
 
@@ -205,7 +208,7 @@ flowchart TD
 
 - **Manifest V3 Native**: Pure service worker architecture compatible with modern browser sandboxing standards.
 - **Strict Content Security Policy**: `script-src 'self'; object-src 'self'`.
-- **Privileged RPC Routing**: Mutating RPC commands (`SET_SETTINGS`, `CLEAR_AUVYQ_DATA`, `VAULT_RESTORE`) are gated by strict sender origin checks (`isPrivilegedSender`), rejecting requests from unprivileged web contexts or unauthorized frames.
+- **Privileged RPC Routing**: Enforces a strict Deny-by-Default security posture. Unprivileged web contexts and content scripts can only invoke explicitly allowlisted RPC message types (`CONTENT_SCRIPT_ALLOWED_TYPES`). All administrative, mutation, and sensitive read operations (`SET_SETTINGS`, `CLEAR_AUVYQ_DATA`, `GET_COOKIE_REPORT`, `GET_THREAT_LOG`, `EXPORT_BACKUP`, etc.) are restricted to verified internal extension pages (`isPrivilegedSender`).
 - **Deterministic Rule Compilation**: Adblock filter syntax is compiled into validated RE2-compatible DNR rules at build and update time.
 - **Cryptographically Signed Updates**: Remote filter updates are verified against ECDSA P-256 signatures with SHA-256 integrity hashing before atomic activation.
 
@@ -239,10 +242,10 @@ Telemetry is **disabled by default** during onboarding. When explicitly enabled 
 | **Runtime Target** | Google Chrome 120+ (Manifest V3) | Modern browser platform |
 | **Language** | TypeScript 5.6 (Strict Mode) | Full type safety with zero `any` policy |
 | **Bundler** | [esbuild](https://esbuild.github.io/) 0.24 | Deterministic ESM bundling to `dist/` |
-| **Test Framework** | [Vitest](https://vitest.dev/) 2.1 | 16 test suites, 104 automated tests |
+| **Test Framework** | [Vitest](https://vitest.dev/) 2.1 | 18 test suites, 117 automated tests |
 | **Linter** | ESLint 9 (Flat Config) | Code quality and MV3 security enforcement |
 | **Cryptography** | Web Crypto API (`SubtleCrypto`) | PBKDF2, AES-GCM, SHA-256, ECDSA P-256 |
-| **Browser APIs** | `declarativeNetRequest`, `storage`, `cookies`, `scripting`, `offscreen`, `webNavigation`, `alarms`, `tabs` | Platform integration |
+| **Browser APIs** | `declarativeNetRequest`, `storage`, `cookies`, `scripting`, `offscreen`, `webNavigation`, `webRequest`, `alarms`, `tabs` | Platform integration (non-blocking passive observation only) |
 
 ---
 
@@ -273,7 +276,7 @@ AUVYQ/
 ├── platform-chrome/         # Chrome extension API adapters (DNR, Cookie Guard, RPC)
 ├── resources/               # Web-accessible resources (1x1 transparent GIF, noop.js)
 ├── rules/                   # Compiled static DNR rulesets (main, ads, trackers, annoyances)
-├── tests/                   # 16 Vitest test suites (104 unit, security & integration tests)
+├── tests/                   # 18 Vitest test suites (117 unit, security & integration tests)
 ├── tools/                   # Manifest, resource, icon, and filter validation scripts
 ├── types/                   # TypeScript interfaces, schemas, and Chrome API definitions
 ├── ui/                      # Responsive HTML/CSS/JS surfaces with motion system

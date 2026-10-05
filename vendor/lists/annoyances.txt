@@ -1,5 +1,17 @@
 ! Title: Annoyances Core Pinned Snapshot
 ! Description: Cookie popups, intrusive banners and floating widgets
+||cookielaw.org^$third-party
+||cookiebot.com^$third-party
+||usercentrics.eu^$third-party
+||consensu.org^$third-party
+||trustarc.com^$third-party
+||widget.intercom.io^$third-party
+||onesignal.com/sdks/*$third-party
+||cdn.onesignal.com^$third-party
+||pushwoosh.com^$third-party
+||pushcrew.com^$third-party
+||drift.com^$third-party
+||driftt.com^$third-party
 ##.cookie-banner
 ##.cookie-notice
 ##.cookie-consent

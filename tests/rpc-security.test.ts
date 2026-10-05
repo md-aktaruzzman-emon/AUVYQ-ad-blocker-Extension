@@ -136,7 +136,7 @@ describe('RPC Security & Sender Privilege Routing', () => {
     expect(handlers.SET_SETTINGS).toHaveBeenCalled();
   });
 
-  it('verifies all expected administrative message types are in PRIVILEGED_MESSAGE_TYPES', () => {
+  it('verifies all expected administrative and sensitive message types are in PRIVILEGED_MESSAGE_TYPES', () => {
     expect(PRIVILEGED_MESSAGE_TYPES.has('SET_SETTINGS')).toBe(true);
     expect(PRIVILEGED_MESSAGE_TYPES.has('SET_SITE_PAUSED')).toBe(true);
     expect(PRIVILEGED_MESSAGE_TYPES.has('CLEAR_AUVYQ_DATA')).toBe(true);
@@ -145,5 +145,46 @@ describe('RPC Security & Sender Privilege Routing', () => {
     expect(PRIVILEGED_MESSAGE_TYPES.has('CHECK_UPDATES')).toBe(true);
     expect(PRIVILEGED_MESSAGE_TYPES.has('REMOVE_COOKIES')).toBe(true);
     expect(PRIVILEGED_MESSAGE_TYPES.has('SET_ONBOARDING_DONE')).toBe(true);
+    expect(PRIVILEGED_MESSAGE_TYPES.has('GET_COOKIE_REPORT')).toBe(true);
+    expect(PRIVILEGED_MESSAGE_TYPES.has('GET_THREAT_LOG')).toBe(true);
+    expect(PRIVILEGED_MESSAGE_TYPES.has('GET_SETTINGS')).toBe(true);
+  });
+
+  it('rejects sensitive read RPCs from untrusted web senders (deny-by-default)', async () => {
+    const fakeExtId = 'auvyq-extension-id-12345';
+    (globalThis as unknown as { chrome: unknown }).chrome = {
+      runtime: {
+        id: fakeExtId,
+        getURL: (path: string) => `chrome-extension://${fakeExtId}/${path}`
+      }
+    };
+
+    const handlers = {
+      GET_COOKIE_REPORT: vi.fn().mockResolvedValue([{ name: 'secret', domain: 'bank.com' }]),
+      GET_SETTINGS: vi.fn().mockResolvedValue({ preset: 'balanced' }),
+      GET_THREAT_LOG: vi.fn().mockResolvedValue({ total: 0, entries: [] })
+    };
+
+    const router = createRpcRouter(handlers);
+    const contentSender: chrome.runtime.MessageSender = {
+      id: fakeExtId,
+      url: 'https://attacker.example/page'
+    };
+
+    const resCookie = await router.handle(
+      { v: 1, type: 'GET_COOKIE_REPORT', requestId: 'req-c-1' },
+      contentSender
+    );
+    expect(resCookie.success).toBe(false);
+    expect(resCookie.error).toContain('unauthorized');
+    expect(handlers.GET_COOKIE_REPORT).not.toHaveBeenCalled();
+
+    const resSettings = await router.handle(
+      { v: 1, type: 'GET_SETTINGS', requestId: 'req-s-1' },
+      contentSender
+    );
+    expect(resSettings.success).toBe(false);
+    expect(resSettings.error).toContain('unauthorized');
+    expect(handlers.GET_SETTINGS).not.toHaveBeenCalled();
   });
 });
