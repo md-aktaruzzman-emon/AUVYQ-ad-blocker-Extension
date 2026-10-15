@@ -518,3 +518,9 @@ html, body {
   border-color: var(--auvyq-primary);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .auvyq-shield-stage::before { animation: none; }
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+

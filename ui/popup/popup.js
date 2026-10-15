@@ -219,7 +219,7 @@ elements.openDashboard.addEventListener('click', (event) => {
 });
 
 // Cancel transient animations when the popup closes (no leaked timers / detached DOM).
-window.addEventListener('unload', () => {
+window.addEventListener('pagehide', () => {
   if (pollTimer !== null) clearInterval(pollTimer);
   cancelAll(document);
 });

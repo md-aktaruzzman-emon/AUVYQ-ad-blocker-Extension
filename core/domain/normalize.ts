@@ -13,8 +13,8 @@ export function normalizeHostname(hostname: string): string {
     const inner = candidate.slice(1, -1);
     return isIpv6(inner) ? inner : '';
   }
-  // Strip default ports only when part of an origin string was passed (defensive).
-  candidate = candidate.replace(/:80$|:443$/, '');
+  // Strip port numbers when part of an origin string was passed (defensive).
+  candidate = candidate.replace(/:\d+$/, '');
   // Strip leading and trailing dots
   while (candidate.startsWith('.')) candidate = candidate.slice(1);
   while (candidate.endsWith('.')) candidate = candidate.slice(0, -1);

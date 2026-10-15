@@ -60,4 +60,12 @@ describe('Domain Normalization', () => {
     expect(registrableDomain('deep.sub.news.bbc.co.uk')).toBe('bbc.co.uk');
     expect(registrableDomain('shop.amazon.co.jp')).toBe('amazon.co.jp');
   });
+
+  it('strips ports correctly during normalization', () => {
+    expect(normalizeHostname('localhost:3000')).toBe('localhost');
+    expect(normalizeHostname('test.dev:8080')).toBe('test.dev');
+    expect(normalizeHostname('example.com:443')).toBe('example.com');
+    expect(normalizeHostname('example.com:80')).toBe('example.com');
+  });
 });
+

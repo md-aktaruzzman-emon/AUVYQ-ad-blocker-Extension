@@ -315,7 +315,7 @@
       if (!hasPassword) continue;
       let actionOrigin = pageOrigin;
       try {
-        actionOrigin = form.action.length > 0 ? new URL(form.action, pageOrigin).origin : pageOrigin;
+        actionOrigin = (form.getAttribute('action') || '').length > 0 ? new URL(form.getAttribute('action') || '', pageOrigin).origin : pageOrigin;
       } catch {
         actionOrigin = '';
       }

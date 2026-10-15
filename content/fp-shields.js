@@ -34,11 +34,19 @@
         const cloned = new ImageData(new Uint8ClampedArray(data.data), data.width, data.height);
         for (let i = 0; i < cloned.data.length; i += 4) {
           cloned.data[i] = Math.max(0, Math.min(255, cloned.data[i] + getNoise(i)));
+          cloned.data[i + 1] = Math.max(0, Math.min(255, cloned.data[i + 1] + getNoise(i + 1)));
+          cloned.data[i + 2] = Math.max(0, Math.min(255, cloned.data[i + 2] + getNoise(i + 2)));
         }
         return cloned;
       };
       const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
+      const origToDataURL = originalToDataURL;
       HTMLCanvasElement.prototype.toDataURL = function toDataURL(...args) {
+        // Skip noise for WebGL canvases to avoid blank export
+        const gl = this.getContext('webgl') || this.getContext('webgl2');
+        if (gl) {
+          return origToDataURL.apply(this, arguments);
+        }
         if (this.width > 0 && this.height > 0) {
           try {
             // Export from a temporary copy canvas; NEVER mutate the source canvas backing store!
@@ -51,6 +59,8 @@
               const imgData = originalGetImageData.call(offCtx, 0, 0, this.width, this.height);
               for (let i = 0; i < imgData.data.length; i += 4) {
                 imgData.data[i] = Math.max(0, Math.min(255, imgData.data[i] + getNoise(i)));
+                imgData.data[i + 1] = Math.max(0, Math.min(255, imgData.data[i + 1] + getNoise(i + 1)));
+                imgData.data[i + 2] = Math.max(0, Math.min(255, imgData.data[i + 2] + getNoise(i + 2)));
               }
               offCtx.putImageData(imgData, 0, 0);
               return originalToDataURL.apply(offscreen, args);
@@ -89,11 +99,13 @@
     try {
       Object.defineProperty(Navigator.prototype, 'hardwareConcurrency', {
         get: () => 4,
-        configurable: true
+        configurable: true,
+        enumerable: true
       });
       Object.defineProperty(Navigator.prototype, 'deviceMemory', {
         get: () => 4,
-        configurable: true
+        configurable: true,
+        enumerable: true
       });
     } catch { /* non-fatal */ }
   }

@@ -75,6 +75,7 @@ async function load() {
   try {
     data = await rpc('GET_SITE_REPORT', {});
     host = typeof data.host === 'string' ? data.host : '';
+    if (host.length === 0) throw new Error('empty host');
     paused = data.paused === true;
   } catch {
     // fall back to the active tab's hostname, validated locally

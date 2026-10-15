@@ -1,11 +1,11 @@
 {
   "extName": {
     "message": "AUVYQ",
-    "description": "The extension name."
+    "description": "Extension name shown in Chrome toolbar and settings"
   },
   "extDescription": {
-    "message": "AUVYQ — local-first privacy, ad, tracker and threat protection for Chrome.",
-    "description": "The extension description."
+    "message": "Privacy-first ad blocker, tracker shield, cookie guard and threat detector.",
+    "description": "Extension description shown in Chrome Web Store and settings"
   },
   "statusProtected": {
     "message": "Protected",
