@@ -488,6 +488,95 @@
   100% { transform: scale(1); }
 }
 
+/* Discord & Reddit inspired clean component tokens */
+.auvyq-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.auvyq-badge-primary {
+  background: var(--auvyq-primary-soft);
+  color: var(--auvyq-text-accent);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+.auvyq-badge-success {
+  background: var(--auvyq-protected-soft);
+  color: var(--auvyq-protected);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.auvyq-badge-warning {
+  background: var(--auvyq-warning-soft);
+  color: var(--auvyq-warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+.auvyq-badge-danger {
+  background: var(--auvyq-danger-soft);
+  color: var(--auvyq-danger);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.auvyq-badge-neutral {
+  background: var(--auvyq-surface-secondary);
+  color: var(--auvyq-text-secondary);
+  border: 1px solid var(--auvyq-border);
+}
+
+/* Empty State component */
+.auvyq-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  gap: var(--space-3);
+  color: var(--auvyq-text-muted);
+}
+.auvyq-empty-state-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--auvyq-surface-secondary);
+  border: 1px solid var(--auvyq-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--auvyq-text-muted);
+  margin-bottom: var(--space-2);
+}
+.auvyq-empty-state-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--auvyq-text-primary);
+  margin: 0;
+}
+.auvyq-empty-state-desc {
+  font-size: 13px;
+  color: var(--auvyq-text-secondary);
+  max-width: 380px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Skeleton shimmer loading */
+.auvyq-skeleton {
+  background: linear-gradient(90deg, var(--auvyq-surface-secondary) 25%, var(--auvyq-surface-hover) 50%, var(--auvyq-surface-secondary) 75%);
+  background-size: 200% 100%;
+  animation: auvyq-shimmer 1.8s infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes auvyq-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* reduced motion: exact required behavior */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -206,14 +206,18 @@ elements.masterSwitch.addEventListener('keydown', (event) => {
   }
 });
 
+let pausing = false;
 elements.sitePause.addEventListener('click', async () => {
-  if (currentHost.length === 0) return;
+  if (pausing || currentHost.length === 0) return;
+  pausing = true;
   pop(elements.sitePause);
   try {
     await rpc('SET_SITE_PAUSED', { host: currentHost, paused: !sitePaused });
     await refresh();
   } catch {
     elements.siteStatus.textContent = 'Could not update this site';
+  } finally {
+    pausing = false;
   }
 });
 

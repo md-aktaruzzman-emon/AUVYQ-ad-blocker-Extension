@@ -548,7 +548,26 @@ function renderCookies() {
   if (slice.length === 0) {
     const empty = document.createElement('li');
     empty.className = 'cookie-empty-state';
-    empty.textContent = 'No cookies observed yet.';
+
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'threat-empty-icon';
+    iconWrap.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>';
+
+    const textWrap = document.createElement('div');
+    textWrap.className = 'threat-empty-text';
+
+    const title = document.createElement('div');
+    title.className = 'threat-empty-title';
+    title.textContent = 'No Tracking Cookies Observed';
+
+    const desc = document.createElement('div');
+    desc.className = 'threat-empty-desc';
+    desc.textContent = 'AUVYQ continuously monitors cross-site cookies. Your essential logins and session data remain safeguarded.';
+
+    textWrap.appendChild(title);
+    textWrap.appendChild(desc);
+    empty.appendChild(iconWrap);
+    empty.appendChild(textWrap);
     list.appendChild(empty);
   }
   for (const entry of slice) {

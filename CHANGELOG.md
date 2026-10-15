@@ -47,7 +47,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Randomized WebGL GPU Profiles**: Masked WebGL vendor and renderer across realistic profiles deterministically per origin.
 - **Enumerable Navigator Properties**: Configured `hardwareConcurrency` and `deviceMemory` as enumerable properties.
 - **Accessibility & Motion Tokens**: Added `prefers-reduced-motion` overrides in `popup.css` and replaced deprecated `unload` with `pagehide`.
-- **Package Size Optimization**: Excluded test fixtures from the production distribution bundle.
+### UI & UX Design System
+- **Discord & Reddit Inspired Component Architecture**: Upgraded shared tokens, card elevations, badge pills, and dark/light mode contrast across all extension surfaces.
+- **WAI-ARIA Radio Group Keyboard Navigation**: Implemented standard ArrowUp/ArrowDown/ArrowLeft/ArrowRight, Home, and End keyboard navigation in onboarding preset cards.
+- **Optimized Popup Rendering**: Replaced duplicate 512×512 SVG brand vectors with `<use href="#auvyq-shield-mark" />`, reducing popup HTML size and parse latency.
+- **Tokenized Popup Styling**: Replaced hardcoded color literals in `popup.css` and `report.css` with `--auvyq-*` CSS variables, ensuring 4.5:1 text contrast in light theme.
+- **Site Pause Concurrency Lock**: Added `pausing` lock on the popup site toggle to prevent race conditions on rapid clicks.
+- **Enhanced Empty States**: Added informative illustrations and descriptions for empty cookie tables and threat logs.
 
 ## [0.3.0] - 2026-10-05
 

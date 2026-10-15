@@ -49,14 +49,28 @@ const PRESET_ICONS = {
   expert: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>'
 };
 
+function selectPreset(key) {
+  selectedPreset = key;
+  const options = document.querySelectorAll('.preset-option');
+  options.forEach((el) => {
+    const isCurrent = el.dataset.preset === key;
+    el.classList.toggle('selected', isCurrent);
+    el.setAttribute('aria-checked', String(isCurrent));
+    el.setAttribute('tabindex', isCurrent ? '0' : '-1');
+    if (isCurrent) el.focus();
+  });
+}
+
 // Preset list
 const list = document.getElementById('preset-list');
 for (const preset of PRESETS) {
   const isSelected = preset.key === 'balanced';
   const option = document.createElement('button');
+  option.type = 'button';
   option.className = `preset-option${isSelected ? ' selected' : ''}`;
   option.setAttribute('role', 'radio');
   option.setAttribute('aria-checked', String(isSelected));
+  option.setAttribute('tabindex', isSelected ? '0' : '-1');
   option.dataset.preset = preset.key;
 
   // Icon wrap
@@ -98,14 +112,31 @@ for (const preset of PRESETS) {
   option.appendChild(radio);
 
   option.addEventListener('click', () => {
-    selectedPreset = preset.key;
-    document.querySelectorAll('.preset-option').forEach((el) => {
-      el.classList.remove('selected');
-      el.setAttribute('aria-checked', 'false');
-    });
-    option.classList.add('selected');
-    option.setAttribute('aria-checked', 'true');
+    selectPreset(preset.key);
   });
+
+  option.addEventListener('keydown', (e) => {
+    const currentIndex = PRESETS.findIndex((p) => p.key === preset.key);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = (currentIndex + 1) % PRESETS.length;
+      selectPreset(PRESETS[nextIndex].key);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = (currentIndex - 1 + PRESETS.length) % PRESETS.length;
+      selectPreset(PRESETS[prevIndex].key);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      selectPreset(PRESETS[0].key);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      selectPreset(PRESETS[PRESETS.length - 1].key);
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      selectPreset(preset.key);
+    }
+  });
+
   list.appendChild(option);
 }
 
