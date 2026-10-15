@@ -64,10 +64,14 @@ chrome.storage.local.get('settings', (result) => {
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && changes.settings?.newValue) {
-    if (changes.settings.newValue.theme) {
+  if (area === 'local') {
+    if (changes.settings?.newValue?.theme) {
       applyTheme(changes.settings.newValue.theme);
     }
+    if (changes.settings || changes.snapshots || changes.siteStats) {
+      void refresh();
+    }
+  } else if (area === 'session' && changes.tabThreats) {
     void refresh();
   }
 });
@@ -230,4 +234,3 @@ bindPressPop(document);
 void refresh().then(() => {
   if (masterEnabled && !sitePaused) sweep(elements.sweepPanel);
 });
-pollTimer = setInterval(refresh, 1500);

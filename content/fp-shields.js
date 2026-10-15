@@ -74,10 +74,16 @@
 
   function installWebglShield() {
     try {
-      const masked = {
-        vendor: 'Google Inc. (Intel)',
-        renderer: 'ANGLE (Intel, Intel(R) UHD Graphics 630 Direct3D11 vs_5_0 ps_5_0)'
-      };
+      const GPU_PROFILES = [
+        { vendor: 'Google Inc. (Intel)', renderer: 'ANGLE (Intel, Intel(R) UHD Graphics 630 Direct3D11 vs_5_0 ps_5_0)' },
+        { vendor: 'Google Inc. (NVIDIA)', renderer: 'ANGLE (NVIDIA, NVIDIA GeForce GTX 1660 SUPER Direct3D11 vs_5_0 ps_5_0)' },
+        { vendor: 'Google Inc. (AMD)', renderer: 'ANGLE (AMD, AMD Radeon(TM) Graphics Direct3D11 vs_5_0 ps_5_0)' },
+        { vendor: 'Google Inc. (Apple)', renderer: 'ANGLE (Apple, Apple M1, OpenGL 4.1)' }
+      ];
+      const host = typeof location !== 'undefined' && location.hostname ? location.hostname : 'auvyq';
+      let hash = 0x811c9dc5;
+      for (let i = 0; i < host.length; i++) hash = Math.imul(hash ^ host.charCodeAt(i), 0x01000193) >>> 0;
+      const masked = GPU_PROFILES[hash % GPU_PROFILES.length];
       const original = WebGLRenderingContext.prototype.getParameter;
       WebGLRenderingContext.prototype.getParameter = function getParameter(parameter) {
         if (parameter === 37445) return masked.vendor;  // UNMASKED_VENDOR_WEBGL

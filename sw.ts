@@ -18,7 +18,7 @@ import { validateSettings, validateSnapshot, validateThreatLogEntry, validateHos
 import { normalizeHostname, displayHost, getDomainCandidates } from './core/domain/normalize.js';
 import { compileRulesDetailed } from './core/rule-compiler/compiler.js';
 import { applyQuota, SAFE_DYNAMIC_CAPACITY } from './core/quota-manager/quota.js';
-import { applyPackDiff, setSitePause, setSiteBlock, dnrMutex } from './platform-chrome/dnr-adapter/adapter.js';
+import { applyPackDiff, setSitePause, setSiteBlock, dnrMutex, assignPackIds } from './platform-chrome/dnr-adapter/adapter.js';
 import { sweepTrackerCookies, cleanupForTab, handleCookieChanged, isKnownTrackingCookie, COOKIE_SWEEP_ALARM, COOKIE_SWEEP_PERIOD_MINUTES } from './platform-chrome/cookie-guard/guard.js';
 import { createTelemetryService } from './core/telemetry/queue.js';
 import { runUpdateCheck, defaultUpdateState } from './core/update-channel/channel.js';
@@ -209,10 +209,14 @@ export async function activatePackFromListText(listText: string, listId: string)
 
     // Rule-id -> category map for accurate stats attribution.
     const categories = new Map<number, 'ads' | 'trackers' | 'params'>();
-    for (const kept of quota.kept) {
-      if (kept.rule.action.redirect?.transform !== undefined) categories.set(kept.rule.id, 'params');
-      else if (kept.category === 'trackers') categories.set(kept.rule.id, 'trackers');
-      else categories.set(kept.rule.id, 'ads');
+    const withIds = assignPackIds(quota.kept.map((k) => ({ key: k.key, rule: k.rule })));
+    for (let i = 0; i < quota.kept.length; i++) {
+      const kept = quota.kept[i];
+      const assigned = withIds[i];
+      if (!kept || !assigned) continue;
+      if (assigned.action.redirect?.transform !== undefined) categories.set(assigned.id, 'params');
+      else if (kept.category === 'trackers') categories.set(assigned.id, 'trackers');
+      else categories.set(assigned.id, 'ads');
     }
     registerPackRuleCategories(categories);
 
@@ -838,9 +842,9 @@ const handlers: Record<string, RpcHandler> = {
   GET_UPDATE_STATE: async () => getUpdateState(),
 
   SET_ONBOARDING_DONE: async (payload) => {
-    if (!isRecord(payload) || payload['done'] !== true) throw new Error('bad payload');
-    await chrome.storage.local.set({ [STORAGE_KEYS.onboardingDone]: true });
-    return { done: true };
+    const done = isRecord(payload) && typeof payload['done'] === 'boolean' ? payload['done'] : true;
+    await chrome.storage.local.set({ [STORAGE_KEYS.onboardingDone]: done });
+    return { ok: true, done };
   },
 
   GET_THREAT_LOG: async (payload) => {
@@ -931,6 +935,21 @@ const handlers: Record<string, RpcHandler> = {
     if (!isRecord(payload) || typeof payload['pageOrigin'] !== 'string' || !Array.isArray(payload['forms'])) {
       throw new Error('bad payload');
     }
+    const tabId = sender?.tab?.id;
+    if (tabId === undefined) {
+      return { risk: { score: 0, severity: 'none', reasons: [], confidence: 0 } };
+    }
+    let pageOrigin = payload['pageOrigin'];
+    if (sender?.tab?.url) {
+      try {
+        const tabOrigin = new URL(sender.tab.url).origin;
+        if (pageOrigin !== tabOrigin) {
+          pageOrigin = tabOrigin;
+        }
+      } catch {
+        // retain payload pageOrigin if sender.tab.url cannot be parsed
+      }
+    }
     const settings = await ensureInitialized();
     if (!settings.masterEnabled || !settings.modules.heuristics) {
       return { risk: { score: 0, severity: 'none', reasons: [], confidence: 0.5 } };
@@ -943,23 +962,16 @@ const handlers: Record<string, RpcHandler> = {
       };
     });
     const risk = assessThreat({
-      hostname: hostOfUrl(payload['pageOrigin']),
-      url: payload['pageOrigin'],
-      pageOrigin: payload['pageOrigin'],
+      hostname: hostOfUrl(pageOrigin),
+      url: pageOrigin,
+      pageOrigin,
       loginForms: forms
     });
     if (risk.severity === 'high' || risk.severity === 'malicious') {
-      let tabId = sender?.tab?.id;
-      if (tabId === undefined) {
-        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-        tabId = tabs[0]?.id;
-      }
-      const host = hostOfUrl(payload['pageOrigin']);
-      if (tabId !== undefined) {
-        const previous = await getTabThreat(tabId);
-        await setTabThreat(tabId, { host, risk, stage: previous?.stage ?? 'none' });
-        await chrome.tabs.sendMessage(tabId, { v: 1, type: 'AUVYQ_SHOW_THREAT', risk, host }).catch(() => undefined);
-      }
+      const host = hostOfUrl(pageOrigin);
+      const previous = await getTabThreat(tabId);
+      await setTabThreat(tabId, { host, risk, stage: previous?.stage ?? 'none' });
+      await chrome.tabs.sendMessage(tabId, { v: 1, type: 'AUVYQ_SHOW_THREAT', risk, host }).catch(() => undefined);
       await logThreat(host, risk, 'warned').catch(() => undefined);
       void updateBadge(settings, risk);
     }

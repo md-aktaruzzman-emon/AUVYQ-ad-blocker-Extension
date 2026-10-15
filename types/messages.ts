@@ -46,6 +46,7 @@ export type RpcRequest =
   | { type: 'REMOVE_COOKIES'; entries: { domain: string; name: string }[] }
   | { type: 'CLEAR_AUVYQ_DATA' }
   | { type: 'GET_DIAGNOSTICS' }
+  | { type: 'SET_ONBOARDING_DONE'; done?: boolean }
   | { type: 'CHECK_LOGIN_FORMS'; pageOrigin: string; forms: { actionOrigin: string; hasPasswordField: boolean }[] }
   | { type: 'THREAT_ACTION'; tabId: number; action: 'leave' | 'block' | 'continue' }
   | { type: 'GET_TAB_STATE'; tabId: number };

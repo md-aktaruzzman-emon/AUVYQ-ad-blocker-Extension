@@ -148,19 +148,19 @@ export async function applyPackDiff(
     } catch (error) {
       // Rollback: restore the exact previous set.
       try {
-        const addedIds: number[] = [];
+        const currentPackIds: number[] = [];
         try {
           const nowExisting = await chrome.declarativeNetRequest.getDynamicRules();
           for (const rule of nowExisting) {
-            if (rule.id >= PACK_ID_MIN && rule.id <= PACK_ID_MAX && !existingMap.has(rule.id)) {
-              addedIds.push(rule.id);
+            if (rule.id >= PACK_ID_MIN && rule.id <= PACK_ID_MAX) {
+              currentPackIds.push(rule.id);
             }
           }
         } catch {
-          addedIds.push(...nextMap.keys());
+          currentPackIds.push(...nextMap.keys());
         }
         await chrome.declarativeNetRequest.updateDynamicRules({
-          removeRuleIds: addedIds,
+          removeRuleIds: currentPackIds,
           addRules: existingPackRules
         });
         return { added: 0, removed: 0, rolledBack: true, error: String(error) };
@@ -199,7 +199,7 @@ export async function setSitePause(host: string, paused: boolean): Promise<boole
             id: id2,
             priority: PRIORITY_RANGES.userSession.min + 50,
             action: { type: 'allow' },
-            condition: { requestDomains: [host], initiatorDomains: [host] }
+            condition: { requestDomains: [host], resourceTypes: ['main_frame', 'sub_frame'] }
           }
         ]
       });
