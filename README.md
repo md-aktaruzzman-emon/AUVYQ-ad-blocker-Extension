@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest%20V3-Chrome%20120%2B-0891b2?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Manifest V3"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.6%20Strict-3178c6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript Strict"></a>
-  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-118%20Passing-10b981?style=for-the-badge&logo=vitest&logoColor=white" alt="118 Tests Passing"></a>
+  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-127%20Passing-10b981?style=for-the-badge&logo=vitest&logoColor=white" alt="127 Tests Passing"></a>
   <a href="#privacy-by-design"><img src="https://img.shields.io/badge/Telemetry-Zero%20Default-059669?style=for-the-badge" alt="Zero Telemetry Default"></a>
   <a href="#6-cryptographic-settings-vault"><img src="https://img.shields.io/badge/Vault-PBKDF2%20%2B%20AES--GCM-818cf8?style=for-the-badge" alt="AES-256 Vault"></a>
   <a href="#license"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
@@ -244,9 +244,16 @@ AUVYQ never generates code at runtime. All scriptlets are pre-compiled and verif
 
 ### Security by Design
 - **Strict Content Security Policy**: `script-src 'self'; object-src 'self'`.
-- **Deny-by-Default RPC**: Content scripts cannot read settings, storage, or threat logs. All privileged actions (`SET_SETTINGS`, `CLEAR_AUVYQ_DATA`, `EXPORT_BACKUP`) are strictly restricted to verified internal extension pages.
-- **Zero Dynamic Code Execution**: Prohibits `eval()`, `new Function()`, and remote script injection.
+- **Deny-by-Default RPC**: Content scripts cannot read settings, storage, or threat logs. All privileged actions (`SET_SETTINGS`, `CLEAR_AUVYQ_DATA`, `EXPORT_BACKUP`, `GET_DIAGNOSTICS`, `GET_SITE_REPORT`) are strictly restricted to verified internal extension pages.
+- **Zero Dynamic Code Execution**: Strictly zero `eval()`, `new Function()`, or arbitrary runtime script injection.
 - **Cryptographically Signed Rule Updates**: Remote filter updates are validated against ECDSA P-256 signatures with SHA-256 hashes before activation.
+- **Offscreen Cryptographic Isolation**: PBKDF2 key derivation and AES-GCM operations execute in a dedicated, isolated offscreen document without blocking browser UI.
+
+### 🛡️ Verified Security & Quality Audit
+- **Full CI/CD Automated Test Coverage**: **127/127 tests passing** across **18 comprehensive test suites** covering DNR compilation, heuristics, cookie guarding, storage migrations, and crypto.
+- **RPC Router Isolation**: Automated guards prevent collision between high-privilege UI messaging and offscreen document operations.
+- **Safe Dynamic Quota Enforced**: Dynamic rules are kept strictly within safe limits (capped at 4,500 dynamic rules) to guarantee uninterrupted browser operation under Chrome Manifest V3 quotas.
+- **Fail-Closed Authenticated Architecture**: Tampered backups, unauthorized message senders, and invalid input envelopes fail closed safely with structured error handling.
 
 ---
 
@@ -279,7 +286,7 @@ npm run typecheck
 # 6. Run ESLint
 npm run lint
 
-# 7. Run Vitest test suite (18 test suites, 118 tests)
+# 7. Run Vitest test suite (18 test suites, 127 tests)
 npm test
 
 # 8. Full CI validation pipeline

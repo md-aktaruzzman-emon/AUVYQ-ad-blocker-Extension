@@ -39,7 +39,7 @@ export interface CookieCleanupResult {
 }
 
 /** Known tracking / ad profiling cookie name patterns (Google, Facebook, Bing, Criteo, etc.) */
-const TRACKER_COOKIE_PATTERN = /^(Conversion|1P_JAR|NID|ANID|IDE|DSID|OTZ|_ga|_gid|_gat|_fbp|_fbc|fr|_uetsid|_uetvid|_gcl_.*|_gac_.*|_clck|_clsk|__utma|__utmb|__utmc|__utmz|uuid2|tuuid|anj)$/i;
+const TRACKER_COOKIE_PATTERN = /^(Conversion|1P_JAR|NID|ANID|IDE|DSID|OTZ|_ga(_.*)?|_gid|_gat|_fbp|_fbc|fr|_uetsid|_uetvid|_gcl_.*|_gac_.*|_clck|_clsk|__utma|__utmb|__utmc|__utmz|uuid2|tuuid|anj)$/i;
 
 /** Essential session/login/security cookie name patterns that must NEVER be deleted */
 const ESSENTIAL_COOKIE_PATTERN = /^(ACCOUNT_CHOOSER|SID|HSID|SSID|APISID|SAPISID|__Secure-[13]P(APISID|SID)|__Secure-.*OSID|OSID|__Secure-DIVERSION.*|__cf_bm|__cfuvid|cf_clearance|cf_chl_.*|__Host-|auth|token|jwt|csrf|xsrf|session|PHPSESSID|JSESSIONID|ASPSESSIONID|connect\.sid|remember_web_|wordpress_logged_in_|li_at|sessionid|authToken|access_token|refresh_token|id_token)$/i;

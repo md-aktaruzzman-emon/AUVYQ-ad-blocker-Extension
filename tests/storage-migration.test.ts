@@ -95,6 +95,23 @@ describe('Storage Versioning & Migration', () => {
     expect(settings.masterEnabled).toBe(true);
   });
 
+  it('preserves 30-day default retention window when logRetentionDays is missing in v2', () => {
+    const v2State = {
+      [STORAGE_KEYS.settings]: {
+        schemaVersion: 2,
+        preset: 'balanced',
+        masterEnabled: true,
+        modules: { ads: true, trackers: true, cookies: true, heuristics: true, fingerprintShields: false },
+        perSite: {}
+      },
+      [STORAGE_KEYS.snapshots]: {}
+    };
+
+    const { data } = migrateStorage(v2State);
+    const settings = data[STORAGE_KEYS.settings] as Settings;
+    expect(settings.logRetentionDays).toBe(30);
+  });
+
   it('is idempotent: running migration twice on current state yields no additional modifications', () => {
     const initialState = {
       [STORAGE_KEYS.settings]: defaultSettings(),

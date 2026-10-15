@@ -80,6 +80,36 @@ describe('Rule Compiler', () => {
 
     expect(pack.stats.rulesCompiled).toBeGreaterThanOrEqual(0);
   });
+
+  it('correctly maps negative domains to excludedRequestDomains for domain-scoped and removeparam rules', () => {
+    const list = [
+      '||tracker.example^$domain=~sub.tracker.example',
+      '||analytics.example^$removeparam=utm_source,domain=~internal.analytics.example'
+    ].join('\n');
+
+    const irs = parseFilterList(list, 'excluded-domains');
+    const pack = compileRules(irs);
+
+    const allRules = [...pack.dnrRules.ads, ...pack.dnrRules.trackers] as Array<{
+      condition: {
+        requestDomains?: string[];
+        excludedRequestDomains?: string[];
+        initiatorDomains?: string[];
+        excludedInitiatorDomains?: string[];
+      };
+      action: { type: string };
+    }>;
+
+    const domainRule = allRules.find((r) => r.condition.requestDomains?.includes('tracker.example'));
+    expect(domainRule).toBeDefined();
+    expect(domainRule?.condition.excludedRequestDomains).toEqual(['sub.tracker.example']);
+    expect(domainRule?.condition.excludedInitiatorDomains).toBeUndefined();
+
+    const paramRule = allRules.find((r) => r.condition.requestDomains?.includes('analytics.example'));
+    expect(paramRule).toBeDefined();
+    expect(paramRule?.condition.excludedRequestDomains).toEqual(['internal.analytics.example']);
+    expect(paramRule?.condition.excludedInitiatorDomains).toBeUndefined();
+  });
 });
 
 describe('Cosmetic Engine & Domain Candidates', () => {

@@ -255,13 +255,13 @@ function convertNetworkRule(ir: FilterIR): NetworkConversion | string {
   const isPatternRule = network.pattern.regex !== undefined || network.pattern.urlFilter !== undefined;
   if (ir.kind === 'removeparam') {
     if (network.match.domains && network.match.domains.length > 0) condition.requestDomains = network.match.domains.slice(0, 64);
-    if (network.match.notDomains && network.match.notDomains.length > 0) condition.excludedInitiatorDomains = network.match.notDomains.slice(0, 64);
+    if (network.match.notDomains && network.match.notDomains.length > 0) condition.excludedRequestDomains = network.match.notDomains.slice(0, 64);
   } else if (isPatternRule) {
     if (network.match.domains && network.match.domains.length > 0) condition.initiatorDomains = network.match.domains.slice(0, 64);
     if (network.match.notDomains && network.match.notDomains.length > 0) condition.excludedInitiatorDomains = network.match.notDomains.slice(0, 64);
   } else {
     if (network.match.domains && network.match.domains.length > 0) condition.requestDomains = network.match.domains.slice(0, 64);
-    if (network.match.notDomains && network.match.notDomains.length > 0) condition.excludedInitiatorDomains = network.match.notDomains.slice(0, 64);
+    if (network.match.notDomains && network.match.notDomains.length > 0) condition.excludedRequestDomains = network.match.notDomains.slice(0, 64);
   }
 
   // Regex rules must be RE2-valid; invalid regex with explicit domains downgrades to

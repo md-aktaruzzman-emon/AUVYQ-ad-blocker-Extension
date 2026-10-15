@@ -2,7 +2,7 @@
  * RPC layer. Malformed messages are rejected safely with a structured error.
  * Every response carries the original requestId.
  */
-import { validateRpcEnvelope, LIMITS } from '../../core/validation/schemas.js';
+import { validateRpcEnvelope, LIMITS, isRecord } from '../../core/validation/schemas.js';
 import type { RpcHandler } from '../../types/messages.js';
 import { createLogger } from '../../core/logging/logger.js';
 
@@ -33,6 +33,8 @@ export const PRIVILEGED_MESSAGE_TYPES = new Set([
   'GET_SETTINGS',
   'GET_SNAPSHOT',
   'GET_SITE_STATS',
+  'GET_SITE_REPORT',
+  'GET_DIAGNOSTICS',
   'GET_UPDATE_STATE'
 ]);
 
@@ -116,6 +118,10 @@ export function createRpcRouter(handlers: Record<string, RpcHandler>): RpcRouter
 /** Bridges the router onto chrome.runtime.onMessage (async sendResponse pattern). */
 export function registerRpcListener(router: RpcRouter): void {
   chrome.runtime.onMessage.addListener((raw, sender, sendResponse) => {
+    // If message is explicitly targeted to offscreen document, ignore it so offscreen handler responds
+    if (isRecord(raw) && raw['target'] === 'offscreen') {
+      return false;
+    }
     void router.handle(raw, sender).then((response) => {
       try {
         sendResponse(response);

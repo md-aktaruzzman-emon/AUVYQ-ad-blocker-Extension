@@ -76,6 +76,7 @@ describe('Cookie Guard Engine & Classification', () => {
       { name: '_uetsid', domain: '.bing.com' },
       { name: 'uuid2', domain: '.adnxs.com' },
       { name: '_ga', domain: '.example.com' },
+      { name: '_ga_ABC12345', domain: '.example.com' },
       { name: '_gid', domain: '.example.com' }
     ];
 

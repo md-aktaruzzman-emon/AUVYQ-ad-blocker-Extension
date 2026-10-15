@@ -77,7 +77,7 @@ export function migrateStorage(raw: Record<string, unknown>, now = new Date()): 
       const fpShields = isRecord(rawSettings['fpShields']) ? { ...base.fpShields, ...rawSettings['fpShields'] } : base.fpShields;
       const logRetentionDays = rawSettings['logRetentionDays'] === 7 || rawSettings['logRetentionDays'] === 30
         ? rawSettings['logRetentionDays']
-        : 7;
+        : base.logRetentionDays;
       const developerMode = typeof rawSettings['developerMode'] === 'boolean' ? rawSettings['developerMode'] : false;
       const telemetryOptIn = typeof rawSettings['telemetryOptIn'] === 'boolean' ? rawSettings['telemetryOptIn'] : false;
 

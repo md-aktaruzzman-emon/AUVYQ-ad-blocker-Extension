@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createRpcRouter, PRIVILEGED_MESSAGE_TYPES, CONTENT_SCRIPT_ALLOWED_TYPES, isPrivilegedSender } from '../platform-chrome/rpc/rpc.js';
+import { createRpcRouter, registerRpcListener, PRIVILEGED_MESSAGE_TYPES, CONTENT_SCRIPT_ALLOWED_TYPES, isPrivilegedSender } from '../platform-chrome/rpc/rpc.js';
 
 describe('RPC Security & Sender Privilege Routing', () => {
   beforeEach(() => {
@@ -154,6 +154,8 @@ describe('RPC Security & Sender Privilege Routing', () => {
     expect(PRIVILEGED_MESSAGE_TYPES.has('GET_COOKIE_REPORT')).toBe(true);
     expect(PRIVILEGED_MESSAGE_TYPES.has('GET_THREAT_LOG')).toBe(true);
     expect(PRIVILEGED_MESSAGE_TYPES.has('GET_SETTINGS')).toBe(true);
+    expect(PRIVILEGED_MESSAGE_TYPES.has('GET_SITE_REPORT')).toBe(true);
+    expect(PRIVILEGED_MESSAGE_TYPES.has('GET_DIAGNOSTICS')).toBe(true);
   });
 
   it('rejects sensitive read RPCs from untrusted web senders (deny-by-default)', async () => {
@@ -192,5 +194,26 @@ describe('RPC Security & Sender Privilege Routing', () => {
     expect(resSettings.success).toBe(false);
     expect(resSettings.error).toContain('unauthorized');
     expect(handlers.GET_SETTINGS).not.toHaveBeenCalled();
+  });
+
+  it('bypasses messages targeted to offscreen document in registerRpcListener', () => {
+    let listenerFn: (raw: unknown, sender: unknown, sendResponse: unknown) => boolean = () => true;
+    const mockChrome = {
+      runtime: {
+        id: 'test-id',
+        onMessage: {
+          addListener: vi.fn((fn) => {
+            listenerFn = fn;
+          })
+        }
+      }
+    };
+    (globalThis as unknown as Record<string, unknown>).chrome = mockChrome;
+
+    const router = createRpcRouter({});
+    registerRpcListener(router);
+
+    const handled = listenerFn({ target: 'offscreen', op: 'encrypt-backup' }, {}, () => {});
+    expect(handled).toBe(false);
   });
 });
