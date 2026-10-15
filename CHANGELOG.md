@@ -49,6 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Accessibility & Motion Tokens**: Added `prefers-reduced-motion` overrides in `popup.css` and replaced deprecated `unload` with `pagehide`.
 ### UI & UX Design System
 - **Discord & Reddit Inspired Component Architecture**: Upgraded shared tokens, card elevations, badge pills, and dark/light mode contrast across all extension surfaces.
+- **Collapsible Runtime Diagnostics**: Replaced oversized 280px static dark terminal block with an elegant collapsible accordion featuring live state pill, animated chevron, theme-adaptive syntax styling (pristine light slate in light mode; midnight deep blue in dark mode), and click propagation isolation for the clipboard copy button.
+- **Balanced Danger Zone Alert Card**: Restructured the Settings danger zone from an awkward vertical dark-gray void into a clean horizontal flex alert card with red warning badge, clear scope description ("Your Chrome history, bookmarks, and logins are untouched"), and high-contrast dual-theme styling.
+- **About Page Hero & KPI Stat Cards**: Transformed flat grey stat rectangles into icon-accented interactive KPI cards (Emerald On-Device Engine, Amber Latency, Indigo GCM Crypto, Cyan MV3 Declarative Core) with micro-descriptions, active protection status pulse dot, and elevated feature pillar tags.
 - **WAI-ARIA Radio Group Keyboard Navigation**: Implemented standard ArrowUp/ArrowDown/ArrowLeft/ArrowRight, Home, and End keyboard navigation in onboarding preset cards.
 - **Optimized Popup Rendering**: Replaced duplicate 512×512 SVG brand vectors with `<use href="#auvyq-shield-mark" />`, reducing popup HTML size and parse latency.
 - **Tokenized Popup Styling**: Replaced hardcoded color literals in `popup.css` and `report.css` with `--auvyq-*` CSS variables, ensuring 4.5:1 text contrast in light theme.
