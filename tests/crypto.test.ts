@@ -27,9 +27,25 @@ describe('Crypto Vault', () => {
     expect(decrypted.meta.app).toBe('AUVYQ');
   });
 
-  it('fails decryption with wrong password', async () => {
+  it('fails encryption if password is shorter than 8 characters', async () => {
+    try {
+      await encryptBackup(payload, 'short', meta);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('format');
+    }
+  });
+
+  it('fails decryption with wrong password with auth kind', async () => {
     const encrypted = await encryptBackup(payload, password, meta);
-    await expect(decryptBackup(encrypted, 'WrongPassword123!')).rejects.toThrow(VaultError);
+    try {
+      await decryptBackup(encrypted, 'WrongPassword123!');
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('auth');
+    }
   });
 
   it('fails decryption if ciphertext is tampered', async () => {
@@ -38,27 +54,51 @@ describe('Crypto Vault', () => {
     // Flip a byte in ciphertext region (end of array)
     tampered[tampered.length - 1] ^= 0xff;
 
-    await expect(decryptBackup(tampered, password)).rejects.toThrow(VaultError);
+    try {
+      await decryptBackup(tampered, password);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('auth');
+    }
   });
 
   it('fails decryption if backup is truncated', async () => {
     const encrypted = await encryptBackup(payload, password, meta);
     const truncated = encrypted.slice(0, encrypted.length - 16);
-    await expect(decryptBackup(truncated, password)).rejects.toThrow(VaultError);
+    try {
+      await decryptBackup(truncated, password);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('format');
+    }
   });
 
   it('fails decryption if magic bytes are invalid', async () => {
     const encrypted = await encryptBackup(payload, password, meta);
     const badMagic = new Uint8Array(encrypted);
     badMagic[0] = 0x00;
-    await expect(decryptBackup(badMagic, password)).rejects.toThrow(VaultError);
+    try {
+      await decryptBackup(badMagic, password);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('format');
+    }
   });
 
   it('fails decryption if version is unsupported', async () => {
     const encrypted = await encryptBackup(payload, password, meta);
     const badVersion = new Uint8Array(encrypted);
     badVersion[MAGIC.length] = 99; // Version 99
-    await expect(decryptBackup(badVersion, password)).rejects.toThrow(VaultError);
+    try {
+      await decryptBackup(badVersion, password);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('version');
+    }
   });
 
   it('fails decryption if extra trailing data is appended to the backup', async () => {
@@ -66,13 +106,19 @@ describe('Crypto Vault', () => {
     const withExtra = new Uint8Array(encrypted.length + 8);
     withExtra.set(encrypted, 0);
     withExtra.set([1, 2, 3, 4, 5, 6, 7, 8], encrypted.length);
-    await expect(decryptBackup(withExtra, password)).rejects.toThrow(VaultError);
+    try {
+      await decryptBackup(withExtra, password);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('format');
+    }
   });
 
-  it('computes SHA-256 hex digest correctly', async () => {
+  it('computes SHA-256 hex digest correctly and deterministically', async () => {
     const data = new TextEncoder().encode('AUVYQ-TEST');
     const hash = await sha256Hex(data);
     expect(hash).toHaveLength(64);
-    expect(/^[a-f0-9]{64}$/.test(hash)).toBe(true);
+    expect(hash).toBe('d93a835669192030a80c11e7d72ef8e159f286e368c8429ea18b3c433b1d919e');
   });
 });

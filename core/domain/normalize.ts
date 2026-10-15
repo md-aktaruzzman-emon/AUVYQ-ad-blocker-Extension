@@ -64,7 +64,9 @@ export function matchSuffix(hostname: string, suffix: string): boolean {
 /** Registrable-domain approximation: last two labels (or three for common ccTLD second-levels). */
 const MULTIPART_SUFFIXES = new Set([
   'co.uk', 'org.uk', 'ac.uk', 'gov.uk', 'co.jp', 'or.jp', 'ne.jp', 'com.au', 'net.au', 'org.au',
-  'co.nz', 'com.br', 'com.mx', 'com.tr', 'com.cn', 'com.tw', 'co.in', 'co.za', 'com.sg', 'com.hk'
+  'co.nz', 'com.br', 'com.mx', 'com.tr', 'com.cn', 'com.tw', 'co.in', 'co.za', 'com.sg', 'com.hk',
+  'co.kr', 'ne.kr', 're.kr', 'com.ar', 'net.ar', 'com.co', 'edu.au', 'gov.au', 'com.bd', 'edu.bd',
+  'gov.bd', 'com.ng', 'com.pk', 'com.my', 'com.ph', 'com.vn', 'co.id', 'web.id', 'ac.in', 'gov.in'
 ]);
 
 export function registrableDomain(hostname: string): string {
@@ -87,15 +89,19 @@ export function displayHost(hostname: string, maxLen = 64): string {
 /**
  * Returns candidate domains from most-specific to least-specific (apex domain).
  * E.g., 'sub.example.com' -> ['sub.example.com', 'example.com'].
+ * Does not emit public suffixes like 'co.uk'.
  */
 export function getDomainCandidates(hostname: string): string[] {
   const host = normalizeHostname(hostname);
   if (host.length === 0 || isIpv4(host) || host.includes(':')) return host.length > 0 ? [host] : [];
+  const reg = registrableDomain(host);
   const labels = host.split('.');
-  if (labels.length <= 2) return [host];
+  if (labels.length <= 2 || host === reg) return [host];
   const candidates: string[] = [];
   for (let i = 0; i <= labels.length - 2; i++) {
-    candidates.push(labels.slice(i).join('.'));
+    const candidate = labels.slice(i).join('.');
+    candidates.push(candidate);
+    if (candidate === reg) break;
   }
   return candidates;
 }

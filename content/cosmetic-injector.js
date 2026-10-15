@@ -193,16 +193,34 @@
 
   // Scriptlet handshake buffer to prevent race conditions with MAIN-world listener
   let pendingScriptlets = null;
+  let scriptletNonce = null;
+
   function sendScriptlets(entries) {
     pendingScriptlets = entries;
-    dispatchToMain('auvyq-scriptlets', entries);
+    dispatchToMain('auvyq-scriptlets', { nonce: scriptletNonce, entries });
   }
 
-  window.addEventListener('auvyq-scriptlet-ready', () => {
-    if (pendingScriptlets !== null) {
-      dispatchToMain('auvyq-scriptlets', pendingScriptlets);
+  window.addEventListener('auvyq-scriptlet-ready', (event) => {
+    if (event && event.detail && typeof event.detail.nonce === 'string') {
+      scriptletNonce = event.detail.nonce;
     }
-  });
+    if (pendingScriptlets !== null) {
+      dispatchToMain('auvyq-scriptlets', { nonce: scriptletNonce, entries: pendingScriptlets });
+    }
+  }, true);
+
+  // Fingerprint shields handshake buffer
+  let pendingFpShields = null;
+  function sendFpShields(shields) {
+    pendingFpShields = shields;
+    dispatchToMain('auvyq-fp-config', shields);
+  }
+
+  window.addEventListener('auvyq-fp-ready', () => {
+    if (pendingFpShields !== null) {
+      dispatchToMain('auvyq-fp-config', pendingFpShields);
+    }
+  }, true);
 
   // ---- Boot ----------------------------------------------------------------
 
@@ -293,7 +311,7 @@
   }).catch(() => undefined);
 
   rpc('GET_FP_SHIELDS', { host }).then((data) => {
-    dispatchToMain('auvyq-fp-config', (data && typeof data.shields === 'object' && data.shields !== null) ? data.shields : {});
+    sendFpShields((data && typeof data.shields === 'object' && data.shields !== null) ? data.shields : {});
   }).catch(() => undefined);
 
   // ---- Login-form observation (bounded, privacy-preserving: origins only) --

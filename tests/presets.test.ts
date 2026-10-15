@@ -30,6 +30,7 @@ describe('Protection Presets & Canonical State Synchronization', () => {
       annoyances: false
     });
     expect(matchPreset(updated)).toBe('basic');
+    expect(updated.developerMode).toBe(false);
     expect(validateSettings(updated).ok).toBe(true);
   });
 
@@ -47,6 +48,7 @@ describe('Protection Presets & Canonical State Synchronization', () => {
       annoyances: false
     });
     expect(matchPreset(updated)).toBe('balanced');
+    expect(updated.developerMode).toBe(false);
     expect(validateSettings(updated).ok).toBe(true);
   });
 
@@ -141,6 +143,7 @@ describe('Protection Presets & Canonical State Synchronization', () => {
 
     const updated = applyPreset(initial, 'expert');
     expect(updated.preset).toBe('expert');
+    expect(updated.developerMode).toBe(true);
     expect(updated.modules).toEqual(customModules);
     expect(matchPreset(updated)).toBe('expert');
     expect(validateSettings(updated).ok).toBe(true);

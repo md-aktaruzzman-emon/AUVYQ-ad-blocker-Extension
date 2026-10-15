@@ -912,12 +912,22 @@ const handlers: Record<string, RpcHandler> = {
       STORAGE_KEYS.onboardingDone, STORAGE_KEYS.updateState, STORAGE_KEYS.tabThreats
     ]);
     await chrome.storage.session.clear().catch(() => undefined);
+    try {
+      const sessionRules = await chrome.declarativeNetRequest.getSessionRules();
+      if (sessionRules.length > 0) {
+        await chrome.declarativeNetRequest.updateSessionRules({
+          removeRuleIds: sessionRules.map((r) => r.id)
+        });
+      }
+    } catch {
+      // non-fatal
+    }
     const settings = defaultSettings();
     await updateSettings(settings);
     await applyPackDiff([]);
     // Clearing resets to defaults: the default pack is part of the default state.
     defaultPackChecked = false;
-    void activateDefaultPackIfNeeded();
+    await activateDefaultPackIfNeeded();
     await ensureAlarms();
     void updateBadge(settings);
     return { cleared: true };

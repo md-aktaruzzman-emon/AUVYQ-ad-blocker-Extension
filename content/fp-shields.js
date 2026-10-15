@@ -149,4 +149,10 @@
       }
     }
   });
+
+  try {
+    window.dispatchEvent(new CustomEvent('auvyq-fp-ready'));
+  } catch {
+    // non-fatal
+  }
 })();

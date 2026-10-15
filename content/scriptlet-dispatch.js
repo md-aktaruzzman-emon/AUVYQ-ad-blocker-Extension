@@ -280,12 +280,35 @@
     }
   }
 
-  window.addEventListener('auvyq-scriptlets', (event) => {
-    dispatch(event.detail);
-  });
+  // Cryptographic nonce generated at document_start to ensure only AUVYQ isolated world can dispatch scriptlets
+  let authNonce = null;
+  try {
+    const buf = new Uint32Array(4);
+    (crypto || window.crypto).getRandomValues(buf);
+    authNonce = Array.from(buf).map((b) => b.toString(36)).join('-');
+  } catch {
+    authNonce = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+
+  function handleScriptlets(event) {
+    const detail = event && event.detail;
+    if (!detail) return;
+    if (authNonce !== null && detail.nonce !== authNonce) {
+      return; // Reject unauthorized dispatch attempt
+    }
+    try {
+      if (typeof event.stopImmediatePropagation === 'function') {
+        event.stopImmediatePropagation();
+      }
+    } catch { /* ignore */ }
+    window.removeEventListener('auvyq-scriptlets', handleScriptlets, true);
+    dispatch(Array.isArray(detail.entries) ? detail.entries : detail);
+  }
+
+  window.addEventListener('auvyq-scriptlets', handleScriptlets, true);
 
   try {
-    window.dispatchEvent(new CustomEvent('auvyq-scriptlet-ready'));
+    window.dispatchEvent(new CustomEvent('auvyq-scriptlet-ready', { detail: { nonce: authNonce } }));
   } catch {
     // non-fatal
   }

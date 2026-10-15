@@ -17,7 +17,7 @@
     "noEmit": true
   },
   "include": [
-    "types/**/*.d.ts",
+    "types/**/*",
     "core/**/*.ts",
     "platform-chrome/**/*.ts",
     "sw.ts",

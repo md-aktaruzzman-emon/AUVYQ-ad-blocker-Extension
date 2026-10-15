@@ -4,7 +4,8 @@ import {
   isIpv4,
   isIpv6,
   matchSuffix,
-  registrableDomain
+  registrableDomain,
+  getDomainCandidates
 } from '../core/domain/normalize.js';
 
 describe('Domain Normalization', () => {
@@ -66,6 +67,18 @@ describe('Domain Normalization', () => {
     expect(normalizeHostname('test.dev:8080')).toBe('test.dev');
     expect(normalizeHostname('example.com:443')).toBe('example.com');
     expect(normalizeHostname('example.com:80')).toBe('example.com');
+  });
+
+  it('generates candidate domains without emitting public suffixes', () => {
+    expect(getDomainCandidates('sub.example.com')).toEqual(['sub.example.com', 'example.com']);
+    expect(getDomainCandidates('a.b.c.example.com')).toEqual([
+      'a.b.c.example.com',
+      'b.c.example.com',
+      'c.example.com',
+      'example.com'
+    ]);
+    expect(getDomainCandidates('news.bbc.co.uk')).toEqual(['news.bbc.co.uk', 'bbc.co.uk']);
+    expect(getDomainCandidates('example.com')).toEqual(['example.com']);
   });
 });
 
