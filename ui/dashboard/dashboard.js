@@ -825,8 +825,7 @@ async function loadDiagnostics() {
 
 const copyBtn = $('copy-diagnostics');
 if (copyBtn) {
-  copyBtn.addEventListener('click', (event) => {
-    event.stopPropagation();
+  copyBtn.addEventListener('click', () => {
     const text = $('diagnostics')?.textContent || '';
     if (text) {
       navigator.clipboard.writeText(text).then(() => showToast('Diagnostics copied to clipboard.')).catch(() => undefined);

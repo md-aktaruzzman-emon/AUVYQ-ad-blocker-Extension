@@ -37,7 +37,7 @@
         </g>
       </svg>
         <span class="brand-name">AUVYQ</span>
-        <span class="brand-badge">v0.3.1</span>
+        <span class="brand-badge">v0.3.0</span>
       </div>
       <nav class="sidebar-nav" id="sidebar-nav">
         <button class="auvyq-nav-item active" data-section="overview">
@@ -509,63 +509,29 @@
           <p class="section-note" id="backup-status" aria-live="polite"></p>
         </div>
 
-        <details class="auvyq-card section-card diagnostics-accordion">
-          <summary class="diagnostics-summary">
-            <div class="diagnostics-summary-left">
-              <div class="diagnostics-icon-wrap">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-              </div>
-              <div class="diagnostics-summary-text">
-                <div class="diagnostics-summary-title-row">
-                  <h3 class="diagnostics-summary-title">System Runtime Diagnostics</h3>
-                  <span class="diagnostics-badge-live">Live State</span>
-                </div>
-                <span class="diagnostics-summary-sub">Memory footprints, DNR rule counts, and local engine state</span>
-              </div>
+        <div class="auvyq-card section-card diagnostics-card">
+          <div class="terminal-bar">
+            <div class="terminal-dots">
+              <span class="t-dot red"></span>
+              <span class="t-dot yellow"></span>
+              <span class="t-dot green"></span>
             </div>
-            <div class="diagnostics-summary-actions">
-              <button class="terminal-copy-btn" id="copy-diagnostics" type="button" title="Copy diagnostics to clipboard">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                <span>Copy JSON</span>
-              </button>
-              <div class="diagnostics-chevron-wrap" aria-hidden="true">
-                <svg class="diagnostics-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </div>
-            </div>
-          </summary>
-          <div class="diagnostics-body">
-            <div class="terminal-bar">
-              <div class="terminal-dots">
-                <span class="t-dot red"></span>
-                <span class="t-dot yellow"></span>
-                <span class="t-dot green"></span>
-              </div>
-              <span class="terminal-title">auvyq-runtime-diagnostics.json</span>
-              <span class="terminal-tag">Read-Only</span>
-            </div>
-            <pre id="diagnostics" class="diagnostics">Loading…</pre>
-          </div>
-        </details>
-
-        <div class="auvyq-card section-card danger-zone">
-          <div class="danger-zone-content">
-            <div class="danger-icon-badge">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            </div>
-            <div class="danger-text-block">
-              <div class="danger-title-row">
-                <h3 class="danger-title">Clear AUVYQ Extension Data</h3>
-                <span class="danger-tag">Destructive</span>
-              </div>
-              <p class="danger-desc">Resets all AUVYQ settings, site pause lists, blocked threat records, and telemetry stats to initial factory defaults. Your browser history, cookies, saved passwords, and other extensions remain completely untouched.</p>
-            </div>
-          </div>
-          <div class="danger-actions">
-            <button class="auvyq-button auvyq-button-danger" id="clear-data" type="button">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-              <span>Clear AUVYQ Data</span>
+            <span class="terminal-title">auvyq-runtime-diagnostics.json</span>
+            <button class="terminal-copy-btn" id="copy-diagnostics" type="button" title="Copy diagnostics to clipboard">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Copy JSON</span>
             </button>
           </div>
+          <pre id="diagnostics" class="diagnostics">Loading…</pre>
+        </div>
+
+        <div class="auvyq-card section-card danger-zone">
+          <div class="danger-header">
+            <svg class="danger-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <h2 class="section-title">Clear AUVYQ data</h2>
+          </div>
+          <p class="section-note">Removes only AUVYQ-owned data (settings, statistics, logs, rules). Browser data is completely untouched.</p>
+          <button class="auvyq-button auvyq-button-danger" id="clear-data">Clear AUVYQ data</button>
         </div>
       </section>
 
@@ -606,54 +572,29 @@
             <div class="about-brand-info">
               <div class="about-brand-row">
                 <h2 class="about-brand-title">AUVYQ</h2>
-                <span class="about-badge" id="about-version-badge">v0.3.1</span>
-                <span class="about-chip-pill success"><span class="chip-pulse-dot"></span>Active Protection</span>
-                <span class="about-chip-pill">Local-First MV3</span>
+                <span class="about-badge" id="about-version-badge">v0.3.0</span>
+                <span class="about-chip-pill">Local-First</span>
               </div>
-              <p class="about-brand-subtitle">Autonomous, local-first privacy shield and web security control center for Chromium. Delivering high-throughput declarative ad filtering, tracker neutralization, biometric cookie defense, and client-side threat blocking with zero remote telemetry.</p>
-              <p class="about-version-detail" id="about-version">Version 0.3.1 — Manifest V3, local-first engine.</p>
+              <p class="about-brand-subtitle">Autonomous privacy, tracker neutralization, network-layer ad filtering, and client-side browser threat defense.</p>
+              <p class="about-version-detail" id="about-version">Version 0.3.0 — Manifest V3, local-first.</p>
             </div>
           </div>
           <div class="about-hero-stats">
-            <div class="about-stat-item stat-item-emerald">
-              <div class="stat-item-top">
-                <div class="stat-icon-wrap emerald">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
-                </div>
-                <span class="about-stat-num">100%</span>
-              </div>
+            <div class="about-stat-item">
+              <span class="about-stat-num">100%</span>
               <span class="about-stat-lbl">On-Device Engine</span>
-              <span class="about-stat-desc">Zero remote telemetry</span>
             </div>
-            <div class="about-stat-item stat-item-amber">
-              <div class="stat-item-top">
-                <div class="stat-icon-wrap amber">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                </div>
-                <span class="about-stat-num">&lt; 1 ms</span>
-              </div>
+            <div class="about-stat-item">
+              <span class="about-stat-num">0 ms</span>
               <span class="about-stat-lbl">Network Latency</span>
-              <span class="about-stat-desc">Native Chromium DNR</span>
             </div>
-            <div class="about-stat-item stat-item-indigo">
-              <div class="stat-item-top">
-                <div class="stat-icon-wrap indigo">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                </div>
-                <span class="about-stat-num">AES-256</span>
-              </div>
-              <span class="about-stat-lbl">GCM Vault Crypto</span>
-              <span class="about-stat-desc">PBKDF2 SHA-256 protected</span>
+            <div class="about-stat-item">
+              <span class="about-stat-num">AES-256</span>
+              <span class="about-stat-lbl">GCM Cryptography</span>
             </div>
-            <div class="about-stat-item stat-item-cyan">
-              <div class="stat-item-top">
-                <div class="stat-icon-wrap cyan">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
-                </div>
-                <span class="about-stat-num">289 Rules</span>
-              </div>
-              <span class="about-stat-lbl">Active Declarative Core</span>
-              <span class="about-stat-desc">159 DNR &bull; 130 Cosmetic</span>
+            <div class="about-stat-item">
+              <span class="about-stat-num">DNR</span>
+              <span class="about-stat-lbl">Chromium Native</span>
             </div>
           </div>
         </div>
@@ -661,44 +602,32 @@
         <!-- Core Architectural Pillars (4 Cards) -->
         <div class="about-pillars-grid">
           <div class="auvyq-card about-pillar-card">
-            <div class="pillar-header-row">
-              <div class="pillar-icon-wrap primary">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              </div>
-              <span class="pillar-tag primary">Privacy Core</span>
+            <div class="pillar-icon-wrap primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             </div>
             <h3 class="pillar-title">Zero Remote Telemetry</h3>
-            <p class="pillar-desc">No browsing history, visited URLs, referrer headers, or tracking logs ever leave your machine. AUVYQ operates with zero remote telemetry servers or analytical beacon endpoints.</p>
+            <p class="pillar-desc">No browsing history, visited URLs, referrer headers, or tracking logs ever leave your machine. AUVYQ has zero remote telemetry servers or analytical beacon endpoints.</p>
           </div>
 
           <div class="auvyq-card about-pillar-card">
-            <div class="pillar-header-row">
-              <div class="pillar-icon-wrap success">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-              </div>
-              <span class="pillar-tag success">Performance</span>
+            <div class="pillar-icon-wrap success">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             </div>
             <h3 class="pillar-title">Chromium DeclarativeNetRequest</h3>
             <p class="pillar-desc">Network blocking rules are evaluated natively within Chromium's C++ network core before requests initiate, delivering unmatched speed and near-zero memory footprint.</p>
           </div>
 
           <div class="auvyq-card about-pillar-card">
-            <div class="pillar-header-row">
-              <div class="pillar-icon-wrap warning">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-              </div>
-              <span class="pillar-tag warning">Security Boundary</span>
+            <div class="pillar-icon-wrap warning">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
             <h3 class="pillar-title">Strict RPC Privilege Isolation</h3>
             <p class="pillar-desc">Content scripts operate in an unprivileged isolation boundary with zero direct access to internal storage, secret keys, or privileged extension APIs (deny-by-default architecture).</p>
           </div>
 
           <div class="auvyq-card about-pillar-card">
-            <div class="pillar-header-row">
-              <div class="pillar-icon-wrap info">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-              </div>
-              <span class="pillar-tag info">Reliability</span>
+            <div class="pillar-icon-wrap info">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
             </div>
             <h3 class="pillar-title">Deterministic Engine Resilience</h3>
             <p class="pillar-desc">Dynamic rule compilation, safe schema migrations, and atomic local storage writes guarantee your protection remains intact across browser restarts and offline states.</p>
