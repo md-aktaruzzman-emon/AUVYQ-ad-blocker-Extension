@@ -43,6 +43,9 @@ function fnv1a(text: string): number {
 
 /** Deterministic id assignment within the pack range with collision probing. */
 export function assignPackIds(rules: { key: string; rule: DnrRule }[]): DnrRule[] {
+  if (rules.length > PACK_ID_MAX - PACK_ID_MIN + 1) {
+    throw new Error(`Too many pack rules (${rules.length}), max ${PACK_ID_MAX - PACK_ID_MIN + 1}`);
+  }
   const used = new Set<number>();
   const out: DnrRule[] = [];
   for (const entry of rules) {

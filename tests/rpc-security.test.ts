@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createRpcRouter, PRIVILEGED_MESSAGE_TYPES, isPrivilegedSender } from '../platform-chrome/rpc/rpc.js';
+import { createRpcRouter, PRIVILEGED_MESSAGE_TYPES, CONTENT_SCRIPT_ALLOWED_TYPES, isPrivilegedSender } from '../platform-chrome/rpc/rpc.js';
 
 describe('RPC Security & Sender Privilege Routing', () => {
   beforeEach(() => {
@@ -46,12 +46,18 @@ describe('RPC Security & Sender Privilege Routing', () => {
       tab: { id: 102 } as chrome.tabs.Tab
     };
 
+    const bareSender: chrome.runtime.MessageSender = {
+      id: fakeExtId
+    };
+
     expect(isPrivilegedSender(extSender)).toBe(true);
     expect(isPrivilegedSender(dashboardSender)).toBe(true);
     expect(isPrivilegedSender(dashboardTabSender)).toBe(true);
     expect(isPrivilegedSender(contentScriptSender)).toBe(false);
     expect(isPrivilegedSender(externalSender)).toBe(false);
     expect(isPrivilegedSender(untrustedTabSender)).toBe(false);
+    expect(isPrivilegedSender(bareSender)).toBe(false);
+    expect(CONTENT_SCRIPT_ALLOWED_TYPES.has('THREAT_ACTION')).toBe(false);
   });
 
   it('rejects privileged RPC requests when initiated by untrusted senders', async () => {

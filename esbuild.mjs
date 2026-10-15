@@ -26,8 +26,7 @@ const STATIC_ASSETS = [
   'data',
   'licenses',
   'vendor',
-  '_locales',
-  'fixtures'
+  '_locales'
 ];
 
 async function exists(p) {

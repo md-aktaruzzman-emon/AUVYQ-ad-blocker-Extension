@@ -288,7 +288,7 @@ async function syncNetworkBlocking(enabled: boolean, settings?: Settings): Promi
         if (annoyancesOn) enableIds.push('annoyances');
         else disableIds.push('annoyances');
 
-        if (trackersOn) enableIds.push('ads-trackers');
+        if (adsOn || trackersOn) enableIds.push('ads-trackers');
         else disableIds.push('ads-trackers');
 
         if (enableIds.length > 0) {
@@ -380,8 +380,8 @@ async function teardownOffscreenIfIdle(): Promise<void> {
   const has = await chrome.offscreen.hasDocument().catch(() => false);
   if (has) {
     await chrome.offscreen.closeDocument().catch(() => undefined);
-    offscreenEnsure = null;
   }
+  offscreenEnsure = null;
 }
 
 // ---------------------------------------------------------------------------
@@ -658,9 +658,9 @@ const handlers: Record<string, RpcHandler> = {
         };
       }
     }
-    await updateSettings(next);
     const applied = await setSitePause(host.value, payload['paused']);
-    if (!applied) throw new Error('DNR session rule failed; settings updated');
+    if (!applied) throw new Error('DNR session rule failed');
+    await updateSettings(next);
     void updateBadge(next);
     return { host: host.value, paused: payload['paused'] };
   },
@@ -760,7 +760,7 @@ const handlers: Record<string, RpcHandler> = {
     let css = cssParts.join('\n');
     if (css.length > 1024 * 1024) css = css.slice(0, 1024 * 1024);
     const selectors = css.split('\n')
-      .map((line) => line.slice(0, line.indexOf('{')).trim())
+      .map((line) => { const i = line.indexOf('{'); return i >= 0 ? line.slice(0, i).trim() : ''; })
       .filter((selector) => selector.length > 0)
       .slice(0, 500);
     return { css, selectors, enabled: true };
@@ -877,12 +877,13 @@ const handlers: Record<string, RpcHandler> = {
         const domain = entry['domain'].replace(/^\./, '');
         const path = typeof entry['path'] === 'string' && entry['path'].startsWith('/') ? entry['path'] : '/';
         const storeId = typeof entry['storeId'] === 'string' ? entry['storeId'] : undefined;
-        try {
-          await chrome.cookies.remove({ url: `https://${domain}${path}`, name: entry['name'], storeId });
-        } catch {
-          await chrome.cookies.remove({ url: `http://${domain}${path}`, name: entry['name'], storeId }).catch(() => undefined);
+        let res = await chrome.cookies.remove({ url: `https://${domain}${path}`, name: entry['name'], storeId }).catch(() => null);
+        if (!res) {
+          res = await chrome.cookies.remove({ url: `http://${domain}${path}`, name: entry['name'], storeId }).catch(() => null);
         }
-        removed += 1;
+        if (res) {
+          removed += 1;
+        }
       } catch {
         // non-fatal
       }
@@ -1038,7 +1039,7 @@ function classifyCookieCategory(domain: string, name?: string): string {
 
   // 4. Known analytics cookie names
   if (
-    /^(_ga|_gid|_gat|_clck|_clsk|_pk_.*|mp_.*|ajs_.*|__utma|__utmb|__utmc|__utmz)$/i.test(cookieName)
+    /^(_ga(_.*)?|_gid|_gat|_clck|_clsk|_pk_.*|mp_.*|ajs_.*|__utma|__utmb|__utmc|__utmz)$/i.test(cookieName)
   ) {
     return 'analytics';
   }
@@ -1069,10 +1070,10 @@ chrome.runtime.onStartup.addListener(() => {
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
+  const hosts = observer.getTabTrackerHosts(tabId);
   observer.noteTabRemoved(tabId);
   void (async () => {
     const settings = await ensureInitialized();
-    const hosts = observer.getTabTrackerHosts(tabId);
     await cleanupForTab(settings, tabId, hosts).catch(() => undefined);
     await setTabThreat(tabId, null).catch(() => undefined);
   })();

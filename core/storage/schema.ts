@@ -92,7 +92,7 @@ export const MAXIMUM_FP_SHIELDS: Record<string, boolean> = {
  * If modules match a standard preset profile, returns that preset name.
  * If modules have been customized, returns 'expert'.
  */
-export function matchPreset(settings: Pick<Settings, 'modules' | 'preset'> & { fpShields?: Record<string, boolean> }): PresetName {
+export function matchPreset(settings: Pick<Settings, 'modules' | 'preset'> & { fpShields?: Record<string, boolean>; developerMode?: boolean }): PresetName {
   const m = settings.modules;
   if (!m) return 'balanced';
 
@@ -114,7 +114,7 @@ export function matchPreset(settings: Pick<Settings, 'modules' | 'preset'> & { f
   // Maximum: all modules active AND all fpShields active
   if (m.ads === true && m.trackers === true && m.cookies === true && m.heuristics === true && m.fingerprintShields === true && m.annoyances === true) {
     if (!settings.fpShields || Object.values(settings.fpShields).every(Boolean)) {
-      return 'maximum';
+      return settings.developerMode ? 'expert' : 'maximum';
     }
     return 'expert';
   }

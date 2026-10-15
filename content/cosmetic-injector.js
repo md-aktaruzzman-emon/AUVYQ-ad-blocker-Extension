@@ -118,13 +118,13 @@
 
   function injectCss(css) {
     if (injected || typeof css !== 'string' || css.length === 0) return;
-    injected = true;
     const style = document.createElement('style');
     style.setAttribute('data-auvyq', 'cosmetic');
     style.textContent = css; // style elements hold CSS text; never parsed as HTML
     const mount = mountPoint();
     if (mount === null) return;
     mount.appendChild(style);
+    injected = true;
   }
 
   // Built-in pack is applied immediately (protection is the default state) and

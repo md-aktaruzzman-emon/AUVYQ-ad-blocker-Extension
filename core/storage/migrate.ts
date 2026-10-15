@@ -54,7 +54,8 @@ export function migrateStorage(raw: Record<string, unknown>, now = new Date()): 
       updatedAt: now.getTime()
     };
     data[STORAGE_KEYS.snapshots] = { [day]: snapshot };
-    data[STORAGE_KEYS.settings] = { preset: 'balanced' };
+    const rawV1Settings = data[STORAGE_KEYS.settings];
+    data[STORAGE_KEYS.settings] = { ...(isRecord(rawV1Settings) ? rawV1Settings : {}), preset: 'balanced' };
     repairs.push('v1->v2: counters moved to snapshots map');
     fromVersion = 2;
   }

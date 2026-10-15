@@ -32,8 +32,8 @@
 ! Whole-domain blocking is intentionally avoided here because the same domains
 ! also serve login/embeds that must keep working.
 ! ---------------------------------------------------------------------------
-||connect.facebook.net^*/fbevents$script
-||facebook.com^*/tr?$image,script,xmlhttprequest
+||connect.facebook.net/fbevents$script
+||facebook.com/tr?$image,script,xmlhttprequest
 
 ! ---------------------------------------------------------------------------
 ! SECTION 3: Campaign tracking parameter stripping (main_frame redirects).

@@ -146,6 +146,31 @@ describe('Protection Presets & Canonical State Synchronization', () => {
     expect(validateSettings(updated).ok).toBe(true);
   });
 
+  it('preserves expert preset when developerMode is true even if all modules and fpShields are active', () => {
+    const expertSettings: Settings = {
+      ...defaultSettings(),
+      preset: 'expert',
+      developerMode: true,
+      modules: {
+        ads: true,
+        trackers: true,
+        cookies: true,
+        heuristics: true,
+        fingerprintShields: true,
+        annoyances: true
+      },
+      fpShields: {
+        canvas: true,
+        webgl: true,
+        navigator: true,
+        screen: true,
+        timing: true
+      }
+    };
+
+    expect(matchPreset(expertSettings)).toBe('expert');
+  });
+
   it('automatically derives Expert preset when an individual module is toggled to custom state', () => {
     const initial = applyPreset(defaultSettings(), 'balanced');
     expect(initial.preset).toBe('balanced');

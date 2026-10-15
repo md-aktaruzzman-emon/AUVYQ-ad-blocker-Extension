@@ -284,8 +284,8 @@ function parseNetworkRule(line, ruleId) {
         if (d.startsWith('~')) excDomains.push(d.slice(1).toLowerCase());
         else reqDomains.push(d.toLowerCase());
       }
-      if (reqDomains.length > 0) condition.requestDomains = reqDomains;
-      if (excDomains.length > 0) condition.excludedRequestDomains = excDomains;
+      if (reqDomains.length > 0) condition.initiatorDomains = reqDomains;
+      if (excDomains.length > 0) condition.excludedInitiatorDomains = excDomains;
     } else if (trimmed.startsWith('removeparam=')) {
       const param = trimmed.slice(12);
       if (param) {

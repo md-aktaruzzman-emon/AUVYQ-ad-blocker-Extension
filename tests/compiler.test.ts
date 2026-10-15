@@ -219,5 +219,20 @@ describe('Scriptlet Engine Dispatch Resolution', () => {
     expect(resolved[1].name).toBe('noop-callback');
     expect(resolved[2].name).toBe('set-constant');
   });
+
+  it('throws an error if pack rules count exceeds the available pack ID range', async () => {
+    const { assignPackIds } = await import('../platform-chrome/dnr-adapter/adapter.js');
+    const dummyRule = {
+      key: 'test',
+      rule: {
+        id: 0,
+        priority: 1,
+        action: { type: 'block' as const },
+        condition: { urlFilter: 'test' }
+      }
+    };
+    const oversizedRules = new Array(8001).fill(dummyRule);
+    expect(() => assignPackIds(oversizedRules)).toThrow(/Too many pack rules/);
+  });
 });
 

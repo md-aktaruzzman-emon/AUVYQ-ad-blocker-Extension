@@ -7,7 +7,7 @@ import type { RpcHandler } from '../../types/messages.js';
 import { createLogger } from '../../core/logging/logger.js';
 
 const log = createLogger('rpc');
-const HANDLER_TIMEOUT_MS = 10000;
+const HANDLER_TIMEOUT_MS = 60000;
 
 export const CONTENT_SCRIPT_ALLOWED_TYPES = new Set([
   'GET_COSMETIC',
@@ -15,7 +15,6 @@ export const CONTENT_SCRIPT_ALLOWED_TYPES = new Set([
   'GET_FP_SHIELDS',
   'REPORT_COSMETIC',
   'CHECK_LOGIN_FORMS',
-  'THREAT_ACTION',
   'GET_TAB_STATE'
 ]);
 
@@ -60,8 +59,8 @@ export function isPrivilegedSender(sender: chrome.runtime.MessageSender): boolea
   if (typeof sender.origin === 'string') {
     return sender.origin === extOriginNoSlash || sender.origin.startsWith(extOrigin);
   }
-  // 4. Sender matching extension ID with no external web URL
-  return sender.id === chrome.runtime.id;
+  // 4. Sender matching extension ID with no external web URL (fail closed)
+  return false;
 }
 
 export interface RpcRouter {

@@ -28,6 +28,30 @@ describe('Storage Versioning & Migration', () => {
     expect(snapshots[keys[0]].adsBlocked).toBe(42);
   });
 
+  it('preserves existing user settings during v1 migration', () => {
+    const v1State = {
+      [STORAGE_KEYS.settings]: {
+        preset: 'balanced',
+        masterEnabled: false,
+        theme: 'dark',
+        modules: { ads: true, trackers: false, cookies: false, heuristics: false, fingerprintShields: false, annoyances: false },
+        perSite: { 'example.com': { paused: true, allowlist: [] } },
+        adsBlocked: 10,
+        trackersBlocked: 5
+      }
+    };
+
+    const { data, result } = migrateStorage(v1State);
+    expect(result.migrated).toBe(true);
+    expect(result.fromVersion).toBe(1);
+
+    const settings = data[STORAGE_KEYS.settings] as Settings;
+    expect(settings.masterEnabled).toBe(false);
+    expect(settings.theme).toBe('dark');
+    expect(settings.modules.trackers).toBe(false);
+    expect(settings.perSite['example.com']?.paused).toBe(true);
+  });
+
   it('migrates v2 schema with missing theme and fpShields safely', () => {
     const v2State = {
       [STORAGE_KEYS.settings]: {

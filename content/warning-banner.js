@@ -117,7 +117,7 @@
 
     const row = document.createElement('div');
     row.className = 'row';
-    row.appendChild(buildShieldSvg(shadow));
+    row.appendChild(buildShieldSvg(document));
     const title = document.createElement('span');
     title.className = 'title';
     title.textContent = 'Potential threat detected';
