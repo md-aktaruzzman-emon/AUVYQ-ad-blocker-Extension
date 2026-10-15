@@ -6,6 +6,7 @@
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { mkdir, cp, rm, access } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import * as esbuild from 'esbuild';
 import { generateIcons } from './tools/gen-icons.mjs';
 import { writeNoopGif } from './tools/gen-gif.mjs';
@@ -47,6 +48,13 @@ async function copyStatic() {
 }
 
 async function buildOnce() {
+  if (process.env.NODE_ENV === 'production') {
+    const channelContent = readFileSync(path.join(rootDir, 'core', 'update-channel', 'channel.ts'), 'utf8');
+    if (channelContent.includes('DEV_VERIFY_KEY_JWK')) {
+      throw new Error('SECURITY: Production build rejected because DEV_VERIFY_KEY_JWK is still present in channel.ts');
+    }
+  }
+
   await rm(distDir, { recursive: true, force: true });
   await mkdir(distDir, { recursive: true });
 

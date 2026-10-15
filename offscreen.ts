@@ -29,18 +29,17 @@ function validateRequest(raw: unknown): OffscreenRequest | null {
   return { target: 'offscreen', requestId: raw['requestId'], op: raw['op'], payload: raw['payload'] };
 }
 
-/** Defensive parse: rejects payloads that smuggle markup/script-looking content. */
+/** Defensive parse: ensures input is valid JSON without executing scripts. */
 function parseCleanJson(text: string): unknown {
-  if (/<\s*script|<\s*img|javascript:/i.test(text.slice(0, 4096))) {
-    throw new VaultError('format', 'payload contains markup-like content');
+  const trimmed = text.trim();
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+    throw new VaultError('format', 'payload is not a JSON object or array');
   }
-  // DOM_PARSER reason: the offscreen document owns all DOM-based defensive parsing.
-  const parsed = new DOMParser().parseFromString(text.slice(0, 64), 'text/html');
-  if (parsed.body !== null && parsed.body.textContent !== null && parsed.body.textContent.trim().length > 0) {
-    // Leading markup was detected in what must be pure JSON.
-    if (!/^[[{\s]/.test(text)) throw new VaultError('format', 'payload is not JSON');
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new VaultError('format', 'payload is not valid JSON');
   }
-  return JSON.parse(text);
 }
 
 async function handleOp(op: string, payload: unknown): Promise<OpResult> {
@@ -52,12 +51,12 @@ async function handleOp(op: string, payload: unknown): Promise<OpResult> {
       if (typeof plaintextJson !== 'string' || typeof password !== 'string') {
         return { ok: false, error: 'bad encrypt inputs' };
       }
-      parseCleanJson(plaintextJson);
+      const parsed = parseCleanJson(plaintextJson);
       const meta = {
         app: 'AUVYQ' as const,
         kind: 'settings-backup' as const,
         createdAt: Date.now(),
-        itemCount: isRecord(JSON.parse(plaintextJson)) ? Object.keys(JSON.parse(plaintextJson)).length : 0
+        itemCount: isRecord(parsed) ? Object.keys(parsed).length : 0
       };
       const bytes = await encryptBackup(plaintextJson, password, meta);
       return { ok: true, data: { bytes: Array.from(bytes) } };

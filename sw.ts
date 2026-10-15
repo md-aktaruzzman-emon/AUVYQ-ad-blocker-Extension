@@ -718,9 +718,10 @@ const handlers: Record<string, RpcHandler> = {
     const host = validateHostnameInput(payload['host']);
     if (!host.ok) throw new Error(host.error);
     const settings = await ensureInitialized();
-    // With protection (or the ads module) off or site paused, the injector must also remove its
+    const hasAnyCosmetic = settings.modules.ads || settings.modules.annoyances;
+    // With protection (or both cosmetic-affecting modules) off or site paused, the injector must also remove its
     // built-in fallback selectors, hence the explicit enabled flag.
-    if (!settings.masterEnabled || !settings.modules.ads || isSitePaused(settings, host.value)) {
+    if (!settings.masterEnabled || !hasAnyCosmetic || isSitePaused(settings, host.value)) {
       return { css: '', selectors: [], enabled: false };
     }
     const result = await chrome.storage.local.get(STORAGE_KEYS.pack);
@@ -731,7 +732,14 @@ const handlers: Record<string, RpcHandler> = {
 
     const cssParts: string[] = [];
     if (cosmetic && typeof cosmetic.genericCss === 'string' && cosmetic.genericCss.length > 0) {
-      cssParts.push(cosmetic.genericCss);
+      const isAnnoyance = (line: string) => /cookie|newsletter|subscribe|push-notification|web-push|onesignal|smart-banner|social-share|sticky-social/i.test(line);
+      let gCss = cosmetic.genericCss;
+      if (!settings.modules.annoyances) {
+        gCss = gCss.split('\n').filter((line) => !isAnnoyance(line)).join('\n');
+      } else if (!settings.modules.ads) {
+        gCss = gCss.split('\n').filter((line) => isAnnoyance(line)).join('\n');
+      }
+      if (gCss.length > 0) cssParts.push(gCss);
     }
 
     const staticDomainMap = (staticSpecificCosmetic && typeof staticSpecificCosmetic === 'object')
