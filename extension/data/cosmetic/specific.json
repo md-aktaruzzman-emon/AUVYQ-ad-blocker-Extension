@@ -1,14 +1,15 @@
 {
-  "example.com": [
-    ".sponsor-card{display:none !important}"
-  ],
-  "cnn.com": [
-    ".ad-feedback{display:none !important}"
-  ],
-  "nytimes.com": [
-    ".ad-sponsor-container{display:none !important}"
-  ],
-  "forbes.com": [
-    ".top-ad-container{display:none !important}"
+  "youtube.com": [
+    "#masthead-ad{display:none !important}",
+    ".ytd-action-companion-ad-renderer{display:none !important}",
+    ".ytp-ad-message-container{display:none !important}",
+    ".ytp-ad-overlay-container{display:none !important}",
+    "ytd-ad-slot-renderer{display:none !important}",
+    "ytd-banner-promo-renderer{display:none !important}",
+    "ytd-engagement-panel-section-list-renderer[target-id=\"engagement-panel-ads\"]{display:none !important}",
+    "ytd-in-feed-ad-layout-renderer{display:none !important}",
+    "ytd-player-legacy-desktop-watch-ads-renderer{display:none !important}",
+    "ytd-promoted-sparkles-web-renderer{display:none !important}",
+    "ytd-statement-banner-renderer{display:none !important}"
   ]
 }

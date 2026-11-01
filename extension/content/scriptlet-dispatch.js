@@ -8,8 +8,13 @@
  * affect the others.
  */
 (() => {
-  if (window.__auvyqDispatchActive === true) return;
-  window.__auvyqDispatchActive = true;
+  const DISPATCH_GUARD = '__dispatch_guard_init__';
+  if (Object.prototype.hasOwnProperty.call(window, DISPATCH_GUARD)) return;
+  try {
+    Object.defineProperty(window, DISPATCH_GUARD, { value: 1, writable: false, enumerable: false, configurable: false });
+  } catch {
+    // non-fatal
+  }
 
   const NAMES = new Set([
     'noop-callback', 'json-prune-lite', 'set-constant', 'prevent-addEventListener',
@@ -78,31 +83,76 @@
         if (resolved) resolved.target[resolved.key] = function noop() {};
         return;
       }
-      // no arg: install a global no-op under a non-conflicting name
-      window.__auvyqNoop = function noop() {};
+      // no arg: safe return without leaking named global
+      return;
     },
 
     'json-prune-lite': (args) => {
-      const keys = String(args[0]).split('.').map((k) => k.trim()).filter((k) => /^[A-Za-z0-9_$]+$/.test(k));
-      if (keys.length === 0) return;
-      const prune = (value) => {
+      const rawPaths = String(args[0]).split(/[\s,]+/).filter(Boolean);
+      const parsedPaths = rawPaths.map((p) =>
+        p.split('.').map((k) => k.trim()).filter((k) => /^[A-Za-z0-9_$]+$/.test(k))
+      ).filter((parts) => parts.length > 0);
+      if (parsedPaths.length === 0) return;
+
+      const needle = args.length > 1 ? String(args[1]) : '';
+
+      const pruneObj = (value) => {
         if (typeof value !== 'object' || value === null) return value;
-        let current = value;
-        for (let i = 0; i < keys.length - 1; i++) {
-          current = current[keys[i]];
-          if (typeof current !== 'object' || current === null) return value;
-        }
-        try {
-          if (Object.prototype.hasOwnProperty.call(current, keys[keys.length - 1])) {
-            delete current[keys[keys.length - 1]];
+        for (const pathParts of parsedPaths) {
+          let current = value;
+          for (let i = 0; i < pathParts.length - 1; i++) {
+            current = current[pathParts[i]];
+            if (typeof current !== 'object' || current === null) break;
           }
-        } catch { /* non-fatal */ }
+          if (typeof current === 'object' && current !== null) {
+            try {
+              const lastKey = pathParts[pathParts.length - 1];
+              if (Object.prototype.hasOwnProperty.call(current, lastKey)) {
+                delete current[lastKey];
+              }
+            } catch { /* non-fatal */ }
+          }
+        }
         return value;
       };
+
       const originalParse = JSON.parse.bind(JSON);
       JSON.parse = function parse(text, reviver) {
-        return prune(originalParse(text, reviver));
+        const parsed = originalParse(text, reviver);
+        if (needle.length === 0 || (typeof text === 'string' && text.includes(needle))) {
+          return pruneObj(parsed);
+        }
+        return parsed;
       };
+
+      if (typeof Response !== 'undefined' && Response.prototype && typeof Response.prototype.json === 'function') {
+        const originalResponseJson = Response.prototype.json;
+        Response.prototype.json = function json() {
+          return originalResponseJson.call(this).then((data) => {
+            return pruneObj(data);
+          });
+        };
+      }
+
+      // Safe trap for video player response globals (e.g. ytInitialPlayerResponse)
+      try {
+        let currentYtInitial = window.ytInitialPlayerResponse;
+        if (currentYtInitial && typeof currentYtInitial === 'object') {
+          pruneObj(currentYtInitial);
+        }
+        Object.defineProperty(window, 'ytInitialPlayerResponse', {
+          get() {
+            return currentYtInitial;
+          },
+          set(val) {
+            currentYtInitial = (typeof val === 'object' && val !== null) ? pruneObj(val) : val;
+          },
+          configurable: true,
+          enumerable: true
+        });
+      } catch {
+        // non-fatal if already defined non-configurable
+      }
     },
 
     'set-constant': (args) => {
@@ -174,16 +224,17 @@
 
     'no-xhr-if': (args) => {
       const needle = String(args[0]);
+      const blockedXhrs = new WeakSet();
       const originalOpen = XMLHttpRequest.prototype.open;
       XMLHttpRequest.prototype.open = function openPatched(method, url, ...rest) {
         if (typeof url === 'string' && url.includes(needle)) {
-          this.__auvyqBlocked = true;
+          blockedXhrs.add(this);
         }
         return originalOpen.call(this, method, url, ...rest);
       };
       const originalSend = XMLHttpRequest.prototype.send;
       XMLHttpRequest.prototype.send = function sendPatched(body) {
-        if (this.__auvyqBlocked === true) {
+        if (blockedXhrs.has(this)) {
           this.dispatchEvent(new Event('error'));
           return;
         }
@@ -313,4 +364,3 @@
     // non-fatal
   }
 })();
-

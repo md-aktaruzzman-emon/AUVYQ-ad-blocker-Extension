@@ -6,8 +6,11 @@ import { validateSettings } from '../validation/schemas.js';
 import { normalizeHostname } from '../domain/normalize.js';
 
 export async function loadSettings(): Promise<Settings> {
-  const raw = await chrome.storage.local.get(STORAGE_KEYS.settings);
+  const raw = await chrome.storage.local.get([STORAGE_KEYS.settings, STORAGE_KEYS.snapshots]);
   const migrated = migrateStorage(raw);
+  if (migrated.result.migrated) {
+    await chrome.storage.local.set(migrated.data).catch(() => undefined);
+  }
   const validated = validateSettings(migrated.data[STORAGE_KEYS.settings]);
   if (validated.ok) return validated.value;
   return defaultSettings();
@@ -102,18 +105,85 @@ export function applyPreset(settings: Settings, preset: PresetName): Settings {
 export function isSitePaused(settings: Settings, host: string): boolean {
   const normalized = normalizeHostname(host);
   if (normalized.length === 0) return false;
-  return settings.perSite[normalized]?.paused === true;
+  const site = settings.perSite[normalized];
+  if (!site || site.paused !== true) return false;
+  if (typeof site.pausedUntil === 'number' && Date.now() >= site.pausedUntil) {
+    return false;
+  }
+  return true;
 }
 
-export function setSitePaused(settings: Settings, host: string, paused: boolean): Settings {
+export function setSitePaused(
+  settings: Settings,
+  host: string,
+  paused: boolean,
+  durationMinutes?: number
+): Settings {
   const normalized = normalizeHostname(host);
   if (normalized.length === 0) return settings;
   const existing = settings.perSite[normalized] ?? { paused: false, allowlist: [] };
+  const pausedUntil = (paused && typeof durationMinutes === 'number' && durationMinutes > 0)
+    ? Date.now() + Math.round(durationMinutes * 60 * 1000)
+    : null;
   return {
     ...settings,
     perSite: {
       ...settings.perSite,
-      [normalized]: { ...existing, paused }
+      [normalized]: {
+        ...existing,
+        paused,
+        pausedUntil: paused ? pausedUntil : null
+      }
+    }
+  };
+}
+
+export function checkExpiredSitePauses(settings: Settings): { settings: Settings; expiredHosts: string[] } {
+  const now = Date.now();
+  const expiredHosts: string[] = [];
+  let changed = false;
+  const nextPerSite = { ...settings.perSite };
+
+  for (const [host, site] of Object.entries(settings.perSite)) {
+    if (site.paused && typeof site.pausedUntil === 'number' && now >= site.pausedUntil) {
+      expiredHosts.push(host);
+      nextPerSite[host] = {
+        ...site,
+        paused: false,
+        pausedUntil: null
+      };
+      changed = true;
+    }
+  }
+
+  if (!changed) return { settings, expiredHosts: [] };
+  return {
+    settings: { ...settings, perSite: nextPerSite },
+    expiredHosts
+  };
+}
+
+export function isSiteAllowlisted(settings: Settings, host: string): boolean {
+  const normalized = normalizeHostname(host);
+  if (normalized.length === 0) return false;
+  const site = settings.perSite[normalized];
+  if (!site) return false;
+  return site.allowlist?.includes(normalized) === true || site.allowlist?.includes('*') === true;
+}
+
+export function setSiteAllowlisted(settings: Settings, host: string, allowlisted: boolean): Settings {
+  const normalized = normalizeHostname(host);
+  if (normalized.length === 0) return settings;
+  const existing = settings.perSite[normalized] ?? { paused: false, allowlist: [] };
+  const currentList = existing.allowlist ?? [];
+  const nextList = allowlisted
+    ? (currentList.includes(normalized) ? currentList : [...currentList, normalized].slice(0, 32))
+    : currentList.filter((h) => h !== normalized);
+  return {
+    ...settings,
+    perSite: {
+      ...settings.perSite,
+      [normalized]: { ...existing, allowlist: nextList }
     }
   };
 }

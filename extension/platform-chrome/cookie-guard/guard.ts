@@ -7,6 +7,7 @@ import cookieClassification from '../../data/cookie-classification.json';
 import type { Settings } from '../../types/schemas.js';
 import { matchSuffix, normalizeHostname } from '../../core/domain/normalize.js';
 import { createLogger } from '../../core/logging/logger.js';
+import { TRACKER_REGISTRY } from '../../core/tracker-registry/classifier.js';
 
 const log = createLogger('cookie-guard');
 
@@ -25,12 +26,20 @@ export function classifyCookieDomain(domain: string): 'tracker' | 'analytics' | 
       return rule.category as 'tracker' | 'analytics' | 'session' | 'essential';
     }
   }
+  for (const rule of TRACKER_REGISTRY) {
+    if (matchSuffix(normalized, rule.domain)) {
+      return rule.category === 'advertising' ? 'tracker' : (rule.category === 'analytics' ? 'analytics' : 'tracker');
+    }
+  }
   return 'unknown';
 }
 
 export function isTrackerDomain(host: string): boolean {
   const normalized = normalizeHostname(host);
-  return TRACKER_SUFFIXES.some((suffix) => matchSuffix(normalized, suffix));
+  if (TRACKER_SUFFIXES.some((suffix) => matchSuffix(normalized, suffix))) {
+    return true;
+  }
+  return TRACKER_REGISTRY.some((rule) => matchSuffix(normalized, rule.domain));
 }
 
 export interface CookieCleanupResult {
@@ -38,11 +47,13 @@ export interface CookieCleanupResult {
   skipped: string;
 }
 
-/** Known tracking / ad profiling cookie name patterns (Google, Facebook, Bing, Criteo, etc.) */
-const TRACKER_COOKIE_PATTERN = /^(Conversion|1P_JAR|NID|ANID|IDE|DSID|OTZ|_ga(_.*)?|_gid|_gat|_fbp|_fbc|fr|_uetsid|_uetvid|_gcl_.*|_gac_.*|_clck|_clsk|__utma|__utmb|__utmc|__utmz|uuid2|tuuid|anj)$/i;
+/** Known tracking / ad profiling cookie name patterns (Google, Facebook, Bing, Criteo, TikTok, LinkedIn, Hotjar, etc.) */
+const TRACKER_COOKIE_PATTERN = /^(Conversion|1P_JAR|NID|ANID|IDE|DSID|OTZ|_ga(_.*)?|_gid|_gat|_fbp|_fbc|fr|_uetsid|_uetvid|_gcl_.*|_gac_.*|_clck|_clsk|__utma|__utmb|__utmc|__utmz|uuid2|tuuid|anj|_ttp|tt_webid|_pin_unauth|sc_at|bcookie|bscookie|ln_or|lidc|_hjSession.*|_hjIncludedInPageview.*|_hjSessionUser.*|_hjTLDTest|mp_.*_mixpanel|ajs_user_id|ajs_anonymous_id|amplitude_id.*|cto_bundle|cto_bidid|irclickid|_msdcs.*)$/i;
 
-/** Essential session/login/security cookie name patterns that must NEVER be deleted */
-const ESSENTIAL_COOKIE_PATTERN = /^(ACCOUNT_CHOOSER|SID|HSID|SSID|APISID|SAPISID|__Secure-[13]P(APISID|SID)|__Secure-.*OSID|OSID|__Secure-DIVERSION.*|__cf_bm|__cfuvid|cf_clearance|cf_chl_.*|__Host-|auth|token|jwt|csrf|xsrf|session|PHPSESSID|JSESSIONID|ASPSESSIONID|connect\.sid|remember_web_|wordpress_logged_in_|li_at|sessionid|authToken|access_token|refresh_token|id_token)$/i;
+/** Essential session/login/security/e-commerce cookie name patterns that must NEVER be deleted */
+const ESSENTIAL_COOKIE_PATTERN = /^(ACCOUNT_CHOOSER|SID|HSID|SSID|APISID|SAPISID|__Secure-[13]P(APISID|SID)|__Secure-.*OSID|OSID|__Secure-DIVERSION.*|__cf_bm|__cfuvid|cf_clearance|cf_chl_.*|__Host-|auth|token|jwt|csrf|xsrf|session|PHPSESSID|JSESSIONID|ASPSESSIONID|connect\.sid|remember_web_|wordpress_logged_in_|li_at|sessionid|authToken|access_token|refresh_token|id_token|cart|cart_id|basket|order|checkout|checkout_token|wp_woocommerce_session.*|PrestaShop-.*|AWSALB|AWSALBCORS|datadome)$/i;
+
+export const MAX_TRACKER_LIFETIME_SECONDS = 86400; // 24 hours maximum for persistent tracking cookies
 
 export function cookieUrl(cookie: { domain: string; path?: string; secure?: boolean }): string {
   const protocol = cookie.secure ? 'https:' : 'http:';
@@ -52,8 +63,11 @@ export function cookieUrl(cookie: { domain: string; path?: string; secure?: bool
 }
 
 export function isKnownTrackingCookie(cookie: { name: string; domain: string }): boolean {
-  // 1. Never remove essential authentication/login/security cookies (checked FIRST for safety)
-  if (ESSENTIAL_COOKIE_PATTERN.test(cookie.name) || /^(sess|auth|token|jwt|csrf|xsrf|login|secure_session|identity|user_session|sso)/i.test(cookie.name)) {
+  // 1. Never remove essential authentication/login/security/e-commerce cookies (checked FIRST for safety)
+  if (
+    ESSENTIAL_COOKIE_PATTERN.test(cookie.name) ||
+    /^(sess|auth|token|jwt|csrf|xsrf|login|secure_session|identity|user_session|sso|cart|checkout)/i.test(cookie.name)
+  ) {
     return false;
   }
 
@@ -71,29 +85,68 @@ export function isKnownTrackingCookie(cookie: { name: string; domain: string }):
   return false;
 }
 
+/**
+ * Anti-Persistent Profiling: Truncates long-lived tracking cookie lifespans (e.g. 2-year tracking cookies)
+ * to a maximum of 24 hours to prevent cross-year device tracking without breaking active browsing sessions.
+ */
+export async function truncateTrackerCookieLifetime(cookie: chrome.cookies.Cookie): Promise<boolean> {
+  if (!cookie.expirationDate) return false;
+  const nowSec = Math.floor(Date.now() / 1000);
+  const remainingLifetime = cookie.expirationDate - nowSec;
+  if (remainingLifetime > MAX_TRACKER_LIFETIME_SECONDS) {
+    try {
+      const url = cookieUrl(cookie);
+      await chrome.cookies.set({
+        url,
+        name: cookie.name,
+        value: cookie.value,
+        domain: cookie.domain,
+        path: cookie.path,
+        secure: cookie.secure,
+        httpOnly: cookie.httpOnly,
+        sameSite: cookie.sameSite,
+        storeId: cookie.storeId,
+        expirationDate: nowSec + MAX_TRACKER_LIFETIME_SECONDS
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
 export async function handleCookieChanged(
   changeInfo: chrome.cookies.CookieChangeInfo,
   settings: Settings
-): Promise<{ removed: boolean }> {
+): Promise<{ removed: boolean; truncated: boolean }> {
   if (!settings.masterEnabled || !settings.modules.cookies) {
-    return { removed: false };
+    return { removed: false, truncated: false };
   }
   if (changeInfo.removed) {
-    return { removed: false };
+    return { removed: false, truncated: false };
   }
   const cookie = changeInfo.cookie;
   if (isSitePausedForCookie(settings, cookie.domain)) {
-    return { removed: false };
+    return { removed: false, truncated: false };
   }
   if (!isKnownTrackingCookie(cookie)) {
-    return { removed: false };
+    return { removed: false, truncated: false };
   }
-  try {
-    const url = cookieUrl(cookie);
-    await chrome.cookies.remove({ url, name: cookie.name, storeId: cookie.storeId });
-    return { removed: true };
-  } catch {
-    return { removed: false };
+
+  // Strong & Maximum presets remove tracking cookies immediately.
+  // Balanced preset truncates long-lived tracker lifetimes to 24h to prevent cross-year tracking without site breakage.
+  if (settings.preset === 'strong' || settings.preset === 'maximum') {
+    try {
+      const url = cookieUrl(cookie);
+      await chrome.cookies.remove({ url, name: cookie.name, storeId: cookie.storeId });
+      return { removed: true, truncated: false };
+    } catch {
+      return { removed: false, truncated: false };
+    }
+  } else {
+    const truncated = await truncateTrackerCookieLifetime(cookie);
+    return { removed: false, truncated };
   }
 }
 

@@ -14,6 +14,7 @@ import trackingParamsJson from '../../data/tracking-params.json';
 import type { StatEvent, StatsService } from '../../core/stats/snapshot.js';
 import { normalizeHostname } from '../../core/domain/normalize.js';
 import { isTrackerDomain } from '../cookie-guard/guard.js';
+import { classifyTrackerRequest } from '../../core/tracker-registry/classifier.js';
 import { createLogger } from '../../core/logging/logger.js';
 
 const log = createLogger('observer');
@@ -127,8 +128,9 @@ export function createRequestObserver(stats: StatsService) {
         return;
       }
       if (host.length === 0) return;
-      const initiatorHost = details.initiator !== undefined ? safeHost(details.initiator) : '';
-      if (initiatorHost.length > 0 && initiatorHost !== host && isTrackerDomain(host)) {
+
+      const classification = classifyTrackerRequest(details.url, details.initiator, details.type);
+      if (classification.isTracker) {
         trackTabHost(details.tabId, host);
       }
       if (paramsSeen) {
@@ -149,9 +151,12 @@ export function createRequestObserver(stats: StatsService) {
       }
       buffer(category, 1, host);
       maybeFlashBadge();
-      const initiatorHost = info.initiator !== undefined ? safeHost(info.initiator) : '';
-      if (host.length > 0 && initiatorHost !== host && isTrackerDomain(host) && info.tabId !== undefined) {
-        trackTabHost(info.tabId, host);
+
+      if (host.length > 0 && info.tabId !== undefined) {
+        const classification = classifyTrackerRequest(info.url, info.initiator);
+        if (classification.isTracker) {
+          trackTabHost(info.tabId, host);
+        }
       }
     });
   }

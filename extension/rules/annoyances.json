@@ -7,9 +7,14 @@
     },
     "condition": {
       "requestDomains": [
-        "cookielaw.org"
+        "onetrust.com"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script",
+        "stylesheet",
+        "sub_frame"
+      ]
     }
   },
   {
@@ -20,9 +25,13 @@
     },
     "condition": {
       "requestDomains": [
-        "cookiebot.com"
+        "cdn.cookielaw.org"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script",
+        "stylesheet"
+      ]
     }
   },
   {
@@ -33,9 +42,13 @@
     },
     "condition": {
       "requestDomains": [
-        "usercentrics.eu"
+        "cookiebot.com"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script",
+        "stylesheet"
+      ]
     }
   },
   {
@@ -46,9 +59,13 @@
     },
     "condition": {
       "requestDomains": [
-        "consensu.org"
+        "consent.trustarc.com"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "sub_frame",
+        "script"
+      ]
     }
   },
   {
@@ -59,9 +76,13 @@
     },
     "condition": {
       "requestDomains": [
-        "trustarc.com"
+        "didomi.io"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script",
+        "sub_frame"
+      ]
     }
   },
   {
@@ -72,9 +93,13 @@
     },
     "condition": {
       "requestDomains": [
-        "widget.intercom.io"
+        "privacy-center.org"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script",
+        "sub_frame"
+      ]
     }
   },
   {
@@ -85,9 +110,12 @@
     },
     "condition": {
       "requestDomains": [
-        "onesignal.com"
+        "quantcast.mgr.consensu.org"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
     }
   },
   {
@@ -98,9 +126,12 @@
     },
     "condition": {
       "requestDomains": [
-        "cdn.onesignal.com"
+        "usercentrics.eu"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
     }
   },
   {
@@ -111,9 +142,12 @@
     },
     "condition": {
       "requestDomains": [
-        "pushwoosh.com"
+        "complianz.io"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
     }
   },
   {
@@ -123,10 +157,11 @@
       "type": "block"
     },
     "condition": {
-      "requestDomains": [
-        "pushcrew.com"
-      ],
-      "domainType": "thirdParty"
+      "urlFilter": "||civicuk.com/cookie-control^",
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
     }
   },
   {
@@ -137,9 +172,13 @@
     },
     "condition": {
       "requestDomains": [
-        "drift.com"
+        "iubenda.com"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script",
+        "sub_frame"
+      ]
     }
   },
   {
@@ -150,9 +189,156 @@
     },
     "condition": {
       "requestDomains": [
-        "driftt.com"
+        "termly.io"
       ],
-      "domainType": "thirdParty"
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 13,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "cookiefirst.com"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 14,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "axeptio.eu"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 15,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "klaro.org"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 16,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "osano.com"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 17,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "secureprivacy.ai"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 18,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "cookieyes.com"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 19,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "cookiescript.info"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 20,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "consentmanager.net"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 21,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "borlabs.io"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "script"
+      ]
     }
   }
 ]

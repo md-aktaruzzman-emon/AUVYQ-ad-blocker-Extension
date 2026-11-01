@@ -5,6 +5,7 @@ import {
   sha256Hex,
   MAGIC,
   VaultError,
+  MAX_PASSWORD_CHARS,
   type BackupMeta
 } from '../core/crypto/vault.js';
 
@@ -30,6 +31,29 @@ describe('Crypto Vault', () => {
   it('fails encryption if password is shorter than 8 characters', async () => {
     try {
       await encryptBackup(payload, 'short', meta);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('format');
+    }
+  });
+
+  it('fails encryption if password exceeds maximum character length (DoS protection)', async () => {
+    const hugePassword = 'A'.repeat(MAX_PASSWORD_CHARS + 1);
+    try {
+      await encryptBackup(payload, hugePassword, meta);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('format');
+    }
+  });
+
+  it('fails decryption if password exceeds maximum character length (DoS protection)', async () => {
+    const encrypted = await encryptBackup(payload, password, meta);
+    const hugePassword = 'A'.repeat(MAX_PASSWORD_CHARS + 1);
+    try {
+      await decryptBackup(encrypted, hugePassword);
       expect.unreachable('should have thrown VaultError');
     } catch (err) {
       expect(err).toBeInstanceOf(VaultError);
@@ -108,6 +132,24 @@ describe('Crypto Vault', () => {
     withExtra.set([1, 2, 3, 4, 5, 6, 7, 8], encrypted.length);
     try {
       await decryptBackup(withExtra, password);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('format');
+    }
+  });
+
+  it('fails decryption on empty or completely corrupt binary input', async () => {
+    try {
+      await decryptBackup(new Uint8Array(0), password);
+      expect.unreachable('should have thrown VaultError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(VaultError);
+      expect((err as VaultError).kind).toBe('format');
+    }
+
+    try {
+      await decryptBackup(new Uint8Array(10), password);
       expect.unreachable('should have thrown VaultError');
     } catch (err) {
       expect(err).toBeInstanceOf(VaultError);

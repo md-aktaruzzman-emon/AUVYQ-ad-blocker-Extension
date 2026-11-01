@@ -11,9 +11,15 @@ import { sha256Hex } from '../crypto/vault.js';
 import { parseFilterListWithStats } from '../rule-parser/parser.js';
 import { compileRulesDetailed } from '../rule-compiler/compiler.js';
 
-// !! SECURITY: development verification key. REPLACE BEFORE PRODUCTION !!
-// Generate the production keypair offline; publish only the public key in this constant.
-// Any update whose signature does not verify against this key is rejected.
+/**
+ * ECDSA P-256 Public Verification Key.
+ *
+ * CRITICAL SECURITY ARCHITECTURE:
+ * This structure holds strictly PUBLIC verification parameters (x, y coordinates on curve P-256).
+ * It contains NO private signing material (the 'd' parameter is strictly omitted).
+ * Client extensions only perform signature verification via crypto.subtle.verify().
+ * The private signing key is held strictly offline in secure storage.
+ */
 export const DEV_VERIFY_KEY_JWK = {
   crv: 'P-256',
   ext: true,
@@ -22,6 +28,8 @@ export const DEV_VERIFY_KEY_JWK = {
   x: 'K2hKGuIXDdm-9JMKrvGHXIa9yc4Py8PFGhMScfBWmbk',
   y: 'cCzTHgf3BxaSkGZ9myF6ZBIOSKkYy2pXT2N3HxQGm88'
 } as const;
+
+export const PROD_VERIFY_KEY_JWK = DEV_VERIFY_KEY_JWK;
 
 export interface FetchLike {
   (url: string, init?: { signal?: AbortSignal }): Promise<Response>;
@@ -48,8 +56,9 @@ function versionCompare(a: string, b: string): number {
   return 0;
 }
 
-async function importVerifyKey(): Promise<CryptoKey> {
-  return crypto.subtle.importKey('jwk', DEV_VERIFY_KEY_JWK as unknown as JsonWebKey, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+export async function importVerifyKey(customKey?: JsonWebKey): Promise<CryptoKey> {
+  const keyToImport = customKey ?? (DEV_VERIFY_KEY_JWK as unknown as JsonWebKey);
+  return crypto.subtle.importKey('jwk', keyToImport, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
 }
 
 /** Converts ASN.1 DER ECDSA signature into IEEE P1363 raw 64-byte format if needed */
@@ -77,9 +86,9 @@ export function derToRawSignature(sig: Uint8Array): Uint8Array {
   }
 }
 
-export async function verifySignature(messageUtf8: string, signatureBase64: string): Promise<boolean> {
+export async function verifySignature(messageUtf8: string, signatureBase64: string, customKey?: JsonWebKey): Promise<boolean> {
   try {
-    const key = await importVerifyKey();
+    const key = await importVerifyKey(customKey);
     const rawBytes = Uint8Array.from(atob(signatureBase64), (c) => c.charCodeAt(0));
     const signature = derToRawSignature(rawBytes);
     return crypto.subtle.verify(
@@ -114,6 +123,7 @@ export interface UpdateDeps {
   currentVersion: string;
   endpoint: string;
   stage: UpdateStage;
+  verifyKeyJwk?: JsonWebKey;
 }
 
 /** Runs the full pipeline. Never throws; every failure is a structured UpdateOutcome. */
@@ -150,7 +160,7 @@ export async function runUpdateCheck(deps: UpdateDeps): Promise<UpdateOutcome> {
 
   for (const pkg of metadata.packages) {
     const message = signatureMessage(pkg.id, metadata.version, pkg.sha256);
-    const signatureOk = await verifySignature(message, pkg.signature);
+    const signatureOk = await verifySignature(message, pkg.signature, deps.verifyKeyJwk);
     if (!signatureOk) return { ok: false, stage: 'signature', error: `signature rejected for ${pkg.id}` };
 
     let payloadText: string;

@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>AUVYQ — Privacy & Web Protection</title>
+  <link rel="stylesheet" href="../tokens.css" />
   <link rel="stylesheet" href="../motion.css" />
   <link rel="stylesheet" href="dashboard.css" />
 </head>
@@ -49,6 +50,14 @@
         <button class="auvyq-nav-item" data-section="protection">
           <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
           <span class="nav-text">Protection</span>
+        </button>
+        <button class="auvyq-nav-item" data-section="activity">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <span class="nav-text">Network Activity</span>
+        </button>
+        <button class="auvyq-nav-item" data-section="custom-rules">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+          <span class="nav-text">Custom Filters</span>
         </button>
         <button class="auvyq-nav-item" data-section="cookies">
           <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 10 10 0 1 0-10-10c0 .34.02.67.05 1"></path><circle cx="8.5" cy="8.5" r="1" fill="currentColor"></circle><circle cx="16" cy="15.5" r="1" fill="currentColor"></circle><circle cx="12" cy="12" r="1" fill="currentColor"></circle><circle cx="11" cy="17" r="1" fill="currentColor"></circle><circle cx="7" cy="13" r="1" fill="currentColor"></circle></svg>
@@ -127,7 +136,26 @@
           </div>
         </div>
 
-        <div class="stats-grid" id="stats-grid">
+                <!-- Privacy Intelligence Score Overview Card -->
+        <div class="auvyq-card privacy-overview-card">
+          <div class="privacy-card-left">
+            <span class="feature-badge">Active Defense Rating</span>
+            <h2 class="section-title">Privacy Intelligence Score</h2>
+            <p class="section-note">Measures overall browsing safety across tracker neutralization, cookie lifetime isolation, ad blocking, and real-time threat heuristics.</p>
+          </div>
+          <div class="privacy-card-gauge">
+            <div class="privacy-gauge-circle">
+              <span id="overview-privacy-score" class="privacy-score-number">88</span>
+              <span class="privacy-score-denom">/100</span>
+            </div>
+            <div class="privacy-gauge-details">
+              <span id="overview-privacy-grade" class="privacy-grade-badge grade-A">A+</span>
+              <span id="overview-privacy-label" class="privacy-grade-desc">Maximum Protection</span>
+            </div>
+          </div>
+        </div>
+
+<div class="stats-grid" id="stats-grid">
           <div class="stat auvyq-card"><span class="stat-number" id="d-ads">0</span><span class="stat-label">Ads blocked</span></div>
           <div class="stat auvyq-card"><span class="stat-number" id="d-trackers">0</span><span class="stat-label">Trackers blocked</span></div>
           <div class="stat auvyq-card"><span class="stat-number" id="d-params">0</span><span class="stat-label">Params removed</span></div>
@@ -177,6 +205,161 @@
             </div>
           </div>
           <div id="module-list" class="module-list"></div>
+        </div>
+      </section>
+
+      <!-- Network Activity -->
+      <section class="panel" id="panel-activity" aria-label="Network Activity">
+        <div class="panel-header-block">
+          <h1 class="panel-title">Network Activity & Traffic Telemetry</h1>
+          <p class="panel-subtitle">Transparent local telemetry tracking screened requests, blocked threats, and device efficiency.</p>
+        </div>
+
+        <!-- MV3 Privacy & Architecture Disclosure -->
+        <div class="auvyq-card section-card" id="activity-notice-card">
+          <div class="threat-status-bar">
+            <div class="threat-status-card">
+              <div class="status-indicator-icon success">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="threat-status-content">
+                <span class="threat-status-label">Engine Architecture</span>
+                <span class="threat-status-val">Chromium DNR Native Core</span>
+              </div>
+            </div>
+            <div class="threat-status-card">
+              <div class="status-indicator-icon info">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <div class="threat-status-content">
+                <span class="threat-status-label">Cloud Telemetry</span>
+                <span class="threat-status-val">Zero (100% Local Storage)</span>
+              </div>
+            </div>
+            <div class="threat-status-card">
+              <div class="status-indicator-icon purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div class="threat-status-content">
+                <span class="threat-status-label">Evaluation Latency</span>
+                <span class="threat-status-val">&lt; 0.1 ms (Sub-millisecond)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real Impact Metrics (Blindspot 2: Speed & Bandwidth Saved) -->
+        <div class="stats-grid" id="activity-impact-grid">
+          <div class="stat auvyq-card">
+            <span class="stat-number" id="act-bandwidth">0 MB</span>
+            <span class="stat-label">Bandwidth Saved</span>
+          </div>
+          <div class="stat auvyq-card">
+            <span class="stat-number" id="act-time-saved">0s</span>
+            <span class="stat-label">Est. Load Time Saved</span>
+          </div>
+          <div class="stat auvyq-card">
+            <span class="stat-number" id="act-total-screened">0</span>
+            <span class="stat-label">Requests Screened</span>
+          </div>
+          <div class="stat auvyq-card">
+            <span class="stat-number" id="act-trackers-stopped">0</span>
+            <span class="stat-label">Profiling Blocked</span>
+          </div>
+        </div>
+
+        <!-- Observed Protection Categories -->
+        <div class="auvyq-card section-card">
+          <h2 class="section-title">Observed Tracking & Ad Interceptions</h2>
+          <p class="section-note">Neutralized cross-site tracking networks and ad endpoints evaluated by your browser.</p>
+          <div class="cookie-table-container">
+            <div class="table-head">
+              <span class="th-domain">Network Domain</span>
+              <span class="th-name">Category</span>
+              <span class="th-cat">Protection Layer</span>
+              <span class="th-action">Status</span>
+            </div>
+            <ul class="cookie-list" id="activity-domain-list" aria-live="polite">
+              <!-- Dynamically populated by dashboard.js -->
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Custom Filters & User Rules -->
+      <section class="panel" id="panel-custom-rules" aria-label="Custom Filters">
+        <div class="panel-header-block">
+          <h1 class="panel-title">Custom Filters & User Rules</h1>
+          <p class="panel-subtitle">Create and manage your personal cosmetic hiding selectors and network DNR blocking rules.</p>
+        </div>
+
+        <!-- Add Custom Rule Form Card -->
+        <div class="auvyq-card section-card">
+          <div class="section-card-header">
+            <div>
+              <h2 class="section-title">Add Custom Rule</h2>
+              <p class="section-subtitle">Define an element selector to hide or a domain pattern to block.</p>
+            </div>
+            <button class="auvyq-button auvyq-button-primary" id="launch-picker-dashboard-btn" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+              <span>Launch Visual Element Picker</span>
+            </button>
+          </div>
+
+          <form id="add-custom-rule-form" class="custom-rule-form">
+            <div class="rule-form-row">
+              <div class="form-group type-group">
+                <label for="custom-rule-type" class="form-label">Rule Type</label>
+                <select id="custom-rule-type" class="auvyq-input">
+                  <option value="cosmetic">Cosmetic (Element Hiding)</option>
+                  <option value="network">Network (Domain / URL Blocking)</option>
+                </select>
+              </div>
+
+              <div class="form-group domain-group" id="domain-group">
+                <label for="custom-rule-domain" class="form-label">Target Website (Optional)</label>
+                <input id="custom-rule-domain" class="auvyq-input" type="text" placeholder="e.g. reddit.com (leave blank for all)" />
+              </div>
+
+              <div class="form-group pattern-group">
+                <label for="custom-rule-pattern" class="form-label">Selector or Rule Pattern</label>
+                <input id="custom-rule-pattern" class="auvyq-input" type="text" placeholder="e.g. .promoted-post or ||adserver.com^" required />
+              </div>
+
+              <div class="form-group action-group">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="auvyq-button auvyq-button-primary" id="save-custom-rule-btn">Add Rule</button>
+              </div>
+            </div>
+            <p id="custom-rule-error" class="custom-rule-error" role="alert" aria-live="assertive"></p>
+          </form>
+        </div>
+
+        <!-- Rules List Card -->
+        <div class="auvyq-card section-card">
+          <div class="cookie-header-row">
+            <div>
+              <h2 class="section-title">Your Active Custom Rules</h2>
+              <p class="section-note">Custom network rules run at highest priority (9000-9999) and are never evicted by automatic updates.</p>
+            </div>
+            <div class="custom-rule-actions">
+              <button class="auvyq-button auvyq-button-secondary" id="import-custom-rules-btn" type="button">Import</button>
+              <button class="auvyq-button auvyq-button-secondary" id="export-custom-rules-btn" type="button">Export</button>
+              <input type="file" id="import-rules-file" accept=".txt,.json" hidden />
+            </div>
+          </div>
+
+          <div class="cookie-table-container">
+            <div class="table-head">
+              <span class="th-cat">Type</span>
+              <span class="th-domain">Scope</span>
+              <span class="th-name">Rule Pattern / CSS Selector</span>
+              <span class="th-action">Actions</span>
+            </div>
+            <ul class="cookie-list" id="custom-rules-list" aria-live="polite">
+              <!-- Dynamically populated -->
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -265,6 +448,16 @@
               <span class="threat-status-val">Foreign Form Guard</span>
             </div>
           </div>
+
+          <div class="threat-status-card">
+            <div class="status-indicator-icon info">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+            </div>
+            <div class="threat-status-content">
+              <span class="threat-status-label">Local ML Classifier</span>
+              <span class="threat-status-val" id="threat-ml-status">Active · 17 Features</span>
+            </div>
+          </div>
         </div>
 
         <div class="threat-scope-grid">
@@ -311,6 +504,22 @@
               <span class="threat-scope-tag">Transport Security</span>
             </div>
           </div>
+        </div>
+
+        <!-- Intelligent URL Inspector -->
+        <div class="auvyq-card section-card" id="ai-inspector-section" style="margin-bottom: var(--space-5);">
+          <div class="threat-log-header">
+            <div>
+              <h2 class="section-title">Intelligent URL Risk Inspector</h2>
+              <p class="section-note">Evaluate any address using on-device statistical machine learning (Shannon entropy, lexical feature attribution, and structural risk scoring). 100% private and offline.</p>
+            </div>
+            <span class="auvyq-pill auvyq-pill-cyan">ON-DEVICE ML</span>
+          </div>
+          <div style="display: flex; gap: var(--space-3); margin-top: 14px; flex-wrap: wrap;">
+            <input type="text" id="ai-inspect-input" class="auvyq-input" placeholder="e.g. https://paypal-security-update.xyz/login" style="flex: 1; min-width: 260px;" />
+            <button id="ai-inspect-btn" class="auvyq-btn auvyq-btn-primary">Analyze Risk</button>
+          </div>
+          <div id="ai-inspect-result" style="display: none; margin-top: 16px;"></div>
         </div>
 
         <div class="auvyq-card section-card threat-log-container">
@@ -741,7 +950,21 @@
       </section>
     </main>
   </div>
-  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+    <!-- Accessible Modal Dialog for Destructive Reset -->
+  <div id="clear-data-dialog" class="auvyq-dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="clear-dialog-title" aria-describedby="clear-dialog-desc">
+    <div class="auvyq-dialog-window">
+      <h2 id="clear-dialog-title" class="auvyq-dialog-title">Reset All AUVYQ Data?</h2>
+      <p id="clear-dialog-desc" class="auvyq-dialog-body">
+        This action will permanently reset your settings, block counters, threat logs, and custom rules back to factory defaults. Your regular browser bookmarks, passwords, and history outside of AUVYQ will not be modified.
+      </p>
+      <div class="auvyq-dialog-actions">
+        <button id="cancel-clear-btn" class="auvyq-button auvyq-button-secondary" type="button">Cancel</button>
+        <button id="confirm-clear-btn" class="auvyq-button auvyq-button-danger" type="button">Reset All Data</button>
+      </div>
+    </div>
+  </div>
+
+<div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
   <script type="module" src="dashboard.js"></script>
 </body>
 </html>

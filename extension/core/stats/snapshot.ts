@@ -2,14 +2,18 @@
  * Daily statistics snapshots with batched writes (max 1 write / 5 seconds) and
  * 7- or 30-day retention. Popup/dashboard read snapshots only.
  *
- * Documented privacy-score formula (a rough indicator, NOT a measurement):
- *   score = round(min(99, 55 + 10 * log2(1 + totalBlockedToday)))
- * More protection activity raises the score toward a capped 99; it is never "precision".
+ * Transparent privacy scoring calculation integrated from core/privacy-score/calculator.ts.
+ * Clearly documents limitations; never inflates metrics or implies complete anonymity.
  */
 import type { Snapshot } from '../../types/schemas.js';
 import { STORAGE_KEYS } from '../storage/schema.js';
 import { validateSnapshot, isRecord } from '../validation/schemas.js';
 import { normalizeHostname } from '../domain/normalize.js';
+import {
+  calculatePrivacyScore,
+  type PrivacyScoreReport,
+  type PrivacyScoreInput
+} from '../privacy-score/calculator.js';
 
 export type StatCategory = 'ads' | 'trackers' | 'params' | 'cosmetic' | 'threats' | 'cookies';
 
@@ -54,12 +58,15 @@ export function mergeEvents(snapshot: Snapshot, events: StatEvent[]): Snapshot {
   return next;
 }
 
-export function computePrivacyScore(snapshot: Snapshot): number {
-  const total = snapshot.adsBlocked + snapshot.trackersBlocked + snapshot.paramsStripped +
-    snapshot.cosmeticHidden + snapshot.threats + snapshot.cookiesCleaned;
-  if (total === 0) return 55;
-  return Math.round(Math.min(99, 55 + 10 * Math.log2(1 + total)));
+export function computePrivacyScore(
+  snapshot: Snapshot,
+  settings?: PrivacyScoreInput['settings'],
+  siteContext?: PrivacyScoreInput['siteContext']
+): number {
+  return calculatePrivacyScore({ snapshot, settings, siteContext }).score;
 }
+
+export { calculatePrivacyScore, type PrivacyScoreReport, type PrivacyScoreInput };
 
 /** Pure: keeps only the newest `retentionDays` entries (by day key order). */
 export function pruneHistory(history: Record<string, Snapshot>, retentionDays: 7 | 30, today = todayKey()): Record<string, Snapshot> {

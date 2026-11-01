@@ -15,7 +15,8 @@ export const CONTENT_SCRIPT_ALLOWED_TYPES = new Set([
   'GET_FP_SHIELDS',
   'REPORT_COSMETIC',
   'CHECK_LOGIN_FORMS',
-  'GET_TAB_STATE'
+  'GET_TAB_STATE',
+  'ADD_CUSTOM_RULE'
 ]);
 
 export const PRIVILEGED_MESSAGE_TYPES = new Set([
@@ -34,8 +35,20 @@ export const PRIVILEGED_MESSAGE_TYPES = new Set([
   'GET_SNAPSHOT',
   'GET_SITE_STATS',
   'GET_SITE_REPORT',
+  'GET_PRIVACY_REPORT',
+  'SWEEP_COOKIES',
   'GET_DIAGNOSTICS',
-  'GET_UPDATE_STATE'
+  'GET_UPDATE_STATE',
+  'GET_CUSTOM_RULES',
+  'UPDATE_CUSTOM_RULE',
+  'DELETE_CUSTOM_RULE',
+  'IMPORT_CUSTOM_RULES',
+  'EXPORT_CUSTOM_RULES',
+  'START_ELEMENT_PICKER',
+  'GET_AI_STATUS',
+  'ANALYZE_URL_INTELLIGENCE',
+  'GET_AI_EXPLANATION',
+  'GET_AI_PRIVACY_ADVICE'
 ]);
 
 export function isPrivilegedSender(sender: chrome.runtime.MessageSender): boolean {
@@ -46,22 +59,31 @@ export function isPrivilegedSender(sender: chrome.runtime.MessageSender): boolea
   const extOrigin = chrome.runtime.getURL('');
   const extOriginNoSlash = extOrigin.replace(/\/$/, '');
 
-  // 1. If direct sender URL is present, verify it starts with extension origin
+  // 1. If tab is present, the message originates from a tab context (e.g. content script or extension page tab).
+  // Content scripts running in web pages will have sender.tab.url pointing to a web URL.
+  // Both tab.url and sender.url (if defined) must strictly belong to this extension's origin.
+  if (sender.tab !== undefined) {
+    const tabUrl = sender.tab.url;
+    if (typeof tabUrl !== 'string' || !tabUrl.startsWith(extOrigin)) {
+      return false;
+    }
+    if (typeof sender.url === 'string' && !sender.url.startsWith(extOrigin)) {
+      return false;
+    }
+    return true;
+  }
+
+  // 2. Direct sender URL is present (e.g. extension popup, offscreen document, devtools, background).
   if (typeof sender.url === 'string') {
     return sender.url.startsWith(extOrigin);
   }
-  // 2. If tab is present, verify it is an extension page tab
-  if (sender.tab !== undefined) {
-    if (typeof sender.tab.url === 'string') {
-      return sender.tab.url.startsWith(extOrigin);
-    }
-    return false;
-  }
+
   // 3. Check sender origin matching extension origin
   if (typeof sender.origin === 'string') {
     return sender.origin === extOriginNoSlash || sender.origin.startsWith(extOrigin);
   }
-  // 4. Sender matching extension ID with no external web URL (fail closed)
+
+  // 4. Sender matching extension ID with no verifiable extension origin (fail closed)
   return false;
 }
 

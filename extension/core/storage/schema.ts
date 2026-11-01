@@ -13,7 +13,8 @@ export const STORAGE_KEYS = {
   telemetryQueue: 'telemetryQueue',
   onboardingDone: 'onboardingDone',
   updateState: 'updateState',
-  tabThreats: 'tabThreats'
+  tabThreats: 'tabThreats',
+  customRules: 'customRules'
 } as const;
 
 export type ModuleToggles = Pick<Settings['modules'], 'ads' | 'trackers' | 'cookies' | 'heuristics' | 'fingerprintShields' | 'annoyances'>;

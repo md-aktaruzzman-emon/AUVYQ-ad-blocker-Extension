@@ -1,0 +1,46 @@
+{
+  "version": "2026.11.01",
+  "updatedAt": "2026-11-01T13:30:00Z",
+  "sources": [
+    {
+      "id": "easylist",
+      "name": "EasyList Core Pinned Snapshot",
+      "category": "ads",
+      "upstreamUrl": "https://easylist.to/easylist/easylist.txt",
+      "localFile": "vendor/lists/easylist.txt",
+      "license": "GPLv3 / CC BY-SA 3.0",
+      "licenseFile": "licenses/EASYLIST-LICENSE.txt",
+      "attribution": "Copyright (C) EasyList authors and contributors (https://easylist.to)"
+    },
+    {
+      "id": "easyprivacy",
+      "name": "EasyPrivacy Core Pinned Snapshot",
+      "category": "trackers",
+      "upstreamUrl": "https://easylist.to/easylist/easyprivacy.txt",
+      "localFile": "vendor/lists/easyprivacy.txt",
+      "license": "GPLv3 / CC BY-SA 3.0",
+      "licenseFile": "licenses/EASYPRIVACY-LICENSE.txt",
+      "attribution": "Copyright (C) EasyList / EasyPrivacy authors and contributors (https://easylist.to)"
+    },
+    {
+      "id": "peter-lowe",
+      "name": "Peter Lowe's Ad and Tracking Server List",
+      "category": "ads-trackers",
+      "upstreamUrl": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=adblockplus&showintro=0&mimetype=plaintext",
+      "localFile": "vendor/lists/peter-lowe.txt",
+      "license": "CC BY 3.0",
+      "licenseFile": "licenses/PETER-LOWE-LICENSE.txt",
+      "attribution": "Copyright (C) Peter Lowe (pgl@yoyo.org - https://pgl.yoyo.org/adservers/)"
+    },
+    {
+      "id": "annoyances",
+      "name": "Community Annoyances & Cookie Consent List",
+      "category": "annoyances",
+      "upstreamUrl": "https://easylist.to/easylist/fanboy-annoyance.txt",
+      "localFile": "vendor/lists/annoyances.txt",
+      "license": "GPLv3 / CC BY-SA 3.0",
+      "licenseFile": "licenses/EASYLIST-LICENSE.txt",
+      "attribution": "Copyright (C) Fanboy / EasyList contributors (https://easylist.to)"
+    }
+  ]
+}

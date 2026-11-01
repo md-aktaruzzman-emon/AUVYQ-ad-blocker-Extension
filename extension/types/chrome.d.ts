@@ -162,9 +162,10 @@ declare namespace chrome {
     interface InjectionResult { result?: unknown; error?: { message: string }; }
     function executeScript<Args extends unknown[]>(injection: {
       target: ExecutionTarget;
+      files?: string[];
       world?: 'ISOLATED' | 'MAIN';
       injectImmediately?: boolean;
-      func: (...args: Args) => unknown;
+      func?: (...args: Args) => unknown;
       args?: Args;
     }): Promise<InjectionResult[]>;
     function insertCSS(injection: { target: ExecutionTarget; css: string; origin?: 'AUTHOR' | 'USER' }): Promise<void>;
@@ -194,6 +195,8 @@ declare namespace chrome {
   }
 
   namespace cookies {
+    type SameSiteStatus = 'no_restriction' | 'lax' | 'strict' | 'unspecified';
+
     interface Cookie {
       name: string;
       domain: string;
@@ -201,6 +204,10 @@ declare namespace chrome {
       value: string;
       expirationDate?: number;
       secure?: boolean;
+      httpOnly?: boolean;
+      sameSite?: SameSiteStatus;
+      hostOnly?: boolean;
+      session?: boolean;
       storeId?: string;
     }
     interface CookieChangeInfo {
@@ -208,7 +215,20 @@ declare namespace chrome {
       cookie: Cookie;
       cause?: string;
     }
+    interface SetDetails {
+      url: string;
+      name: string;
+      value?: string;
+      domain?: string;
+      path?: string;
+      secure?: boolean;
+      httpOnly?: boolean;
+      sameSite?: SameSiteStatus;
+      storeId?: string;
+      expirationDate?: number;
+    }
     function getAll(details: { url?: string; domain?: string }): Promise<Cookie[]>;
+    function set(details: SetDetails): Promise<Cookie | null>;
     function remove(details: { url?: string; name: string; domain?: string; path?: string; storeId?: string }): Promise<void>;
     const onChanged: Event<(changeInfo: CookieChangeInfo) => void>;
   }

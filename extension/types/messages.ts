@@ -33,6 +33,8 @@ export type RpcRequest =
   | { type: 'GET_SETTINGS' }
   | { type: 'SET_SETTINGS'; patch: Partial<Settings> }
   | { type: 'GET_SITE_REPORT'; host?: string }
+  | { type: 'GET_PRIVACY_REPORT'; host?: string }
+  | { type: 'SWEEP_COOKIES' }
   | { type: 'SET_SITE_PAUSED'; host: string; paused: boolean }
   | { type: 'GET_DISPATCH'; host: string }
   | { type: 'GET_COSMETIC'; host: string }
@@ -48,8 +50,20 @@ export type RpcRequest =
   | { type: 'GET_DIAGNOSTICS' }
   | { type: 'SET_ONBOARDING_DONE'; done?: boolean }
   | { type: 'CHECK_LOGIN_FORMS'; pageOrigin: string; forms: { actionOrigin: string; hasPasswordField: boolean }[] }
-  | { type: 'THREAT_ACTION'; tabId: number; action: 'leave' | 'block' | 'continue' }
-  | { type: 'GET_TAB_STATE'; tabId: number };
+  | { type: 'THREAT_ACTION'; tabId?: number; action: 'leave' | 'block' | 'continue' | 'allowlist' | 'report_false_positive' }
+  | { type: 'REPORT_FALSE_POSITIVE'; tabId?: number }
+  | { type: 'GET_TAB_STATE'; tabId: number }
+  | { type: 'GET_CUSTOM_RULES' }
+  | { type: 'ADD_CUSTOM_RULE'; ruleType?: 'cosmetic' | 'network'; rawText: string; domain?: string }
+  | { type: 'UPDATE_CUSTOM_RULE'; id: string; enabled?: boolean; rawText?: string }
+  | { type: 'DELETE_CUSTOM_RULE'; id: string }
+  | { type: 'IMPORT_CUSTOM_RULES'; payload: string }
+  | { type: 'EXPORT_CUSTOM_RULES'; format?: 'text' | 'json' }
+  | { type: 'START_ELEMENT_PICKER'; tabId?: number }
+  | { type: 'GET_AI_STATUS' }
+  | { type: 'ANALYZE_URL_INTELLIGENCE'; url: string }
+  | { type: 'GET_AI_EXPLANATION'; host: string; risk?: RiskResult }
+  | { type: 'GET_AI_PRIVACY_ADVICE'; host: string };
 
 export type RpcHandler = (payload: unknown, sender: chrome.runtime.MessageSender) => Promise<unknown>;
 
@@ -60,5 +74,3 @@ export interface BannerMessage {
   risk: RiskResult;
   host: string;
 }
-
-export type { Settings, Snapshot, ThreatLogEntry };

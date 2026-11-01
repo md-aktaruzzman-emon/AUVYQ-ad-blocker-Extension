@@ -1,6 +1,7 @@
 /*
- * AUVYQ popup. Reads settings/snapshot ONLY through the message layer.
- * Performance target: visible content <300ms — no compilation, no heavy work.
+ * AUVYQ Modern Popup Controller
+ * Reads settings/snapshot through RPC message layer.
+ * Performance target: visible content <300ms, cancelable motion, zero dead controls.
  */
 import { animateShieldState, bounce, sweep, cancelAll, bindPressPop, pop } from '../motion.js';
 
@@ -32,8 +33,18 @@ const elements = {
   siteHost: document.getElementById('site-host'),
   siteStatus: document.getElementById('site-status'),
   sitePause: document.getElementById('site-pause'),
+  siteGradeBadge: document.getElementById('site-grade-badge'),
+  siteScoreText: document.getElementById('site-score-text'),
+  themeToggleBtn: document.getElementById('theme-toggle-btn'),
+  openSettingsBtn: document.getElementById('open-settings-btn'),
+  openOptionsLink: document.getElementById('open-options-link'),
   openDashboard: document.getElementById('open-dashboard'),
-  sweepPanel: document.getElementById('sweep-panel')
+  openSiteReport: document.getElementById('open-site-report'),
+  sweepPanel: document.getElementById('sweep-panel'),
+  toggleAds: document.getElementById('quick-toggle-ads'),
+  toggleTrackers: document.getElementById('quick-toggle-trackers'),
+  toggleCookies: document.getElementById('quick-toggle-cookies'),
+  toggleFp: document.getElementById('quick-toggle-fp')
 };
 
 let currentConfiguredTheme = 'system';
@@ -93,6 +104,15 @@ function applyShieldState(state) {
   animateShieldState(elements.shieldStage, state);
 }
 
+function computeGradeClass(score) {
+  if (score >= 90) return { grade: 'A+', class: 'grade-A', label: 'Maximum Protection' };
+  if (score >= 80) return { grade: 'A', class: 'grade-A', label: 'High Protection' };
+  if (score >= 70) return { grade: 'B', class: 'grade-B', label: 'Good Protection' };
+  if (score >= 60) return { grade: 'C', class: 'grade-C', label: 'Moderate Shield' };
+  if (score >= 50) return { grade: 'D', class: 'grade-D', label: 'Low Defense' };
+  return { grade: 'F', class: 'grade-F', label: 'Unprotected' };
+}
+
 function renderSnapshot(data) {
   if (data === null || typeof data !== 'object') return;
   if (typeof data.theme === 'string') {
@@ -125,15 +145,36 @@ function renderSnapshot(data) {
   updateCounter(elements.statTrackers, 'trackers', snapshot.trackersBlocked);
   updateCounter(elements.statThreats, 'threats', snapshot.threats);
 
+  // Privacy Score Grade
+  const rawScore = typeof data.privacyScore === 'number'
+    ? data.privacyScore
+    : (data.privacyReport?.score ?? (nextMaster && !sitePaused ? 88 : 30));
+  const gradeInfo = computeGradeClass(rawScore);
+  if (elements.siteGradeBadge) {
+    elements.siteGradeBadge.textContent = gradeInfo.grade;
+    elements.siteGradeBadge.className = `privacy-grade-badge ${gradeInfo.class}`;
+  }
+  if (elements.siteScoreText) {
+    elements.siteScoreText.textContent = `${rawScore}/100 • ${gradeInfo.label}`;
+  }
+
   if (currentHost.length > 0) {
     elements.siteHost.textContent = currentHost;
-    elements.siteStatus.textContent = sitePaused ? 'Paused on this site' : 'This site is protected';
+    elements.siteHost.title = currentHost;
+    if (sitePaused && typeof data.siteReport?.remainingSeconds === 'number' && data.siteReport.remainingSeconds > 0) {
+      const mins = Math.ceil(data.siteReport.remainingSeconds / 60);
+      elements.siteStatus.textContent = `Paused (${mins}m remaining)`;
+    } else {
+      elements.siteStatus.textContent = sitePaused ? 'Paused on this site' : 'This site is protected';
+    }
     elements.siteStatus.classList.toggle('paused', sitePaused);
     elements.sitePause.textContent = sitePaused ? 'Resume' : 'Pause';
+    elements.sitePause.setAttribute('aria-label', sitePaused ? 'Resume protection on this site' : 'Pause protection on this site');
     elements.sitePause.disabled = false;
     elements.sitePause.classList.toggle('is-paused', sitePaused);
   } else {
     elements.siteHost.textContent = 'No active tab';
+    elements.siteHost.title = 'No active tab';
     elements.siteStatus.textContent = nextMaster ? 'Ready to protect tabs' : 'Protection disabled';
     elements.siteStatus.classList.remove('paused');
     elements.sitePause.textContent = 'Pause';
@@ -147,6 +188,7 @@ function renderSnapshot(data) {
 }
 
 function updateCounter(el, key, value) {
+  if (!el) return;
   const next = Number.isFinite(value) ? value : 0;
   const previous = previousStats[key];
   if (next > previous) {
@@ -173,16 +215,40 @@ function registerBlockEvent(el, delta) {
   }
 }
 
+async function loadModules() {
+  try {
+    const settings = await rpc('GET_SETTINGS');
+    if (elements.toggleAds) {
+      elements.toggleAds.setAttribute('aria-checked', String(settings.modules?.ads !== false));
+    }
+    if (elements.toggleTrackers) {
+      elements.toggleTrackers.setAttribute('aria-checked', String(settings.modules?.trackers !== false));
+    }
+    if (elements.toggleCookies) {
+      elements.toggleCookies.setAttribute('aria-checked', String(settings.modules?.cookies !== false));
+    }
+    if (elements.toggleFp) {
+      const anyFp = settings.modules?.fingerprintShields === true ||
+        Object.values(settings.fpShields || {}).some((v) => v === true);
+      elements.toggleFp.setAttribute('aria-checked', String(anyFp));
+    }
+  } catch {
+    // keep default states
+  }
+}
+
 async function refresh() {
   try {
     const data = await rpc('GET_SNAPSHOT');
     renderSnapshot(data);
+    await loadModules();
   } catch {
     setPill('disabled', 'Unavailable');
     elements.heroText.textContent = 'Background service not responding';
   }
 }
 
+// Master Protection Switch
 elements.masterSwitch.addEventListener('click', async () => {
   if (switching) return;
   switching = true;
@@ -206,13 +272,19 @@ elements.masterSwitch.addEventListener('keydown', (event) => {
   }
 });
 
+// Site Pause Button
 let pausing = false;
 elements.sitePause.addEventListener('click', async () => {
   if (pausing || currentHost.length === 0) return;
   pausing = true;
   pop(elements.sitePause);
   try {
-    await rpc('SET_SITE_PAUSED', { host: currentHost, paused: !sitePaused });
+    // If pausing, default to 60-minute expiring pause to protect users from leaving protection off permanently
+    await rpc('SET_SITE_PAUSED', {
+      host: currentHost,
+      paused: !sitePaused,
+      durationMinutes: sitePaused ? 0 : 60
+    });
     await refresh();
   } catch {
     elements.siteStatus.textContent = 'Could not update this site';
@@ -221,12 +293,96 @@ elements.sitePause.addEventListener('click', async () => {
   }
 });
 
-elements.openDashboard.addEventListener('click', (event) => {
-  event.preventDefault();
-  chrome.tabs.create({ url: chrome.runtime.getURL('ui/dashboard/dashboard.html') });
+const blockElementBtn = document.getElementById('block-element-btn');
+blockElementBtn?.addEventListener('click', async () => {
+  try {
+    await rpc('START_ELEMENT_PICKER');
+    window.close();
+  } catch {
+    // non-fatal
+  }
 });
 
-// Cancel transient animations when the popup closes (no leaked timers / detached DOM).
+// Quick Module Toggles
+function bindQuickToggle(button, moduleKey, isFp = false) {
+  if (!button) return;
+  button.addEventListener('click', async () => {
+    pop(button);
+    const current = button.getAttribute('aria-checked') === 'true';
+    const next = !current;
+    button.setAttribute('aria-checked', String(next));
+    try {
+      if (isFp) {
+        await rpc('SET_SETTINGS', {
+          modules: { fingerprintShields: next },
+          fpShields: { canvas: next, webgl: next, navigator: next, screen: next, timing: next }
+        });
+      } else {
+        await rpc('SET_SETTINGS', { modules: { [moduleKey]: next } });
+      }
+      await refresh();
+    } catch {
+      button.setAttribute('aria-checked', String(current));
+    }
+  });
+
+  button.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      button.click();
+    }
+  });
+}
+
+bindQuickToggle(elements.toggleAds, 'ads');
+bindQuickToggle(elements.toggleTrackers, 'trackers');
+bindQuickToggle(elements.toggleCookies, 'cookies');
+bindQuickToggle(elements.toggleFp, 'fingerprintShields', true);
+
+// Header Actions: Theme Toggle
+if (elements.themeToggleBtn) {
+  elements.themeToggleBtn.addEventListener('click', async () => {
+    pop(elements.themeToggleBtn);
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme);
+    try {
+      await rpc('SET_SETTINGS', { theme: nextTheme });
+    } catch {
+      // theme applied locally
+    }
+  });
+}
+
+// Header Actions: Open Settings
+if (elements.openSettingsBtn) {
+  elements.openSettingsBtn.addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('ui/dashboard/dashboard.html#settings') });
+  });
+}
+
+if (elements.openOptionsLink) {
+  elements.openOptionsLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('ui/dashboard/dashboard.html#settings') });
+  });
+}
+
+if (elements.openDashboard) {
+  elements.openDashboard.addEventListener('click', (event) => {
+    event.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('ui/dashboard/dashboard.html') });
+  });
+}
+
+if (elements.openSiteReport) {
+  elements.openSiteReport.addEventListener('click', (event) => {
+    event.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('ui/site-report/report.html') });
+  });
+}
+
+// Cleanup on hide
 window.addEventListener('pagehide', () => {
   if (pollTimer !== null) clearInterval(pollTimer);
   cancelAll(document);

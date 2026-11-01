@@ -20,7 +20,7 @@ export interface ScriptletDef {
 
 export const SCRIPTLET_LIBRARY: readonly ScriptletDef[] = [
   { name: 'noop-callback', minArgs: 0, maxArgs: 1, argTypes: ['string'], maxArgLength: 128 },
-  { name: 'json-prune-lite', minArgs: 1, maxArgs: 3, argTypes: ['string', 'string', 'number'], maxArgLength: 192, argPattern: /^[A-Za-z0-9_.-]+$/ },
+  { name: 'json-prune-lite', minArgs: 1, maxArgs: 3, argTypes: ['string', 'string', 'number'], maxArgLength: 192, argPattern: /^[A-Za-z0-9_.\s-]+$/ },
   { name: 'set-constant', minArgs: 2, maxArgs: 3, argTypes: ['string', 'string', 'number'], maxArgLength: 192, requiresPropertyPath: [0] },
   { name: 'prevent-addEventListener', minArgs: 1, maxArgs: 2, argTypes: ['string', 'string'], maxArgLength: 96, argPattern: /^[a-z-]+$/i },
   { name: 'prevent-setTimeout', minArgs: 1, maxArgs: 2, argTypes: ['string', 'number'], maxArgLength: 192 },

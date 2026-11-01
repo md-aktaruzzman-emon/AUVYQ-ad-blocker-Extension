@@ -1,0 +1,7 @@
+Peter Lowe's Ad and Tracking Server List
+Source: https://pgl.yoyo.org/adservers/
+Author: Peter Lowe (pgl@yoyo.org)
+Licensed under Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+https://creativecommons.org/licenses/by/3.0/
+
+Compiled for AUVYQ local Declarative Net Request static rulesets.

@@ -14,7 +14,6 @@
   },
   "permissions": [
     "declarativeNetRequest",
-    "declarativeNetRequestFeedback",
     "storage",
     "unlimitedStorage",
     "scripting",
@@ -54,6 +53,13 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content/warning-banner.js"],
+      "run_at": "document_idle",
+      "world": "ISOLATED",
+      "all_frames": false
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/consent-assistant.js"],
       "run_at": "document_idle",
       "world": "ISOLATED",
       "all_frames": false

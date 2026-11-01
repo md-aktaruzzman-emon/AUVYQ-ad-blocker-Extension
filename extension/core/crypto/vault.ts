@@ -13,6 +13,7 @@ export const BACKUP_VERSION = 1;
 export const MAGIC = new Uint8Array([0x41, 0x55, 0x56, 0x59, 0x51, 0x42]); // "AUVYQB"
 
 export const MAX_BACKUP_BYTES = 8 * 1024 * 1024;
+export const MAX_PASSWORD_CHARS = 1024;
 
 export class VaultError extends Error {
   readonly kind: 'format' | 'auth' | 'size' | 'version';
@@ -25,13 +26,20 @@ export class VaultError extends Error {
 
 async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
   const encoder = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(password) as unknown as BufferSource,
-    'PBKDF2',
-    false,
-    ['deriveKey']
-  );
+  const rawPassword = encoder.encode(password);
+  let keyMaterial: CryptoKey;
+  try {
+    keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      rawPassword as unknown as BufferSource,
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+  } finally {
+    // Zero out raw password bytes in memory immediately after key derivation import
+    rawPassword.fill(0);
+  }
   return crypto.subtle.deriveKey(
     { name: 'PBKDF2', salt: salt as unknown as BufferSource, iterations: KDF_ITERATIONS, hash: 'SHA-256' },
     keyMaterial,
@@ -86,6 +94,7 @@ function readUint64(bytes: Uint8Array, offset: number): number {
 
 export async function encryptBackup(plaintextJson: string, password: string, meta: BackupMeta): Promise<Uint8Array> {
   if (password.length < 8) throw new VaultError('format', 'password must be at least 8 characters');
+  if (password.length > MAX_PASSWORD_CHARS) throw new VaultError('format', 'password must not exceed 1024 characters');
   if (plaintextJson.length > MAX_BACKUP_BYTES) throw new VaultError('size', 'backup payload too large');
 
   const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
@@ -97,9 +106,15 @@ export async function encryptBackup(plaintextJson: string, password: string, met
   const metaBytes = encoder.encode(metaJson);
   const plaintext = encoder.encode(plaintextJson);
 
-  const ciphertext = new Uint8Array(
-    await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv as unknown as BufferSource }, key, plaintext as unknown as BufferSource)
-  );
+  let ciphertext: Uint8Array;
+  try {
+    ciphertext = new Uint8Array(
+      await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv as unknown as BufferSource }, key, plaintext as unknown as BufferSource)
+    );
+  } finally {
+    // Zero out sensitive plaintext memory
+    plaintext.fill(0);
+  }
 
   const total =
     MAGIC.length + 1 + 2 + SALT_BYTES + 2 + IV_BYTES + 4 + metaBytes.length + 8 + ciphertext.length;
@@ -135,6 +150,7 @@ export interface DecryptedBackup {
 }
 
 export async function decryptBackup(blob: Uint8Array, password: string): Promise<DecryptedBackup> {
+  if (password.length > MAX_PASSWORD_CHARS) throw new VaultError('format', 'password must not exceed 1024 characters');
   if (blob.byteLength > MAX_BACKUP_BYTES) throw new VaultError('size', 'backup too large');
   if (blob.byteLength < MAGIC.length + 1 + 2 + SALT_BYTES + 2 + IV_BYTES + 4 + 8) {
     throw new VaultError('format', 'backup truncated');

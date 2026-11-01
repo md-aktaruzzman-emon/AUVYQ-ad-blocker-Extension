@@ -1,0 +1,31 @@
+{
+  "version": "2026.11.01",
+  "compiledAt": "2026-11-01T10:35:51.169Z",
+  "engine": "AUVYQ-Declarative-Compiler/3.0.0",
+  "statistics": {
+    "totalParsedLines": 989,
+    "totalCompiledDnrRules": 815,
+    "staticRulesets": {
+      "rules/easylist.json": 634,
+      "rules/easyprivacy.json": 102,
+      "rules/annoyances.json": 21,
+      "rules/main.json": 48,
+      "rules/ads-trackers.json": 10
+    },
+    "cosmeticSelectors": {
+      "total": 137,
+      "genericUnique": 126,
+      "scopedDomains": 1
+    },
+    "scriptletRules": 4,
+    "duplicatesEliminated": 91,
+    "unsupportedSkipped": 0,
+    "unsupportedBreakdown": {}
+  },
+  "sources": {
+    "easylist.txt": "87fbbbcfe8899ccdf25b205afd987169afd7c4d69d68837925ee6056d2a7dd89",
+    "peter-lowe.txt": "3cfeaebfffcf9940f13593875b18ca86e510f321ef4459626e0e5f903fac7f9d",
+    "easyprivacy.txt": "f74207e762acc9e1eb5e16100ff20386ec09bd01269940b5c763e836d1d8569f",
+    "annoyances.txt": "3bcd17187adfb4f42d0c2e21b84c61eb9a64b5359f6edc519db2590f0c618fcd"
+  }
+}

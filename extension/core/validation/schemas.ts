@@ -76,6 +76,15 @@ export function validateSettings(value: unknown): Valid<Settings> {
     if (!isRecord(entry) || typeof entry['paused'] !== 'boolean' || !isStringArray(entry['allowlist'], 32, 253)) {
       return fail('settings: bad perSite entry');
     }
+    if (entry['pausedUntil'] !== undefined && entry['pausedUntil'] !== null && (!isFiniteNumber(entry['pausedUntil']) || entry['pausedUntil'] < 0)) {
+      return fail('settings: bad pausedUntil');
+    }
+    if (entry['disableCookieAssistant'] !== undefined && typeof entry['disableCookieAssistant'] !== 'boolean') {
+      return fail('settings: bad disableCookieAssistant');
+    }
+  }
+  if (value['autoDeclineCookies'] !== undefined && typeof value['autoDeclineCookies'] !== 'boolean') {
+    return fail('settings: bad autoDeclineCookies');
   }
   const fpShields = value['fpShields'];
   if (!isRecord(fpShields)) return fail('settings: bad fpShields');
@@ -127,7 +136,7 @@ export function validateThreatLogEntry(value: unknown): Valid<ThreatLogEntry> {
   }
   if (typeof value['host'] !== 'string' || value['host'].length > 253) return fail('threat entry: bad host');
   if (typeof value['reason'] !== 'string' || value['reason'].length > 200) return fail('threat entry: bad reason');
-  if (!['warned', 'left', 'blocked', 'continued'].includes(value['action'] as string)) {
+  if (!['warned', 'left', 'blocked', 'continued', 'allowlisted', 'reported'].includes(value['action'] as string)) {
     return fail('threat entry: bad action');
   }
   return ok(value as unknown as ThreatLogEntry);
@@ -245,6 +254,37 @@ export function validateTabThreatState(value: unknown): Valid<TabThreatState> {
     return fail('tab state: bad stage');
   }
   return ok(value as unknown as TabThreatState);
+}
+
+export function validateCustomRuleRecord(value: unknown): Valid<{
+  id: string;
+  type: 'cosmetic' | 'network';
+  rawText: string;
+  domain?: string;
+  enabled: boolean;
+  createdAt: number;
+}> {
+  if (!isRecord(value)) return fail('custom rule: not an object');
+  if (typeof value['id'] !== 'string' || value['id'].length === 0 || value['id'].length > 64) {
+    return fail('custom rule: bad id');
+  }
+  if (value['type'] !== 'cosmetic' && value['type'] !== 'network') return fail('custom rule: bad type');
+  if (typeof value['rawText'] !== 'string' || value['rawText'].length === 0 || value['rawText'].length > LIMITS.selectorChars) {
+    return fail('custom rule: bad rawText');
+  }
+  if (value['domain'] !== undefined && (typeof value['domain'] !== 'string' || value['domain'].length > 253)) {
+    return fail('custom rule: bad domain');
+  }
+  if (typeof value['enabled'] !== 'boolean') return fail('custom rule: bad enabled');
+  if (!isFiniteNumber(value['createdAt'])) return fail('custom rule: bad createdAt');
+  return ok(value as unknown as {
+    id: string;
+    type: 'cosmetic' | 'network';
+    rawText: string;
+    domain?: string;
+    enabled: boolean;
+    createdAt: number;
+  });
 }
 
 export function validateHostnameInput(value: unknown): Valid<string> {

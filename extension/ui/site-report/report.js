@@ -146,6 +146,32 @@ async function load() {
     list.appendChild(empty);
   }
   stagger(list);
+  void renderAiIntelligence(host, data.risk);
+}
+
+async function renderAiIntelligence(siteHost, risk) {
+  try {
+    const aiData = await rpc('GET_AI_EXPLANATION', { host: siteHost, risk });
+    if (aiData) {
+      const headlineEl = $('ai-headline-text');
+      const explanationEl = $('ai-explanation-text');
+      const guidanceEl = $('ai-guidance-text');
+      const metaEl = $('ai-meta-source');
+      if (headlineEl) headlineEl.textContent = aiData.headline || '';
+      if (explanationEl) explanationEl.textContent = aiData.explanation || '';
+      if (guidanceEl) guidanceEl.textContent = aiData.guidance || '';
+      if (metaEl) {
+        metaEl.textContent = aiData.source === 'chrome-gemini-nano'
+          ? 'Generated locally via Chrome Gemini Nano (Prompt API) • 0 bytes sent externally'
+          : 'Generated locally via AUVYQ Deterministic Intelligence • 0 bytes sent externally';
+      }
+    }
+  } catch {
+    const headlineEl = $('ai-headline-text');
+    const explanationEl = $('ai-explanation-text');
+    if (headlineEl) headlineEl.textContent = 'On-Device Analysis Active';
+    if (explanationEl) explanationEl.textContent = 'AUVYQ continuously monitors this domain for deceptive structures and tracking attempts.';
+  }
 }
 
 $('site-toggle').addEventListener('click', () => {

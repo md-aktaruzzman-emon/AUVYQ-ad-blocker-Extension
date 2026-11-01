@@ -1,24 +1,67 @@
 /*
- * Tier-1 deterministic threat heuristics: homoglyphs, typosquatting, redirect chains,
- * foreign-origin login detection. Pure functions -> RiskResult. No ML claims.
+ * Tier-1 deterministic threat heuristics: homoglyphs, typosquatting, brand impersonation,
+ * structure anomalies, redirect chains, foreign-origin login detection, and local threat intel.
+ * Pure functions -> RiskResult. No fake ML claims.
  */
-import type { RiskResult, RiskSeverity, DomFeatures } from '../../types/schemas.js';
+import type { RiskResult, RiskSeverity, DomFeatures, ThreatSignal } from '../../types/schemas.js';
 import { normalizeHostname, registrableDomain } from '../domain/normalize.js';
 import topDomains from '../../data/top-domains.json';
+import { checkMaliciousIntelligence } from '../threat-intelligence/intel.js';
 
 const TOP_DOMAINS: readonly string[] = topDomains;
 
-const RISKY_TLDS = new Set([
-  'zip', 'mov', 'top', 'xyz', 'click', 'country', 'kim', 'work', 'loan', 'men', 'party', 'review', 'stream', 'gq', 'cf', 'tk', 'ml'
+export const RISKY_TLDS = new Set([
+  'zip', 'mov', 'top', 'xyz', 'click', 'country', 'kim', 'work', 'loan', 'men', 'party', 'review', 'stream', 'gq', 'cf', 'tk', 'ml', 'date', 'bid'
 ]);
 
-const HOMOGLYPH_RANGES: [number, number][] = [
+export const HOMOGLYPH_RANGES: [number, number][] = [
   [0x0400, 0x04FF], // Cyrillic
   [0x0370, 0x03FF], // Greek
   [0x0530, 0x058F], // Armenian
   [0x0590, 0x05FF], // Hebrew
   [0x0600, 0x06FF]  // Arabic
 ];
+
+// High-value target brands frequently targeted in phishing & credential theft
+export const PROTECTED_BRANDS: Record<string, string[]> = {
+  paypal: ['paypal.com', 'paypal.me'],
+  apple: ['apple.com', 'icloud.com'],
+  google: ['google.com', 'google.co.uk', 'youtube.com', 'gmail.com'],
+  microsoft: ['microsoft.com', 'live.com', 'office.com', 'outlook.com', 'microsoftonline.com', 'login.microsoftonline.com'],
+  amazon: ['amazon.com', 'amazon.co.uk', 'amazon.de', 'aws.amazon.com'],
+  netflix: ['netflix.com'],
+  chase: ['chase.com'],
+  bankofamerica: ['bankofamerica.com'],
+  wellsfargo: ['wellsfargo.com'],
+  citi: ['citi.com', 'citigroup.com'],
+  capitalone: ['capitalone.com'],
+  binance: ['binance.com'],
+  coinbase: ['coinbase.com'],
+  kraken: ['kraken.com'],
+  metamask: ['metamask.io'],
+  ledger: ['ledger.com'],
+  trezor: ['trezor.io'],
+  trustwallet: ['trustwallet.com'],
+  steam: ['steampowered.com', 'steamcommunity.com'],
+  facebook: ['facebook.com', 'meta.com'],
+  instagram: ['instagram.com'],
+  twitter: ['twitter.com', 'x.com'],
+  discord: ['discord.com', 'discord.gg'],
+  telegram: ['telegram.org', 't.me'],
+  dhl: ['dhl.com'],
+  fedex: ['fedex.com'],
+  ups: ['ups.com'],
+  usps: ['usps.com'],
+  dropbox: ['dropbox.com'],
+  adobe: ['adobe.com']
+};
+
+export const AUTH_ACTION_KEYWORDS = new Set([
+  'login', 'signin', 'sign-in', 'log-in', 'verify', 'verification',
+  'security', 'account', 'authenticate', 'wallet', 'recover', 'recovery',
+  'restore', 'update', 'billing', 'invoice', 'password', 'credential',
+  'confirm', 'confirmation', 'unlock', 'support', 'helpdesk', 'validate'
+]);
 
 function severityFor(score: number): RiskSeverity {
   if (score >= 85) return 'malicious';
@@ -28,13 +71,23 @@ function severityFor(score: number): RiskSeverity {
   return 'none';
 }
 
-export function makeRisk(score: number, reasons: string[], confidence: number): RiskResult {
+export function makeRisk(
+  score: number,
+  reasons: string[],
+  confidence: number,
+  threatType: 'confirmed' | 'heuristic' = 'heuristic',
+  threatSource?: string,
+  signals?: ThreatSignal[]
+): RiskResult {
   const clamped = Math.min(100, Math.max(0, Math.round(score)));
   return {
     score: clamped,
     severity: severityFor(clamped),
     reasons: reasons.slice(0, 16),
-    confidence: Math.min(1, Math.max(0, confidence))
+    confidence: Math.min(1, Math.max(0, confidence)),
+    threatType,
+    threatSource,
+    signals
   };
 }
 
@@ -73,6 +126,158 @@ export function detectDeceptiveSubdomain(hostname: string): { suspicious: boolea
     }
   }
   return { suspicious: false };
+}
+
+// ---------------------------------------------------------------------------
+// Brand Impersonation & Phishing Pattern Detection
+// ---------------------------------------------------------------------------
+
+export interface BrandImpersonationResult {
+  suspicious: boolean;
+  brand?: string;
+  actionKeyword?: string;
+  score: number;
+  reason?: string;
+}
+
+export function detectBrandKeywordImpersonation(urlStr: string, hostname: string): BrandImpersonationResult {
+  const host = normalizeHostname(hostname);
+  if (host.length === 0 || /^\d+\.\d+\.\d+\.\d+$/.test(host) || host.includes(':')) {
+    return { suspicious: false, score: 0 };
+  }
+
+  const base = registrableDomain(host);
+  const hostLabels = host.split('.');
+  const baseLabels = base.split('.');
+  const primaryBaseLabel = baseLabels[0] ?? '';
+
+  // Extract path and query tokens
+  let pathAndQuery = '';
+  try {
+    const parsed = new URL(urlStr);
+    pathAndQuery = `${parsed.pathname} ${parsed.search}`.toLowerCase();
+  } catch {
+    // retain empty
+  }
+
+  for (const [brand, authoritativeDomains] of Object.entries(PROTECTED_BRANDS)) {
+    // Check if the current domain is legitimately owned by or authoritative for this brand
+    const isAuthoritative = authoritativeDomains.some(
+      (auth) => base === auth || base.endsWith(`.${auth}`) || host === auth || host.endsWith(`.${auth}`)
+    );
+    if (isAuthoritative) continue;
+
+    // Check if brand name appears as a discrete label or token in the host
+    // (Boundary check ensures 'pineapple.com' or 'grapple.com' does not match 'apple')
+    const brandMatchesInHost = hostLabels.some(
+      (lbl) => lbl === brand || lbl.startsWith(`${brand}-`) || lbl.endsWith(`-${brand}`) || lbl.includes(`-${brand}-`)
+    );
+
+    if (brandMatchesInHost) {
+      // Find corroborating auth/action keywords in host or path
+      let matchedKeyword = '';
+      for (const kw of AUTH_ACTION_KEYWORDS) {
+        if (
+          primaryBaseLabel.includes(kw) ||
+          host.includes(kw) ||
+          pathAndQuery.includes(kw)
+        ) {
+          matchedKeyword = kw;
+          break;
+        }
+      }
+
+      if (matchedKeyword.length > 0) {
+        return {
+          suspicious: true,
+          brand,
+          actionKeyword: matchedKeyword,
+          score: 70,
+          reason: `Domain impersonates ${brand} with action keyword "${matchedKeyword}" on an unauthorized domain (${base})`
+        };
+      }
+
+      // If the brand is the primary label of an unauthorized domain (e.g. paypal-portal.com or apple-device.net)
+      if (primaryBaseLabel.includes(brand) && primaryBaseLabel !== brand) {
+        return {
+          suspicious: true,
+          brand,
+          score: 50,
+          reason: `Domain uses lookalike brand identifier "${brand}" on an unauthorized registration (${base})`
+        };
+      }
+    }
+  }
+
+  return { suspicious: false, score: 0 };
+}
+
+// ---------------------------------------------------------------------------
+// Domain Structure Anomalies
+// ---------------------------------------------------------------------------
+
+export interface StructureAnomalyResult {
+  suspicious: boolean;
+  score: number;
+  reasons: string[];
+}
+
+function isPrivateIp(ip: string): boolean {
+  if (ip === '127.0.0.1' || ip === '::1' || ip === 'localhost') return true;
+  const parts = ip.split('.').map(Number);
+  if (parts.length === 4) {
+    if (parts[0] === 10) return true;
+    if (parts[0] === 172 && (parts[1] ?? 0) >= 16 && (parts[1] ?? 0) <= 31) return true;
+    if (parts[0] === 192 && parts[1] === 168) return true;
+    if (parts[0] === 169 && parts[1] === 254) return true;
+  }
+  return false;
+}
+
+export function detectDomainStructureAnomalies(urlStr: string, hostname: string): StructureAnomalyResult {
+  const reasons: string[] = [];
+  let score = 0;
+  const host = normalizeHostname(hostname);
+
+  // 1. Raw Public IP Address as Hostname
+  const isIpv4 = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host);
+  if (isIpv4 && !isPrivateIp(host)) {
+    const hasLoginContext = /login|signin|password|verify|account|wallet/i.test(urlStr);
+    score += hasLoginContext ? 45 : 25;
+    reasons.push(`Website host is a raw public IP address (${host}) rather than a registered domain`);
+  }
+
+  // 2. Embedded Credentials / Userinfo Exploit (e.g. https://google.com@evil.com)
+  try {
+    const parsed = new URL(urlStr);
+    if (parsed.username.length > 0 || parsed.password.length > 0) {
+      score += 55;
+      reasons.push('URL contains embedded user credentials or deceptive userinfo prefix (@) before hostname');
+    }
+  } catch {
+    // retain
+  }
+
+  // 3. Excessive Hyphenation (3+ hyphens typical of disposable phishing kit domains)
+  const base = registrableDomain(host);
+  const hyphenCount = (base.match(/-/g) ?? []).length;
+  if (hyphenCount >= 3) {
+    score += 20;
+    reasons.push(`Domain contains excessive hyphenation (${hyphenCount} hyphens), typical of disposable phishing kits`);
+  }
+
+  // 4. Excessive Subdomain Depth (4+ subdomains on an unknown non-top domain)
+  const labels = host.split('.');
+  if (labels.length >= 5 && !isIpv4 && !TOP_DOMAINS.includes(base) && !KNOWN_LEGITIMATE_DOMAINS.has(base)) {
+    score += 20;
+    reasons.push(`Hostname uses deeply nested subdomains (${labels.length} levels) to obscure the true domain`);
+  }
+
+  return {
+    suspicious: score > 0,
+    score,
+    reasons
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -243,7 +448,7 @@ const SSO_IDP_PROVIDERS = new Set([
   'supabase.co'
 ]);
 
-function isKnownSsoProvider(hostname: string): boolean {
+export function isKnownSsoProvider(hostname: string): boolean {
   const norm = normalizeHostname(hostname);
   const reg = registrableDomain(norm);
   if (SSO_IDP_PROVIDERS.has(norm) || SSO_IDP_PROVIDERS.has(reg)) return true;
@@ -293,57 +498,134 @@ export function detectForeignLogin(pageOrigin: string, forms: LoginFormInput[]):
 }
 
 // ---------------------------------------------------------------------------
-// Aggregate assessment
+// Aggregate Threat Assessment Engine
 // ---------------------------------------------------------------------------
 
 export interface HeuristicInput extends DomFeatures {}
 
 export function assessThreat(input: HeuristicInput): RiskResult {
-  const reasons: string[] = [];
-  let score = 0;
-  let signals = 0;
-
   const host = normalizeHostname(input.hostname);
+
+  // 1. Check local curated threat intelligence (Abuse.ch URLhaus / verified phishing list)
   if (host.length > 0) {
+    const intel = checkMaliciousIntelligence(host);
+    if (intel.isKnownMalicious) {
+      return makeRisk(
+        95,
+        [`Confirmed malicious domain in verified threat intelligence (${intel.matchedDomain ?? host})`],
+        0.98,
+        'confirmed',
+        intel.source,
+        [{ category: 'threat_intelligence', description: `Listed in verified community threat feed (${intel.source ?? 'URLhaus'})`, weight: 95 }]
+      );
+    }
+  }
+
+  // 2. Corroborating heuristic analysis
+  const reasons: string[] = [];
+  const signals: ThreatSignal[] = [];
+  let score = 0;
+  let strongSignals = 0;
+  let weakSignals = 0;
+
+  if (host.length > 0) {
+    // A. Homoglyph & Punycode lookalike detection
     if (detectHomoglyph(host)) {
       score += 55;
-      signals += 1;
-      reasons.push('Hostname uses look-alike Unicode characters (possible impersonation)');
+      strongSignals += 1;
+      const desc = 'Hostname uses look-alike Unicode characters (possible impersonation)';
+      reasons.push(desc);
+      signals.push({ category: 'homoglyph', description: desc, weight: 55 });
     }
+
+    // B. Typosquatting against top popular domains
     const typo = typosquatCheck(host);
     if (typo.suspicious) {
       score += 50;
-      signals += 1;
-      reasons.push(`Domain closely resembles the popular site ${typo.target}`);
+      strongSignals += 1;
+      const desc = `Domain closely resembles the popular site ${typo.target}`;
+      reasons.push(desc);
+      signals.push({ category: 'typosquat', description: desc, weight: 50 });
     }
+
+    // C. Deceptive Subdomains
     const deceptive = detectDeceptiveSubdomain(host);
     if (deceptive.suspicious && deceptive.target) {
       score += 55;
-      signals += 1;
-      reasons.push(`Deceptive subdomain impersonating ${deceptive.target}`);
+      strongSignals += 1;
+      const desc = `Deceptive subdomain impersonating ${deceptive.target}`;
+      reasons.push(desc);
+      signals.push({ category: 'deceptive_subdomain', description: desc, weight: 55 });
     }
+
+    // D. Brand Impersonation + Auth Keywords
+    const brandImp = detectBrandKeywordImpersonation(input.url, host);
+    if (brandImp.suspicious && brandImp.reason) {
+      score += brandImp.score;
+      strongSignals += 1;
+      reasons.push(brandImp.reason);
+      signals.push({ category: 'brand_impersonation', description: brandImp.reason, weight: brandImp.score });
+    }
+
+    // E. Domain Structure Anomalies
+    const structure = detectDomainStructureAnomalies(input.url, host);
+    if (structure.suspicious) {
+      score += structure.score;
+      if (structure.score >= 40) strongSignals += 1;
+      else weakSignals += 1;
+      reasons.push(...structure.reasons);
+      for (const r of structure.reasons) {
+        signals.push({ category: 'structure_anomaly', description: r, weight: structure.score });
+      }
+    }
+
+    // F. Risky TLDs
     const tld = registrableDomain(host).split('.').pop() ?? '';
     if (RISKY_TLDS.has(tld)) {
       score += 20;
-      signals += 1;
-      reasons.push(`Domain uses a high-risk ending (.${tld})`);
+      weakSignals += 1;
+      const desc = `Domain uses a high-risk ending (.${tld})`;
+      reasons.push(desc);
+      signals.push({ category: 'risky_tld', description: desc, weight: 20 });
     }
   }
 
+  // G. Redirect Chain
   if (input.redirectChain !== undefined && input.redirectChain.length >= 2) {
     const redirect = scoreRedirectChain(input.redirectChain);
     score += redirect.score;
-    signals += redirect.reasons.length > 0 ? 1 : 0;
+    if (redirect.score >= 40) strongSignals += 1;
+    else if (redirect.reasons.length > 0) weakSignals += 1;
     reasons.push(...redirect.reasons);
+    for (const r of redirect.reasons) {
+      signals.push({ category: 'redirect_chain', description: r, weight: redirect.score });
+    }
   }
 
+  // H. Foreign Origin Login Form Submissions
   if (input.loginForms !== undefined && input.pageOrigin !== undefined && input.loginForms.length > 0) {
     const login = detectForeignLogin(input.pageOrigin, input.loginForms);
     score += login.score;
-    signals += login.reasons.length > 0 ? 1 : 0;
+    if (login.score >= 40) strongSignals += 1;
+    else if (login.reasons.length > 0) weakSignals += 1;
     reasons.push(...login.reasons);
+    for (const r of login.reasons) {
+      signals.push({ category: 'foreign_login', description: r, weight: login.score });
+    }
   }
 
-  const confidence = signals === 0 ? 0.5 : Math.min(0.95, 0.6 + signals * 0.12);
-  return makeRisk(score, reasons, confidence);
+  // -------------------------------------------------------------------------
+  // Corroboration Rule: NEVER block on a single weak signal!
+  // If only a single weak signal fired (e.g. only a .xyz TLD), cap score at 20 (low risk).
+  // -------------------------------------------------------------------------
+  if (strongSignals === 0 && weakSignals <= 1) {
+    score = Math.min(20, score);
+  }
+
+  const totalSignals = strongSignals + weakSignals;
+  const confidence = totalSignals === 0
+    ? 0.5
+    : Math.min(0.95, 0.55 + strongSignals * 0.15 + weakSignals * 0.05);
+
+  return makeRisk(score, reasons, confidence, 'heuristic', undefined, signals);
 }

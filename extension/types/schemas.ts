@@ -80,7 +80,13 @@ export interface Settings {
     fingerprintShields: boolean;
     annoyances: boolean;
   };
-  perSite: Record<string, { paused: boolean; allowlist: string[] }>;
+  perSite: Record<string, {
+    paused: boolean;
+    allowlist: string[];
+    pausedUntil?: number | null;
+    disableCookieAssistant?: boolean;
+  }>;
+  autoDeclineCookies?: boolean;
   telemetryOptIn: boolean;
   fpShields: Record<string, boolean>;
   logRetentionDays: 7 | 30;
@@ -90,11 +96,20 @@ export interface Settings {
 
 export type RiskSeverity = 'none' | 'low' | 'medium' | 'high' | 'malicious';
 
+export interface ThreatSignal {
+  category: string;
+  description: string;
+  weight: number;
+}
+
 export interface RiskResult {
   score: number;
   severity: RiskSeverity;
   reasons: string[];
   confidence: number;
+  threatType?: 'confirmed' | 'heuristic';
+  threatSource?: string;
+  signals?: ThreatSignal[];
 }
 
 export interface DomFeatures {
@@ -110,7 +125,7 @@ export interface ThreatLogEntry {
   severity: RiskSeverity;
   host: string;
   reason: string;
-  action: 'warned' | 'left' | 'blocked' | 'continued';
+  action: 'warned' | 'left' | 'blocked' | 'continued' | 'allowlisted' | 'reported';
 }
 
 export interface UpdatePackage {

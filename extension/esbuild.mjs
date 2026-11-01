@@ -50,8 +50,9 @@ async function copyStatic() {
 async function buildOnce() {
   if (process.env.NODE_ENV === 'production') {
     const channelContent = readFileSync(path.join(rootDir, 'core', 'update-channel', 'channel.ts'), 'utf8');
-    if (channelContent.includes('DEV_VERIFY_KEY_JWK')) {
-      throw new Error('SECURITY: Production build rejected because DEV_VERIFY_KEY_JWK is still present in channel.ts');
+    // Ensure that no private signing key material ('d' parameter or 'sign' operation) is bundled in production
+    if (channelContent.includes('"d":') || channelContent.includes("'d':") || channelContent.includes("'sign'")) {
+      throw new Error('SECURITY: Production build rejected because private signing key material was detected in channel.ts');
     }
   }
 

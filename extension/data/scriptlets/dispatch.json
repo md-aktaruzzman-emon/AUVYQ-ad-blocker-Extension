@@ -13,5 +13,21 @@
         "adsCallback"
       ]
     }
+  ],
+  "www.youtube.com": [
+    {
+      "name": "json-prune-lite",
+      "args": [
+        "adPlacements playerAds"
+      ]
+    }
+  ],
+  "youtube.com": [
+    {
+      "name": "json-prune-lite",
+      "args": [
+        "adPlacements playerAds"
+      ]
+    }
   ]
 }

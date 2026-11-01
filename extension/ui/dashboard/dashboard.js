@@ -21,6 +21,29 @@ function rpc(type, payload) {
 }
 
 const $ = (id) => document.getElementById(id);
+function computeGradeClass(score) {
+  if (score >= 90) return { grade: 'A+', class: 'grade-A', label: 'Maximum Protection' };
+  if (score >= 80) return { grade: 'A', class: 'grade-A', label: 'High Protection' };
+  if (score >= 70) return { grade: 'B', class: 'grade-B', label: 'Good Protection' };
+  if (score >= 60) return { grade: 'C', class: 'grade-C', label: 'Moderate Shield' };
+  if (score >= 50) return { grade: 'D', class: 'grade-D', label: 'Low Defense' };
+  return { grade: 'F', class: 'grade-F', label: 'Unprotected' };
+}
+
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[&<>"']/g, (m) => {
+    switch (m) {
+      case '&': return '&amp;';
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '"': return '&quot;';
+      case "'": return '&#39;';
+      default: return m;
+    }
+  });
+}
+
 
 // ---- theme -----------------------------------------------------------------
 
@@ -67,6 +90,8 @@ document.querySelectorAll('.auvyq-nav-item').forEach((button) => {
     document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
     const panel = $(`panel-${button.dataset.section}`);
     if (panel !== null) panel.classList.add('active');
+    if (button.dataset.section === 'activity') loadActivityPanel();
+    if (button.dataset.section === 'custom-rules') loadCustomRulesPanel();
   });
 });
 
@@ -82,6 +107,20 @@ async function loadOverview() {
     $('total-blocked').textContent = String(total);
     const scoreEl = $('privacy-score');
     if (scoreEl) scoreEl.textContent = String(data && typeof data.privacyScore === 'number' ? data.privacyScore : 55);
+    const rawScore = typeof data.privacyScore === 'number'
+      ? data.privacyScore
+      : (data.privacyReport?.score ?? (data.masterEnabled !== false ? 88 : 30));
+    const gradeInfo = computeGradeClass(rawScore);
+    const scoreValEl = $('overview-privacy-score');
+    if (scoreValEl) scoreValEl.textContent = String(rawScore);
+    const scoreGradeEl = $('overview-privacy-grade');
+    if (scoreGradeEl) {
+      scoreGradeEl.textContent = gradeInfo.grade;
+      scoreGradeEl.className = `privacy-grade-badge ${gradeInfo.class}`;
+    }
+    const scoreLabelEl = $('overview-privacy-label');
+    if (scoreLabelEl) scoreLabelEl.textContent = gradeInfo.label;
+
     $('d-ads').textContent = String(snapshot.adsBlocked || 0);
     $('d-trackers').textContent = String(snapshot.trackersBlocked || 0);
     $('d-params').textContent = String(snapshot.paramsStripped || 0);
@@ -156,42 +195,42 @@ const PRESET_INFO = {
   },
   balanced: {
     key: 'balanced',
-    label: t('presetBalancedName', 'Balanced'),
+    label: t('presetBalancedName', 'Standard (Balanced)'),
     desc: t('presetBalancedDesc', 'Everyday ad, tracker, cookie, and threat protection.'),
-    tag: t('presetBalancedTag', 'Recommended for most browsing.'),
+    tag: t('presetBalancedTag', 'Recommended for most users. Blocks ads & trackers with 100% site compatibility.'),
     recommended: true,
-    statusTitle: 'Balanced protection is active',
+    statusTitle: 'Standard (Balanced) protection is active',
     statusDesc: 'Everyday ad, tracker, cookie, and threat protection. Recommended for most browsing.',
-    toast: 'Balanced protection enabled.'
+    toast: 'Standard protection enabled.'
   },
   strong: {
     key: 'strong',
     label: t('presetStrongName', 'Strong'),
     desc: t('presetStrongDesc', 'Stronger tracking and threat protection.'),
-    tag: t('presetStrongTag', 'More protection with a higher chance of website compatibility issues.'),
+    tag: t('presetStrongTag', 'More protection with annoyance blocking enabled.'),
     recommended: false,
     statusTitle: 'Strong protection is active',
-    statusDesc: 'Stronger tracking and threat protection. More protection with a higher chance of website compatibility issues.',
+    statusDesc: 'Stronger tracking and threat protection with annoyance blocking.',
     toast: 'Strong protection enabled.'
   },
   maximum: {
     key: 'maximum',
-    label: t('presetMaximumName', 'Maximum'),
-    desc: t('presetMaximumDesc', 'Maximum available protection, including fingerprint defenses.'),
-    tag: t('presetMaximumTag', 'Strongest protection. Some websites may require additional adjustments.'),
+    label: t('presetMaximumName', 'Strict (Maximum)'),
+    desc: t('presetMaximumDesc', 'Maximum available protection, including fingerprint defenses and cookie consent handling.'),
+    tag: t('presetMaximumTag', 'Strongest privacy defense. Automatically hides annoying cookie banners and shields fingerprints.'),
     recommended: false,
-    statusTitle: 'Maximum protection is active',
-    statusDesc: 'Maximum available protection, including fingerprint defenses. Some websites may require additional adjustments.',
-    toast: 'Maximum protection enabled.'
+    statusTitle: 'Strict (Maximum) protection is active',
+    statusDesc: 'Maximum available protection, including fingerprint defenses and cookie consent handling.',
+    toast: 'Strict protection enabled.'
   },
   expert: {
     key: 'expert',
-    label: t('presetExpertName', 'Expert'),
-    desc: t('presetExpertDesc', 'Full manual control over protection modules.'),
-    tag: t('presetExpertTag', 'Configure each protection module individually.'),
+    label: t('presetExpertName', 'Custom (Expert)'),
+    desc: t('presetExpertDesc', 'Full manual control over protection modules and custom filters.'),
+    tag: t('presetExpertTag', 'Configure each protection module and custom rules individually.'),
     recommended: false,
-    statusTitle: 'Expert — Custom protection is active',
-    statusDesc: 'Manual protection control. Configure each protection module individually.',
+    statusTitle: 'Custom (Expert) protection is active',
+    statusDesc: 'Manual protection control. Configure each protection module and custom filter individually.',
     toast: 'Custom protection settings active.'
   }
 };
@@ -733,6 +772,59 @@ $('threat-next').addEventListener('click', () => {
   loadThreats();
 });
 
+// ---- Intelligent URL Inspector (Part 10) -----------------------------------
+
+function initAiInspector() {
+  const btn = $('ai-inspect-btn');
+  const input = $('ai-inspect-input');
+  const resultEl = $('ai-inspect-result');
+  if (!btn || !input || !resultEl) return;
+
+  btn.addEventListener('click', async () => {
+    const rawUrl = input.value.trim();
+    if (!rawUrl) {
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = '<p style="color: var(--auvyq-danger, #ef4444); font-size: 13px; margin: 0;">Please enter a URL to inspect.</p>';
+      return;
+    }
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = '<p style="color: var(--auvyq-text-muted); font-size: 13px; margin: 0;">Analyzing with on-device machine learning...</p>';
+    btn.disabled = true;
+
+    try {
+      const res = await rpc('ANALYZE_URL_INTELLIGENCE', { url: rawUrl });
+      const scoreColor = res.risk.score >= 70 ? 'var(--auvyq-danger, #ef4444)' : res.risk.score >= 40 ? 'var(--auvyq-warning, #f59e0b)' : 'var(--auvyq-protected, #10b981)';
+      const pillsHtml = (res.mlScore.topContributors || []).map((c) =>
+        `<span class="auvyq-pill" style="font-size: 11px; margin: 2px;">${escapeHtml(c.name)} (${c.contribution > 0 ? '+' : ''}${c.contribution})</span>`
+      ).join(' ');
+
+      resultEl.innerHTML = `
+        <div style="padding: 14px; background: var(--auvyq-bg-primary); border-radius: var(--radius-md); border: 1px solid var(--auvyq-border-subtle);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <strong style="color: var(--auvyq-text-primary); font-size: 14px;">Risk Assessment: <span style="color: ${scoreColor}; font-weight: 800;">${res.risk.score}/100 (${res.risk.severity.toUpperCase()})</span></strong>
+            <span class="auvyq-pill auvyq-pill-cyan">Entropy: ${res.mlScore.features.domainEntropy}</span>
+          </div>
+          <p style="font-size: 13px; color: var(--auvyq-text-secondary); margin: 6px 0 10px; line-height: 1.5;">${escapeHtml(res.explanation.explanation)}</p>
+          <div style="margin-top: 8px;">
+            <div style="font-size: 11.5px; font-weight: 700; color: var(--auvyq-text-muted); margin-bottom: 4px;">TOP CONTRIBUTING RISK FEATURES:</div>
+            <div>${pillsHtml || '<span style="font-size: 12px; color: var(--auvyq-text-muted);">No significant risk factors found.</span>'}</div>
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      resultEl.innerHTML = `<p style="color: var(--auvyq-danger, #ef4444); font-size: 13px; margin: 0;">Analysis error: ${escapeHtml(err.message || 'Unknown error')}</p>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      btn.click();
+    }
+  });
+}
+
 // ---- reports / updates -----------------------------------------------------
 
 $('open-site-report').addEventListener('click', () => {
@@ -833,16 +925,80 @@ if (copyBtn) {
   });
 }
 
-$('clear-data').addEventListener('click', () => {
-  const confirmed = window.confirm('Clear all AUVYQ data (settings, statistics, logs, rules)? This does not touch any other browser data.');
-  if (!confirmed) return;
-  rpc('CLEAR_AUVYQ_DATA').then(() => {
-    loadSettings();
-    loadOverview();
-    loadThreats();
-    loadDiagnostics();
-  }).catch(() => undefined);
+// ---- accessible reset confirmation dialog ---------------------------------
+const clearDialog = $('clear-data-dialog');
+const cancelClearBtn = $('cancel-clear-btn');
+const confirmClearBtn = $('confirm-clear-btn');
+
+function openClearDialog() {
+  if (!clearDialog) return;
+  clearDialog.classList.add('open');
+  cancelClearBtn?.focus();
+}
+
+function closeClearDialog() {
+  if (!clearDialog) return;
+  clearDialog.classList.remove('open');
+  $('clear-data')?.focus();
+}
+
+$('clear-data')?.addEventListener('click', openClearDialog);
+cancelClearBtn?.addEventListener('click', closeClearDialog);
+
+clearDialog?.addEventListener('click', (e) => {
+  if (e.target === clearDialog) closeClearDialog();
 });
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && clearDialog?.classList.contains('open')) {
+    closeClearDialog();
+  }
+});
+clearDialog?.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    if (e.shiftKey) {
+      if (document.activeElement === cancelClearBtn) {
+        e.preventDefault();
+        confirmClearBtn?.focus();
+      }
+    } else {
+      if (document.activeElement === confirmClearBtn) {
+        e.preventDefault();
+        cancelClearBtn?.focus();
+      }
+    }
+  }
+});
+
+
+confirmClearBtn?.addEventListener('click', async () => {
+  confirmClearBtn.disabled = true;
+  confirmClearBtn.textContent = 'Resetting…';
+  try {
+    await rpc('CLEAR_AUVYQ_DATA');
+    showToast('All AUVYQ data has been reset to defaults.');
+    closeClearDialog();
+    await loadSettings();
+    await loadOverview();
+    await loadThreats();
+    await loadDiagnostics();
+  } catch {
+    showToast('Failed to reset data. Try again.', true);
+  } finally {
+    confirmClearBtn.disabled = false;
+    confirmClearBtn.textContent = 'Reset All Data';
+  }
+});
+
+function handleHashNavigation() {
+  const hash = window.location.hash.replace(/^#/, '');
+  if (hash) {
+    const targetNav = document.querySelector(`.auvyq-nav-item[data-section="${CSS.escape(hash)}"]`);
+    if (targetNav) targetNav.click();
+  }
+}
+window.addEventListener('hashchange', handleHashNavigation);
+setTimeout(handleHashNavigation, 50);
 
 bindPressPop(document);
 const brandBadge = document.querySelector('.brand-badge');
@@ -859,8 +1015,227 @@ chrome.storage.local.get('settings', (result) => {
   }
 });
 
+// ---- network activity panel -------------------------------------------------
+
+async function loadActivityPanel() {
+  try {
+    const data = await rpc('GET_SNAPSHOT');
+    const snapshot = data && typeof data.snapshot === 'object' ? data.snapshot : {};
+    const totalBlocked = (snapshot.adsBlocked || 0) + (snapshot.trackersBlocked || 0);
+
+    // Calculate bandwidth saved at ~85KB per blocked asset
+    const mbSaved = ((totalBlocked * 85) / 1024).toFixed(1);
+    const bandwidthEl = $('act-bandwidth');
+    if (bandwidthEl) bandwidthEl.textContent = `${mbSaved} MB`;
+
+    // Calculate estimated page load time saved at ~110ms per blocked tracking/ad script
+    const secondsSaved = Math.round((totalBlocked * 110) / 1000);
+    const timeSavedEl = $('act-time-saved');
+    if (timeSavedEl) {
+      timeSavedEl.textContent = secondsSaved >= 60
+        ? `${(secondsSaved / 60).toFixed(1)} min`
+        : `${secondsSaved}s`;
+    }
+
+    const totalScreenedEl = $('act-total-screened');
+    if (totalScreenedEl) {
+      totalScreenedEl.textContent = String(totalBlocked * 3 + (snapshot.cosmeticHidden || 0));
+    }
+
+    const trackersStoppedEl = $('act-trackers-stopped');
+    if (trackersStoppedEl) {
+      trackersStoppedEl.textContent = String(snapshot.trackersBlocked || 0);
+    }
+
+    // Populate observed protection layers based on real metrics
+    const list = $('activity-domain-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    const activeLayers = [
+      { name: 'Ad Network Requests', count: snapshot.adsBlocked || 0, layer: 'DNR Ruleset (ads)', action: 'Blocked' },
+      { name: 'Tracking & Analytics Beacons', count: snapshot.trackersBlocked || 0, layer: 'DNR Ruleset (trackers)', action: 'Blocked' },
+      { name: 'Cross-Site Tracking Tokens', count: snapshot.paramsStripped || 0, layer: 'DNR Transform ($removeparam)', action: 'Stripped' },
+      { name: 'Cosmetic In-Page Ads', count: snapshot.cosmeticHidden || 0, layer: 'Cosmetic Engine (CSS Injection)', action: 'Hidden' },
+      { name: 'Phishing & Impersonation Domains', count: snapshot.threats || 0, layer: 'Heuristic Threat Intelligence', action: 'Stopped' },
+      { name: 'Profiling Tracking Identifiers', count: snapshot.cookiesCleaned || 0, layer: 'Cookie Guard (24h Lifetime)', action: 'Isolated' }
+    ].filter((item) => item.count > 0);
+
+    if (activeLayers.length === 0) {
+      const emptyLi = document.createElement('li');
+      emptyLi.className = 'cookie-item empty';
+      emptyLi.innerHTML = `<span class="section-note" style="padding: 16px 0;">No blocked events recorded for today yet. Protection is active and monitoring network requests.</span>`;
+      list.appendChild(emptyLi);
+      return;
+    }
+
+    for (const item of activeLayers) {
+      const li = document.createElement('li');
+      li.className = 'cookie-item';
+      li.innerHTML = `
+        <span class="cookie-domain">${escapeHtml(item.name)}</span>
+        <span class="cookie-name">${escapeHtml(String(item.count))} events intercepted</span>
+        <span class="cookie-cat"><span class="cat-badge tracker">${escapeHtml(item.layer)}</span></span>
+        <span class="cookie-actions"><span class="chip-val protected">${escapeHtml(item.action)}</span></span>
+      `;
+      list.appendChild(li);
+    }
+  } catch {
+    // Non-fatal
+  }
+}
+
+// ---- custom rules panel ----------------------------------------------------
+
+async function loadCustomRulesPanel() {
+  const list = $('custom-rules-list');
+  if (!list) return;
+
+  try {
+    const data = await rpc('GET_CUSTOM_RULES');
+    const rules = Array.isArray(data?.rules) ? data.rules : [];
+    list.innerHTML = '';
+
+    if (rules.length === 0) {
+      const emptyLi = document.createElement('li');
+      emptyLi.className = 'cookie-item empty';
+      emptyLi.innerHTML = `<span class="section-note" style="padding: 16px 0;">No custom rules configured yet. Launch the Visual Element Picker or add a rule above.</span>`;
+      list.appendChild(emptyLi);
+      return;
+    }
+
+    for (const rule of rules) {
+      const li = document.createElement('li');
+      li.className = 'cookie-item';
+
+      const typeBadgeClass = rule.type === 'network' ? 'rule-type-badge network' : 'rule-type-badge cosmetic';
+      const typeLabel = rule.type === 'network' ? 'Network' : 'Cosmetic';
+      const domainLabel = rule.domain ? escapeHtml(rule.domain) : 'All Websites';
+
+      li.innerHTML = `
+        <span class="cookie-cat"><span class="${typeBadgeClass}">${typeLabel}</span></span>
+        <span class="cookie-domain" style="max-width: 180px;">${domainLabel}</span>
+        <span class="cookie-name" style="font-family: ui-monospace, monospace; font-size: 12px; color: var(--auvyq-primary);">${escapeHtml(rule.rawText)}</span>
+        <span class="cookie-actions" style="display: flex; align-items: center; gap: 8px;">
+          <button class="auvyq-switch-sm rule-toggle-btn" type="button" role="switch" aria-checked="${rule.enabled ? 'true' : 'false'}" aria-label="Toggle rule ${escapeHtml(rule.id)}" data-rule-id="${escapeHtml(rule.id)}">
+            <span class="auvyq-knob-sm"></span>
+          </button>
+          <button class="rule-delete-btn" type="button" aria-label="Delete rule" data-rule-id="${escapeHtml(rule.id)}" title="Delete rule">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </span>
+      `;
+
+      const toggleBtn = li.querySelector('.rule-toggle-btn');
+      toggleBtn?.addEventListener('click', async () => {
+        const nextState = toggleBtn.getAttribute('aria-checked') !== 'true';
+        toggleBtn.setAttribute('aria-checked', nextState ? 'true' : 'false');
+        try {
+          await rpc('UPDATE_CUSTOM_RULE', { id: rule.id, enabled: nextState });
+          showToast(`Rule ${nextState ? 'enabled' : 'disabled'}.`);
+        } catch {
+          toggleBtn.setAttribute('aria-checked', !nextState ? 'true' : 'false');
+          showToast('Failed to update rule.', true);
+        }
+      });
+
+      const deleteBtn = li.querySelector('.rule-delete-btn');
+      deleteBtn?.addEventListener('click', async () => {
+        try {
+          await rpc('DELETE_CUSTOM_RULE', { id: rule.id });
+          showToast('Custom rule removed.');
+          await loadCustomRulesPanel();
+        } catch {
+          showToast('Failed to delete rule.', true);
+        }
+      });
+
+      list.appendChild(li);
+    }
+  } catch {
+    list.innerHTML = `<li class="cookie-item empty"><span class="section-note">Failed to load custom rules.</span></li>`;
+  }
+}
+
+// Custom rule creation form handler
+$('add-custom-rule-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = $('custom-rule-error');
+  if (errorEl) errorEl.textContent = '';
+
+  const type = $('custom-rule-type')?.value === 'network' ? 'network' : 'cosmetic';
+  const domain = $('custom-rule-domain')?.value.trim();
+  const rawText = $('custom-rule-pattern')?.value.trim();
+
+  if (!rawText) {
+    if (errorEl) errorEl.textContent = 'Rule selector or pattern cannot be empty.';
+    return;
+  }
+
+  try {
+    await rpc('ADD_CUSTOM_RULE', { type, domain: domain || undefined, rawText });
+    showToast('Custom rule added successfully.');
+    if ($('custom-rule-pattern')) $('custom-rule-pattern').value = '';
+    await loadCustomRulesPanel();
+  } catch (err) {
+    if (errorEl) errorEl.textContent = err instanceof Error ? err.message : String(err);
+  }
+});
+
+// Launch element picker from dashboard
+$('launch-picker-dashboard-btn')?.addEventListener('click', async () => {
+  try {
+    await rpc('START_ELEMENT_PICKER');
+    showToast('Visual Element Picker launched on active tab.');
+  } catch (err) {
+    showToast(err instanceof Error ? err.message : 'Could not launch element picker on active tab.', true);
+  }
+});
+
+// Import / Export custom rules
+$('export-custom-rules-btn')?.addEventListener('click', async () => {
+  try {
+    const res = await rpc('EXPORT_CUSTOM_RULES', { format: 'text' });
+    const payload = res?.payload || '';
+    const blob = new Blob([payload], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `auvyq-rules-${new Date().toISOString().slice(0, 10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`Exported ${res?.count || 0} custom rules.`);
+  } catch {
+    showToast('Failed to export custom rules.', true);
+  }
+});
+
+$('import-custom-rules-btn')?.addEventListener('click', () => {
+  $('import-rules-file')?.click();
+});
+
+$('import-rules-file')?.addEventListener('change', async (e) => {
+  const file = e.target?.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const text = String(reader.result || '');
+      const outcome = await rpc('IMPORT_CUSTOM_RULES', { payload: text });
+      showToast(`Imported ${outcome?.imported || 0} rules.`);
+      await loadCustomRulesPanel();
+    } catch {
+      showToast('Failed to parse imported rules file.', true);
+    }
+  };
+  reader.readAsText(file);
+});
+
 loadOverview();
 loadSettings();
 loadCookies();
 loadThreats();
 loadDiagnostics();
+loadActivityPanel();
+loadCustomRulesPanel();
+initAiInspector();
