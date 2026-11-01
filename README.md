@@ -14,28 +14,28 @@
   <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest%20V3-Chrome%20120%2B-0891b2?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Manifest V3"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.6%20Strict-3178c6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript Strict"></a>
   <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-318%20Passing%20(100%25)-10b981?style=for-the-badge&logo=vitest&logoColor=white" alt="318 Tests Passing"></a>
-  <a href="#-modernization-audit--quality-scorecard"><img src="https://img.shields.io/badge/Quality%20Score-96.4%20%2F%20100%20(Grade%20A)-10b981?style=for-the-badge" alt="Quality Score 96.4/100"></a>
-  <a href="#-security--privacy-guarantees"><img src="https://img.shields.io/badge/Telemetry-Strictly%20Zero-059669?style=for-the-badge" alt="Strictly Zero Telemetry"></a>
-  <a href="#7-cryptographic-settings-vault"><img src="https://img.shields.io/badge/Vault-PBKDF2%20%2B%20AES--GCM--256-818cf8?style=for-the-badge" alt="AES-256 Vault"></a>
-  <a href="#-license"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
+  <a href="#quality-scorecard"><img src="https://img.shields.io/badge/Quality%20Score-96.4%20%2F%20100%20(Grade%20A)-10b981?style=for-the-badge" alt="Quality Score 96.4/100"></a>
+  <a href="#security-privacy"><img src="https://img.shields.io/badge/Telemetry-Strictly%20Zero-059669?style=for-the-badge" alt="Strictly Zero Telemetry"></a>
+  <a href="#features"><img src="https://img.shields.io/badge/Vault-PBKDF2%20%2B%20AES--GCM--256-818cf8?style=for-the-badge" alt="AES-256 Vault"></a>
+  <a href="#license"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
 </p>
 
 <p align="center">
-  <a href="#-why-auvyq">Why AUVYQ?</a> •
-  <a href="#-quick-start-install-in-60-seconds">Install in 60s</a> •
-  <a href="#-core-capabilities--features">Features</a> •
-  <a href="#-modernization-audit--quality-scorecard">Quality Scorecard</a> •
-  <a href="#-system-architecture">Architecture</a> •
-  <a href="#-security--privacy-guarantees">Security & Privacy</a> •
-  <a href="#-developer-guide--cli">Developer Guide</a> •
-  <a href="#-faq">FAQ</a>
+  <a href="#why-auvyq">Why AUVYQ?</a> •
+  <a href="#quick-start">Install in 60s</a> •
+  <a href="#features">Features</a> •
+  <a href="#quality-scorecard">Quality Scorecard</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#security-privacy">Security & Privacy</a> •
+  <a href="#developer-guide">Developer Guide</a> •
+  <a href="#faq">FAQ</a>
 </p>
 
 </div>
 
 ---
 
-## ⚡ The Modern Web is Broken. AUVYQ Fixes It.
+<h2 id="why-auvyq">⚡ The Modern Web is Broken. AUVYQ Fixes It.</h2>
 
 Every time you open a webpage today:
 - **Surveillance trackers follow you**: Cross-site brokers log your device fingerprints, location, browsing habits, and purchase intent.
@@ -63,13 +63,13 @@ Most legacy extensions try to fix this by running heavy, detectable JavaScript i
 
 ---
 
-## 🚀 Quick Start (Install in 60 Seconds)
+<h2 id="quick-start">🚀 Quick Start (Install in 60 Seconds)</h2>
 
 You don't need to be a software engineer to use AUVYQ. Follow these 4 simple steps to install it on **Google Chrome**, **Brave**, **Microsoft Edge**, or any Chromium-based browser:
 
 ```markdown
 1. Download or clone this repository:
-   git clone https://github.com/md-aktaruzzman-emon/scaneliq-doc-scanner.git
+   git clone https://github.com/md-aktaruzzman-emon/AUVYQ-ad-blocker-Extension.git
 
 2. Open your Chromium browser and navigate to:
    chrome://extensions  (or edge://extensions / brave://extensions)
@@ -83,7 +83,7 @@ You don't need to be a software engineer to use AUVYQ. Follow these 4 simple ste
 
 ---
 
-## ✨ Core Capabilities & Features
+<h2 id="features">✨ Core Capabilities & Features</h2>
 
 ### 1. Wire-Speed Ad & Video Blocking
 AUVYQ stops ads **before they even download**. Utilizing Chromium's native `declarativeNetRequest` (DNR) C++ engine, filtering happens directly inside the browser's kernel network stack.
@@ -164,7 +164,7 @@ Export and import custom rules, exceptions, and configuration with authenticated
 
 ---
 
-## 📊 Modernization Audit & Quality Scorecard
+<h2 id="quality-scorecard">📊 Modernization Audit & Quality Scorecard</h2>
 
 During the 2026 Modernization program (Parts 1 through 12), AUVYQ underwent an exhaustive independent audit and restructuring:
 
@@ -211,7 +211,7 @@ GRADE                                    F (FAILING)           A (RELEASE READY)
 
 ---
 
-## 🏗️ System Architecture
+<h2 id="architecture">🏗️ System Architecture</h2>
 
 AUVYQ is engineered around Chromium's Manifest V3 security boundaries:
 
@@ -276,7 +276,7 @@ flowchart TD
 
 ---
 
-## 🔒 Security & Privacy Guarantees
+<h2 id="security-privacy">🔒 Security & Privacy Guarantees</h2>
 
 ### Privacy by Design
 - **100% On-Device Processing**: All DeclarativeNetRequest matching, cookie classification, and heuristic threat calculations happen on your computer.
@@ -292,7 +292,7 @@ flowchart TD
 
 ---
 
-## 💻 Developer Guide & CLI
+<h2 id="developer-guide">💻 Developer Guide & CLI</h2>
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) version 20.0.0 or higher
@@ -303,8 +303,8 @@ flowchart TD
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/md-aktaruzzman-emon/scaneliq-doc-scanner.git
-cd scaneliq-doc-scanner/extension
+git clone https://github.com/md-aktaruzzman-emon/AUVYQ-ad-blocker-Extension.git
+cd AUVYQ-ad-blocker-Extension/extension
 
 # 2. Install dependencies
 npm install
@@ -333,7 +333,7 @@ npm run check
 
 ---
 
-## 📂 Repository Directory Layout
+<h2 id="directory-layout">📂 Repository Directory Layout</h2>
 
 ```
 ├── README.md                                    # Master project documentation
@@ -378,7 +378,7 @@ npm run check
 
 ---
 
-## ❓ Frequently Asked Questions (FAQ)
+<h2 id="faq">❓ Frequently Asked Questions (FAQ)</h2>
 
 <details>
 <summary><strong>Will AUVYQ slow down my browser?</strong></summary>
@@ -417,7 +417,7 @@ Click the AUVYQ shield icon in your browser toolbar to open the popup, and toggl
 
 ---
 
-## 🛡️ Permissions & Technical Justifications
+<h2 id="permissions">🛡️ Permissions & Technical Justifications</h2>
 
 | Permission | Technical Justification |
 | :--- | :--- |
@@ -433,7 +433,7 @@ Click the AUVYQ shield icon in your browser toolbar to open the popup, and toggl
 
 ---
 
-## 👥 Upstream Acknowledgements
+<h2 id="acknowledgements">👥 Upstream Acknowledgements</h2>
 
 AUVYQ is built with deep gratitude for the global open-source web privacy research community:
 - **EasyList & EasyPrivacy** — Standard ad and tracking filter community definitions.
@@ -443,15 +443,15 @@ AUVYQ is built with deep gratitude for the global open-source web privacy resear
 
 ---
 
-## 👤 Author
+<h2 id="author">👤 Author</h2>
 
 **Md. Aktaruzzman Emon**  
-- **GitHub**: [@md-aktaruzzman-emon](https://github.com/md-aktaruzzman-emon)  
-- **Repository**: [scaneliq-doc-scanner](https://github.com/md-aktaruzzman-emon/scaneliq-doc-scanner)
+- **GitHub Profile**: [@md-aktaruzzman-emon](https://github.com/md-aktaruzzman-emon)  
+- **Project Repository**: [AUVYQ-ad-blocker-Extension](https://github.com/md-aktaruzzman-emon/AUVYQ-ad-blocker-Extension)
 
 ---
 
-## 📄 License
+<h2 id="license">📄 License</h2>
 
 This project is open-source and released under the **[MIT License](LICENSE)**.  
 Third-party filter lists and community rules retain their respective licenses as documented in the [`licenses/`](extension/licenses/) directory.
